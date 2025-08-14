@@ -1,0 +1,141 @@
+<div class="home-component">
+    <section class="hero-section text-center mb-2">
+        <div class="card" style="background: linear-gradient(135deg, var(--canarias-blue), var(--canarias-ocean)); color: white;">
+            <h1>🏝️ Bienvenido a la Economía Circular de Canarias</h1>
+            <p class="mt-1">
+                Descubre productos locales y sostenibles que impulsan nuestra economía circular
+            </p>
+            <div class="mt-1">
+                <a href="#/productos" class="btn btn-secondary" data-navigate="/productos">
+                    🛒 Explorar Productos
+                </a>
+                <a href="#/economia-circular" class="btn btn-success" data-navigate="/economia-circular">
+                    ♻️ Conocer Más
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats-section mb-2">
+        <h2 class="text-center mb-1">📊 Impacto de la Economía Circular</h2>
+        <div class="canarias-slider" id="canariasSlider">
+            <div class="slider-track">
+                <!-- Slide 1: Datos de impacto -->
+                <div class="slider-slide">
+                    <div class="impact-slide card text-center">
+                        <h3 style="color: var(--canarias-blue); font-size:2.2rem;">500+</h3>
+                        <p>Productores Locales</p>
+                        <h3 style="color: var(--canarias-green); font-size:2.2rem;">1,200</h3>
+                        <p>Productos Sostenibles</p>
+                        <h3 style="color: var(--canarias-ocean); font-size:2.2rem;">85%</h3>
+                        <p>Reducción de Emisiones</p>
+                    </div>
+                </div>
+                <!-- Slide 2: Tenerife -->
+                <div class="slider-slide">
+                    <div class="isla-slide card text-center">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Teide_y_Tenerife_nieve.jpg" alt="Tenerife" class="isla-img">
+                        <h3>Tenerife</h3>
+                    </div>
+                </div>
+                <!-- Slide 3: Gran Canaria -->
+                <div class="slider-slide">
+                    <div class="isla-slide card text-center">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2e/Gran_Canaria_Dunas_de_Maspalomas.jpg" alt="Gran Canaria" class="isla-img">
+                        <h3>Gran Canaria</h3>
+                    </div>
+                </div>
+                <!-- Slide 4: Lanzarote -->
+                <div class="slider-slide">
+                    <div class="isla-slide card text-center">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Lanzarote_Timanfaya.jpg" alt="Lanzarote" class="isla-img">
+                        <h3>Lanzarote</h3>
+                    </div>
+                </div>
+                <!-- Slide 5: Fuerteventura -->
+                <div class="slider-slide">
+                    <div class="isla-slide card text-center">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6e/Fuerteventura_Corralejo.jpg" alt="Fuerteventura" class="isla-img">
+                        <h3>Fuerteventura</h3>
+                    </div>
+                </div>
+                <!-- Slide 6: La Palma -->
+                <div class="slider-slide">
+                    <div class="isla-slide card text-center">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2d/La_Palma_Caldera_de_Taburiente.jpg" alt="La Palma" class="isla-img">
+                        <h3>La Palma</h3>
+                    </div>
+                </div>
+                <!-- Slide 7: La Gomera -->
+                <div class="slider-slide">
+                    <div class="isla-slide card text-center">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2e/La_Gomera_Garajonay.jpg" alt="La Gomera" class="isla-img">
+                        <h3>La Gomera</h3>
+                    </div>
+                </div>
+                <!-- Slide 8: El Hierro -->
+                <div class="slider-slide">
+                    <div class="isla-slide card text-center">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2e/El_Hierro_Faro_de_Orchilla.jpg" alt="El Hierro" class="isla-img">
+                        <h3>El Hierro</h3>
+                    </div>
+                </div>
+                <!-- Slide 9: La Graciosa -->
+                <div class="slider-slide">
+                    <div class="isla-slide card text-center">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2e/La_Graciosa_Isla.jpg" alt="La Graciosa" class="isla-img">
+                        <h3>La Graciosa</h3>
+                    </div>
+                </div>
+            </div>
+            <button class="slider-btn slider-btn-prev" id="sliderPrevBtn">&#8592;</button>
+            <button class="slider-btn slider-btn-next" id="sliderNextBtn">&#8594;</button>
+            <div class="slider-dots" id="sliderDots"></div>
+        </div>
+    </section>
+
+    <section class="featured-products mb-2">
+        <h2 class="text-center mb-1">⭐ Productos Destacados</h2>
+        <div class="grid grid-2">
+            <div class="card">
+                <h3>🧀 Queso Majorero</h3>
+                <p>
+                    Auténtico queso de cabra de Fuerteventura, elaborado de forma tradicional 
+                    por productores locales que mantienen vivas nuestras tradiciones.
+                </p>
+                <div class="mt-1">
+                    <span style="background: var(--canarias-green); color: white; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.9rem;">
+                        🏝️ Origen Canario
+                    </span>
+                </div>
+                <button class="btn btn-primary mt-1">Ver Producto</button>
+            </div>
+            
+            <div class="card">
+                <h3>🍌 Plátano de Canarias</h3>
+                <p>
+                    Cultivado de manera sostenible en nuestras islas, el plátano canario 
+                    es símbolo de calidad y compromiso con el medio ambiente.
+                </p>
+                <div class="mt-1">
+                    <span style="background: var(--canarias-yellow); color: var(--canarias-dark); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.9rem;">
+                        ♻️ Sostenible
+                    </span>
+                </div>
+                <button class="btn btn-success mt-1">Comprar Ahora</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="card text-center" style="background: linear-gradient(135deg, var(--canarias-yellow), #fff8dc);">
+            <h2 style="color: var(--canarias-dark);">"Si compras aquí, vuelve a Ti"</h2>
+            <p style="color: var(--canarias-dark);" class="mt-1">
+                Apoya la economía local canaria y contribuye a un futuro más sostenible
+            </p>
+            <a href="#/sobre-nosotros" class="btn btn-primary mt-1" data-navigate="/sobre-nosotros">
+                ❤️ Únete al Movimiento
+            </a>
+        </div>
+    </section>
+</div>

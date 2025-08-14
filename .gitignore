@@ -1,0 +1,26 @@
+# Ignorar archivos de configuración sensibles
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+
+# Archivos temporales
+*.tmp
+*.temp
+
+# Carpetas de sistema
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Backup files
+*.backup
+*.bak
+
+# phpMyAdmin - herramienta de administración de base de datos
+phpMyAdmin/

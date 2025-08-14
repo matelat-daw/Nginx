@@ -1,0 +1,375 @@
+/* Economía Circular Canarias - Main Styles */
+
+/* Variables CSS - Colores Corporativos de Canarias */
+:root {
+    --canarias-blue: #0066CC;
+    --canarias-yellow: #FFD700;
+    --canarias-white: #FFFFFF;
+    --canarias-green: #2E8B57;
+    --canarias-ocean: #008080;
+    --canarias-dark: #2C3E50;
+    --canarias-light-gray: #F8F9FA;
+    --canarias-border: #E9ECEF;
+}
+
+/* Reset y estilos base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: var(--canarias-dark);
+    background-color: var(--canarias-light-gray);
+}
+
+/* Contenedor principal de la aplicación */
+.app-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Estilos del Header */
+header {
+    background: linear-gradient(135deg, var(--canarias-blue), var(--canarias-ocean));
+    color: var(--canarias-white);
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: var(--canarias-white);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.theme-toggle {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid var(--canarias-white);
+    color: var(--canarias-white);
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+    background: var(--canarias-white);
+    color: var(--canarias-blue);
+}
+
+/* Estilos del Nav */
+nav {
+    background: var(--canarias-white);
+    border-bottom: 3px solid var(--canarias-yellow);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.nav-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+    padding: 1rem 0;
+}
+
+.nav-item {
+    position: relative;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: var(--canarias-dark);
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-link:hover {
+    background: var(--canarias-blue);
+    color: var(--canarias-white);
+    transform: translateY(-2px);
+}
+
+.nav-link.active {
+    background: var(--canarias-yellow);
+    color: var(--canarias-dark);
+    font-weight: bold;
+}
+
+/* Estilos del contenido principal */
+main {
+    flex: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    width: 100%;
+}
+
+.router-outlet {
+    min-height: 400px;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Estilos del Footer */
+footer {
+    background: #232f3e !important;
+    color: #fff !important;
+    text-align: center;
+    padding: 2rem 0;
+    margin-top: auto;
+    border-top: 4px solid #FFD700;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+.islands-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.island-badge {
+    background: var(--canarias-yellow);
+    color: var(--canarias-dark) !important;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.footer-content p,
+.footer-content small {
+    color: #fff !important;
+}
+
+.mt-1 { margin-top: 1rem; }
+
+/* Componentes reutilizables */
+.card {
+    background: var(--canarias-white);
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.btn-primary {
+    background: var(--canarias-blue);
+    color: var(--canarias-white);
+}
+
+.btn-primary:hover {
+    background: var(--canarias-ocean);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: var(--canarias-yellow);
+    color: var(--canarias-dark);
+}
+
+.btn-secondary:hover {
+    background: #e6c200;
+    transform: translateY(-2px);
+}
+
+.btn-success {
+    background: var(--canarias-green);
+    color: var(--canarias-white);
+}
+
+.btn-success:hover {
+    background: #236b47;
+    transform: translateY(-2px);
+}
+
+/* Utilidades */
+.text-center {
+    text-align: center;
+}
+
+.mt-2 { margin-top: 2rem; }
+.mb-1 { margin-bottom: 1rem; }
+.mb-2 { margin-bottom: 2rem; }
+
+.grid {
+    display: grid;
+    gap: 2rem;
+}
+
+.grid-2 {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.grid-3 {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 0 1rem;
+    }
+    
+    .nav-menu {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    main {
+        padding: 1rem;
+    }
+    
+    .nav-content {
+        padding: 0 1rem;
+    }
+}
+
+/* Pantalla de carga */
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--canarias-blue), var(--canarias-ocean));
+    color: var(--canarias-white);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.loading-emoji {
+    font-size: 4rem;
+    margin-bottom: 2rem;
+    animation: pulse 2s infinite;
+}
+
+.loading-title {
+    margin-bottom: 1rem;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.loading-bar-container {
+    width: 200px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.loading-bar {
+    width: 100%;
+    height: 100%;
+    background: var(--canarias-yellow);
+    animation: loading 2s ease-in-out infinite;
+}
+
+.loading-text {
+    margin-top: 1rem;
+    opacity: 0.8;
+}
+
+/* Animaciones */
+@keyframes pulse {
+    0%, 100% { 
+        transform: scale(1); 
+    }
+    50% { 
+        transform: scale(1.1); 
+    }
+}
+
+@keyframes loading {
+    0% { 
+        transform: translateX(-100%); 
+    }
+    100% { 
+        transform: translateX(100%); 
+    }
+}
+
+/* Ocultar pantalla de carga después de cargar */
+.app-loaded .loading-screen {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease-out;
+}
+// ...existing code...

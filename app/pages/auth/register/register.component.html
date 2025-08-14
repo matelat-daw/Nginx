@@ -1,0 +1,152 @@
+<!-- HTML extraído de register.component.js -->
+<div class="auth-component register-component">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">🏝️</div>
+                <h2>Crear Cuenta</h2>
+                <p class="auth-subtitle">Únete a la Economía Circular de Canarias</p>
+            </div>
+            <form id="registerForm" class="auth-form">
+                <!-- Información Personal -->
+                <div class="form-section">
+                    <h3 class="section-title"><span class="section-icon">👤</span>Información Personal</h3>
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="registerFirstName" class="form-label"><span class="label-icon">👤</span>Nombre</label>
+                            <div class="input-container">
+                                <input type="text" id="registerFirstName" name="firstName" required class="form-input" placeholder="Tu nombre" autocomplete="given-name">
+                            </div>
+                            <span class="form-error" id="firstNameError"></span>
+                        </div>
+                        <div class="form-group half">
+                            <label for="registerLastName" class="form-label"><span class="label-icon">👤</span>Apellidos</label>
+                            <div class="input-container">
+                                <input type="text" id="registerLastName" name="lastName" required class="form-input" placeholder="Tus apellidos" autocomplete="family-name">
+                            </div>
+                            <span class="form-error" id="lastNameError"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail" class="form-label"><span class="label-icon">📧</span>Correo Electrónico</label>
+                        <div class="input-container">
+                            <input type="email" id="registerEmail" name="email" required class="form-input" placeholder="tu@email.com" autocomplete="email">
+                        </div>
+                        <span class="form-error" id="emailError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPhone" class="form-label"><span class="label-icon">📱</span>Teléfono</label>
+                        <div class="input-container">
+                            <input type="tel" id="registerPhone" name="phone" class="form-input" placeholder="+34 XXX XXX XXX" autocomplete="tel">
+                        </div>
+                        <span class="form-error" id="phoneError"></span>
+                    </div>
+                </div>
+                <!-- Ubicación -->
+                <div class="form-section">
+                    <h3 class="section-title"><span class="section-icon">🏝️</span>Ubicación en Canarias</h3>
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="registerIsland" class="form-label"><span class="label-icon">🏝️</span>Isla</label>
+                            <div class="input-container">
+                                <select id="registerIsland" name="island" required class="form-input form-select">
+                                    <option value="">Selecciona tu isla</option>
+                                    <option value="gran-canaria">Gran Canaria</option>
+                                    <option value="tenerife">Tenerife</option>
+                                    <option value="lanzarote">Lanzarote</option>
+                                    <option value="fuerteventura">Fuerteventura</option>
+                                    <option value="la-palma">La Palma</option>
+                                    <option value="la-gomera">La Gomera</option>
+                                    <option value="el-hierro">El Hierro</option>
+                                </select>
+                            </div>
+                            <span class="form-error" id="islandError"></span>
+                        </div>
+                        <div class="form-group half">
+                            <label for="registerCity" class="form-label"><span class="label-icon">🏘️</span>Municipio</label>
+                            <div class="input-container">
+                                <input type="text" id="registerCity" name="city" class="form-input" placeholder="Tu municipio" autocomplete="address-level2">
+                            </div>
+                            <span class="form-error" id="cityError"></span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Tipo de Usuario -->
+                <div class="form-section">
+                    <h3 class="section-title"><span class="section-icon">🎯</span>¿Cómo participas en la Economía Circular?</h3>
+                    <div class="form-group">
+                        <label class="form-label"><span class="label-icon">👥</span>Tipo de Usuario</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="userType" value="consumer" required>
+                                <span class="radio-mark"></span>
+                                <span class="radio-content"><strong>🛒 Consumidor</strong><small>Busco productos locales y sostenibles</small></span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="userType" value="producer" required>
+                                <span class="radio-mark"></span>
+                                <span class="radio-content"><strong>🌱 Productor</strong><small>Vendo productos locales o servicios sostenibles</small></span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="userType" value="business" required>
+                                <span class="radio-mark"></span>
+                                <span class="radio-content"><strong>🏢 Empresa</strong><small>Negocio comprometido con la sostenibilidad</small></span>
+                            </label>
+                        </div>
+                        <span class="form-error" id="userTypeError"></span>
+                    </div>
+                </div>
+                <!-- Seguridad -->
+                <div class="form-section">
+                    <h3 class="section-title"><span class="section-icon">🔒</span>Seguridad</h3>
+                    <div class="form-group">
+                        <label for="registerPassword" class="form-label"><span class="label-icon">🔒</span>Contraseña</label>
+                        <div class="input-container password-container">
+                            <input type="password" id="registerPassword" name="password" required class="form-input" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
+                            <button type="button" class="password-toggle" id="toggleRegisterPassword"><span class="eye-icon">👁️</span></button>
+                        </div>
+                        <div class="password-strength" id="passwordStrength">
+                            <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+                            <span class="strength-text" id="strengthText">Fortaleza de contraseña</span>
+                        </div>
+                        <span class="form-error" id="passwordError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword" class="form-label"><span class="label-icon">🔒</span>Confirmar Contraseña</label>
+                        <div class="input-container password-container">
+                            <input type="password" id="confirmPassword" name="confirmPassword" required class="form-input" placeholder="Repite tu contraseña" autocomplete="new-password">
+                            <button type="button" class="password-toggle" id="toggleConfirmPassword"><span class="eye-icon">👁️</span></button>
+                        </div>
+                        <span class="form-error" id="confirmPasswordError"></span>
+                    </div>
+                </div>
+                <!-- Términos y Condiciones -->
+                <div class="form-section">
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="acceptTerms" name="acceptTerms" required>
+                            <span class="checkmark"></span>
+                            <span class="checkbox-text">Acepto los <a href="/terminos" class="auth-link" target="_blank">términos y condiciones</a> y la <a href="/privacidad" class="auth-link" target="_blank">política de privacidad</a></span>
+                        </label>
+                        <span class="form-error" id="termsError"></span>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="acceptNewsletter" name="acceptNewsletter">
+                            <span class="checkmark"></span>
+                            <span class="checkbox-text">Quiero recibir noticias sobre productos locales y eventos de sostenibilidad</span>
+                        </label>
+                    </div>
+                </div>
+                <button type="submit" class="btn-auth btn-primary" id="registerBtn">
+                    <span class="btn-content"><span class="btn-icon">🎯</span><span class="btn-text">Crear Cuenta</span></span>
+                    <span class="btn-loader"><span class="loader-spin">⏳</span>Creando cuenta...</span>
+                </button>
+            </form>
+            <div class="auth-divider"><span>¿Ya tienes cuenta?</span></div>
+            <div class="auth-footer">
+                <a href="/login" class="btn-auth btn-secondary" data-navigate="/login"><span class="btn-icon">🔐</span>Iniciar Sesión</a>
+            </div>
+        </div>
+    </div>
+</div>

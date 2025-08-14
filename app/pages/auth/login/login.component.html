@@ -1,0 +1,29 @@
+<div class="auth-card">
+    <h2 class="auth-title">Iniciar sesión</h2>
+    <form id="loginForm" autocomplete="off">
+        <div class="form-group">
+            <label for="loginEmail">Email</label>
+            <input type="email" id="loginEmail" name="email" required autocomplete="username" />
+            <div id="emailError" class="form-error"></div>
+        </div>
+        <div class="form-group">
+            <label for="loginPassword">Contraseña</label>
+            <div class="password-input-wrapper">
+                <input type="password" id="loginPassword" name="password" required autocomplete="current-password" />
+                <button type="button" id="toggleLoginPassword" tabindex="-1" aria-label="Mostrar/ocultar contraseña">👁️</button>
+            </div>
+            <div id="passwordError" class="form-error"></div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" id="loginBtn">
+                <span class="btn-text">Entrar</span>
+                <span class="btn-loader" style="display:none;">Cargando...</span>
+            </button>
+        </div>
+        <div class="form-links">
+            <a href="#" id="forgotPasswordLink">¿Olvidaste tu contraseña?</a>
+            <span> | </span>
+            <a href="/register" data-navigate="/register">Crear cuenta</a>
+        </div>
+    </form>
+</div>

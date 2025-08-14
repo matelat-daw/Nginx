@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Economía Circular de Canarias | Productos Locales</title>
+    <meta name="description" content="Descubre la Economía Circular en Canarias con Productos Locales y Sostenibles. Apoya a los Productores Canarios y Fomenta un Consumo Responsable. Si Compras Aquí, Vuelve a Ti.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏝️</text></svg>">
+    
+    <!-- Estilos principales -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-theme="light">
+    <!-- Contenedor principal de la aplicación Angular-style -->
+    <div id="app-root">
+        <!-- Pantalla de carga inicial -->
+        <div class="loading-screen">
+            <div class="loading-emoji">🏝️</div>
+            <h1 class="loading-title">Economía Circular Canarias</h1>
+            <div class="loading-bar-container">
+                <div class="loading-bar"></div>
+            </div>
+            <p class="loading-text">Cargando aplicación...</p>
+        </div>
+    </div>
+
+    <!-- Scripts de componentes -->
+    <script src="config/app.config.js"></script>
+    <script src="app/services/auth.service.js"></script>
+    <script src="app/components/email-confirmation-modal.component.js"></script>
+    <script src="app/components/logout-modal.component.js"></script>
+    <script>
+        // Verificación inmediata después de cargar auth.service.js
+        if (!window.authService && typeof window.AuthService === 'function') {
+            console.log('🔧 Creando AuthService desde index.html...');
+            try {
+                window.authService = new window.AuthService();
+                console.log('✅ AuthService creado desde index.html');
+            } catch (error) {
+                console.error('❌ Error creando AuthService desde index.html:', error);
+            }
+        }
+    </script>
+    <script src="app/header/header.component.js"></script>
+    <script src="app/nav/nav.component.js"></script>
+    <script src="app/footer/footer.component.js"></script>
+    <script src="app/pages/home/home.component.js"></script>
+    <script src="app/pages/productos/productos.component.js"></script>
+    <script src="app/pages/auth/login/login.component.js"></script>
+    <script src="app/pages/auth/register/register.component.js"></script>
+    <script src="app/router/app-router.js"></script>
+    <script src="app/app.component.js"></script>
+    
+    <!-- Script principal -->
+    <script src="js/main.js"></script>
+</body>
+</html>
