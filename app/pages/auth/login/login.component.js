@@ -53,6 +53,31 @@ class LoginComponent {
         this.initializePasswordToggle();
         this.initializeNavigation();
         this.initializeForgotPassword();
+        this.checkURLParameters();
+    }
+
+    checkURLParameters() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const message = urlParams.get('message');
+        const emailConfirmed = urlParams.get('email-confirmed');
+        
+        if (emailConfirmed === '1') {
+            this.showSuccess('¡Tu email ha sido confirmado exitosamente! Ya puedes iniciar sesión.');
+        } else if (message) {
+            // Determinar el tipo de mensaje basado en el contenido
+            const messageText = decodeURIComponent(message);
+            if (messageText.includes('exitoso') || messageText.includes('confirmado')) {
+                this.showSuccess(messageText);
+            } else {
+                this.showError(messageText);
+            }
+        }
+        
+        // Limpiar la URL después de mostrar el mensaje
+        if (message || emailConfirmed) {
+            const newUrl = window.location.pathname + window.location.hash.split('?')[0];
+            window.history.replaceState({}, '', newUrl);
+        }
     }
 
 

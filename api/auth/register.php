@@ -124,7 +124,22 @@ try {
     $stmt->execute([$emailConfirmationToken, $userId]);
     
     // Enviar email de bienvenida con confirmación
-    $emailSent = sendWelcomeEmail($email, $firstName, $userId, $emailConfirmationToken);
+    $emailResult = sendWelcomeEmail($email, $firstName, $userId, $emailConfirmationToken);
+    
+    // Manejar resultado del email (puede ser boolean o array en desarrollo)
+    $emailSent = false;
+    $confirmationUrl = null;
+    $isDevelopment = false;
+    
+    if (is_array($emailResult)) {
+        // Respuesta de desarrollo con información adicional
+        $emailSent = $emailResult['sent'] ?? false;
+        $confirmationUrl = $emailResult['confirmationUrl'] ?? null;
+        $isDevelopment = $emailResult['development'] ?? false;
+    } else {
+        // Respuesta booleana tradicional
+        $emailSent = (bool)$emailResult;
+    }
     
     if (!$emailSent) {
         logMessage('WARNING', "Failed to send welcome email to: {$email} (User ID: {$userId})");
@@ -173,12 +188,31 @@ try {
         'emailVerified' => false
     ];
     
-    jsonResponse([
+    $responseData = [
         'user' => $userData,
         'token' => $jwt,
         'emailSent' => $emailSent
-    ], 201, "¡Bienvenido/a {$firstName}! Tu cuenta ha sido creada exitosamente. " . 
-             ($emailSent ? "Hemos enviado un email de confirmación a tu dirección de correo." : ""));
+    ];
+    
+    // Agregar información de desarrollo si aplica
+    if ($isDevelopment && $confirmationUrl) {
+        $responseData['development'] = [
+            'confirmationUrl' => $confirmationUrl,
+            'message' => 'Email no enviado - Enlace de confirmación disponible'
+        ];
+    }
+    
+    $message = "¡Bienvenido/a {$firstName}! Tu cuenta ha sido creada exitosamente. ";
+    
+    if ($emailSent) {
+        $message .= "Hemos enviado un email de confirmación a tu dirección de correo.";
+    } else if ($isDevelopment && $confirmationUrl) {
+        $message .= "En modo desarrollo - usa el enlace de confirmación proporcionado.";
+    } else {
+        $message .= "Por favor, contacta al administrador para activar tu cuenta.";
+    }
+    
+    jsonResponse($responseData, 201, $message);
     
 } catch (PDOException $e) {
     logMessage('ERROR', "Database error in register: " . $e->getMessage());

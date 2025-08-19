@@ -107,6 +107,21 @@
     color: #666;
     transition: color 0.3s ease;
     z-index: 10;
+    /* Firefox compatibility */
+    outline: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    /* Prevent form submission issues */
+    pointer-events: auto;
+}
+.register-component .password-toggle:focus {
+    outline: 2px solid var(--canarias-blue);
+    outline-offset: 2px;
+}
+.register-component .password-toggle::-moz-focus-inner {
+    border: 0;
 }
 .register-component .password-toggle:hover {
     color: var(--canarias-blue);
@@ -423,6 +438,21 @@
     font-size: 1.2rem;
     color: #6b7280;
     z-index: 2;
+    /* Firefox compatibility */
+    outline: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    /* Prevent form submission issues */
+    pointer-events: auto;
+}
+.register-component .password-toggle:focus {
+    outline: 2px solid var(--canarias-blue);
+    outline-offset: 2px;
+}
+.register-component .password-toggle::-moz-focus-inner {
+    border: 0;
 }
 
 .register-component .password-toggle:hover {
@@ -504,4 +534,21 @@
 
 [data-theme="dark"] .register-component .registration-complete .email-notice strong {
     color: #6ee7b7;
+}
+
+/* Firefox specific fixes para password toggles */
+@-moz-document url-prefix() {
+    .register-component .form-input[type="text"],
+    .register-component .form-input[type="password"] {
+        color: var(--canarias-dark) !important;
+        background-color: var(--canarias-white) !important;
+        font-family: inherit !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+    }
+    
+    .register-component .password-toggle {
+        pointer-events: auto !important;
+        z-index: 1000 !important;
+    }
 }

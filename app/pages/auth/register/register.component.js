@@ -34,7 +34,64 @@ class RegisterComponent {
         // Esperar a que el HTML esté en el DOM antes de inicializar lógica
         setTimeout(() => {
             this.waitForAuthServiceAndInitialize();
-        }, 0);
+        }, 100);
+
+        // Firefox fix: Inicialización adicional más tarde
+        setTimeout(() => {
+            this.forceInitializeForFirefox();
+        }, 500);
+
+        // Observer para detectar cambios en el DOM (especialmente útil para Firefox)
+        this.setupDOMObserver();
+    }
+
+    setupDOMObserver() {
+        const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+        if (!isFirefox) return;
+
+        console.log('🦊 Firefox: Configurando DOM Observer...');
+        
+        const container = document.querySelector('.auth-component.register-component');
+        if (!container) return;
+
+        const observer = new MutationObserver((mutations) => {
+            let shouldReinitialize = false;
+            
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.nodeType === Node.ELEMENT_NODE) {
+                            if (node.id === 'toggleRegisterPassword' || 
+                                node.id === 'registerPassword' ||
+                                node.querySelector('#toggleRegisterPassword') ||
+                                node.querySelector('#registerPassword')) {
+                                shouldReinitialize = true;
+                            }
+                        }
+                    });
+                }
+            });
+
+            if (shouldReinitialize) {
+                console.log('🦊 Firefox: DOM cambió, re-inicializando...');
+                setTimeout(() => {
+                    this.configurePasswordToggle('toggleRegisterPassword', 'registerPassword');
+                    this.configurePasswordToggle('toggleConfirmPassword', 'confirmPassword');
+                    this.forcePasswordStrengthFirefox();
+                }, 100);
+            }
+        });
+
+        observer.observe(container, {
+            childList: true,
+            subtree: true
+        });
+
+        // Desconectar después de 10 segundos
+        setTimeout(() => {
+            observer.disconnect();
+            console.log('🦊 Firefox: DOM Observer desconectado');
+        }, 10000);
     }
 
     getElement() {
@@ -61,12 +118,176 @@ class RegisterComponent {
             }
             await new Promise(resolve => setTimeout(resolve, 100));
         }
+        
+        // Detectar Firefox para ajustes específicos
+        const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+        console.log('🌐 Navegador Firefox detectado:', isFirefox);
+        
         this.initializeForm();
         this.initializePasswordToggles();
         this.initializePasswordStrength();
         this.initializeNavigation();
         this.initializeCheckboxAnimation();
         console.log('✅ RegisterComponent: Componente inicializado');
+    }
+
+    forceInitializeForFirefox() {
+        const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+        if (!isFirefox) return;
+
+        console.log('🦊 Firefox detectado: Forzando re-inicialización...');
+        
+        // Verificar si los elementos existen
+        const toggleRegisterPassword = document.getElementById('toggleRegisterPassword');
+        const registerPassword = document.getElementById('registerPassword');
+        const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+        const confirmPassword = document.getElementById('confirmPassword');
+        const strengthFill = document.getElementById('strengthFill');
+        const strengthText = document.getElementById('strengthText');
+
+        console.log('Firefox check - Elementos encontrados:', {
+            toggleRegisterPassword: !!toggleRegisterPassword,
+            registerPassword: !!registerPassword,
+            toggleConfirmPassword: !!toggleConfirmPassword,
+            confirmPassword: !!confirmPassword,
+            strengthFill: !!strengthFill,
+            strengthText: !!strengthText
+        });
+
+        // Si no están, forzar re-inicialización
+        if (!toggleRegisterPassword || !registerPassword || !strengthFill) {
+            console.log('🔄 Firefox: Elementos no encontrados, reintentando...');
+            setTimeout(() => {
+                this.forcePasswordTogglesFirefox();
+                this.forcePasswordStrengthFirefox();
+            }, 200);
+        } else {
+            this.configurePasswordToggle('toggleRegisterPassword', 'registerPassword');
+            this.configurePasswordToggle('toggleConfirmPassword', 'confirmPassword');
+            this.forcePasswordStrengthFirefox();
+        }
+    }
+
+    forcePasswordStrengthFirefox() {
+        console.log('🦊 Firefox: Forzando indicador de fortaleza...');
+        
+        const passwordField = document.getElementById('registerPassword');
+        const strengthFill = document.getElementById('strengthFill');
+        const strengthText = document.getElementById('strengthText');
+
+        if (passwordField && strengthFill && strengthText) {
+            // Remover eventos anteriores clonando el elemento
+            const newPasswordField = passwordField.cloneNode(true);
+            passwordField.parentNode.replaceChild(newPasswordField, passwordField);
+
+            // IMPORTANTE: Configurar el toggle para el campo clonado
+            this.configurePasswordToggle('toggleRegisterPassword', 'registerPassword');
+
+            newPasswordField.addEventListener('input', (e) => {
+                const password = e.target.value;
+                const strength = this.calculatePasswordStrength(password);
+                
+                console.log(`🦊 Firefox strength update: score=${strength.score}, recommendations=${strength.recommendations.length}`);
+                
+                const percentage = (strength.score / 5) * 100;
+                strengthFill.style.width = percentage + '%';
+                
+                let color, text;
+                switch (strength.score) {
+                    case 0:
+                    case 1:
+                        color = '#ff4444';
+                        text = 'Muy débil';
+                        break;
+                    case 2:
+                        color = '#ff8800';
+                        text = 'Débil';
+                        break;
+                    case 3:
+                        color = '#ffdd00';
+                        text = 'Regular';
+                        break;
+                    case 4:
+                        color = '#88cc00';
+                        text = 'Fuerte';
+                        break;
+                    case 5:
+                        color = '#00cc44';
+                        text = 'Muy fuerte';
+                        break;
+                }
+                
+                strengthFill.style.backgroundColor = color;
+                strengthText.textContent = text;
+                
+                if (strength.recommendations.length > 0) {
+                    strengthText.textContent += ' - ' + strength.recommendations.join(', ');
+                }
+            });
+
+            console.log('✅ Firefox: Indicador de fortaleza configurado');
+        } else {
+            console.error('❌ Firefox: No se encontraron elementos de fortaleza');
+        }
+    }
+
+    configurePasswordToggle(toggleId, inputId) {
+        console.log(`🔧 Configurando toggle: ${toggleId} -> ${inputId}`);
+        
+        const toggleButton = document.getElementById(toggleId);
+        const inputField = document.getElementById(inputId);
+        
+        if (!toggleButton || !inputField) {
+            console.error(`❌ No se encontraron elementos: ${toggleId} o ${inputId}`);
+            return;
+        }
+
+        // Detectar Firefox
+        const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+
+        // Limpiar eventos anteriores clonando el botón
+        const newToggleButton = toggleButton.cloneNode(true);
+        toggleButton.parentNode.replaceChild(newToggleButton, toggleButton);
+
+        // Configurar el evento click
+        newToggleButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const currentType = inputField.type;
+            const newType = currentType === 'password' ? 'text' : 'password';
+            
+            if (isFirefox) {
+                // Firefox: usar método focus/blur para forzar re-render
+                const selectionStart = inputField.selectionStart;
+                const selectionEnd = inputField.selectionEnd;
+                const currentValue = inputField.value;
+                
+                inputField.blur();
+                inputField.type = newType;
+                
+                setTimeout(() => {
+                    inputField.focus();
+                    inputField.value = currentValue;
+                    if (selectionStart !== undefined && selectionEnd !== undefined) {
+                        inputField.setSelectionRange(selectionStart, selectionEnd);
+                    }
+                }, 10);
+            } else {
+                // Otros navegadores: método normal
+                inputField.type = newType;
+            }
+            
+            // Actualizar icono
+            const eyeIcon = newToggleButton.querySelector('.eye-icon');
+            if (eyeIcon) {
+                eyeIcon.textContent = newType === 'password' ? '👁️' : '🙈';
+            }
+            
+            console.log(`✅ Toggle ${inputId}: ${currentType} → ${newType}`);
+        });
+
+        console.log(`✅ Toggle configurado para ${inputId}`);
     }
 
     initializeForm() {
@@ -106,9 +327,18 @@ class RegisterComponent {
 
         console.log('📝 Datos del formulario:', userData);
 
-        // Validar que las contraseñas coincidan
-        if (userData.password !== userData.confirmPassword) {
-            this.showError('Las contraseñas no coinciden');
+        // Validaciones detalladas
+        const validationErrors = this.validateFormData(userData);
+        if (validationErrors.length > 0) {
+            // Mostrar errores de validación
+            if (window.notificationModal) {
+                window.notificationModal.showError(
+                    'Por favor, corrige los siguientes errores:',
+                    validationErrors
+                );
+            } else {
+                this.showError('Error en el formulario: ' + validationErrors.join(', '));
+            }
             return;
         }
 
@@ -147,6 +377,68 @@ class RegisterComponent {
                 submitButton.textContent = 'Crear Cuenta';
             }
         }
+    }
+
+    validateFormData(userData) {
+        const errors = [];
+
+        // Validar campos requeridos
+        if (!userData.firstName?.trim()) {
+            errors.push('El nombre es requerido');
+        }
+
+        if (!userData.lastName?.trim()) {
+            errors.push('Los apellidos son requeridos');
+        }
+
+        if (!userData.email?.trim()) {
+            errors.push('El email es requerido');
+        } else if (!this.isValidEmail(userData.email)) {
+            errors.push('El formato del email no es válido');
+        }
+
+        if (!userData.phone?.trim()) {
+            errors.push('El teléfono es requerido');
+        } else if (!this.isValidPhone(userData.phone)) {
+            errors.push('El formato del teléfono no es válido');
+        }
+
+        if (!userData.island?.trim()) {
+            errors.push('Debes seleccionar una isla');
+        }
+
+        if (!userData.city?.trim()) {
+            errors.push('La ciudad es requerida');
+        }
+
+        if (!userData.userType?.trim()) {
+            errors.push('Debes seleccionar un tipo de usuario');
+        }
+
+        if (!userData.password?.trim()) {
+            errors.push('La contraseña es requerida');
+        } else if (userData.password.length < 8) {
+            errors.push('La contraseña debe tener al menos 8 caracteres');
+        }
+
+        if (!userData.confirmPassword?.trim()) {
+            errors.push('Debes confirmar la contraseña');
+        } else if (userData.password !== userData.confirmPassword) {
+            errors.push('Las contraseñas no coinciden');
+        }
+
+        return errors;
+    }
+
+    isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
+    isValidPhone(phone) {
+        // Permitir números españoles y canarios
+        const phoneRegex = /^(\+34|0034|34)?[6-9]\d{8}$/;
+        return phoneRegex.test(phone.replace(/\s/g, ''));
     }
 
     showRegistrationComplete(email) {
@@ -192,16 +484,23 @@ class RegisterComponent {
     }
 
     showError(message) {
-        // Mostrar mensaje de error
-        const errorContainer = document.querySelector('.form-message') || this.createMessageContainer();
-        errorContainer.className = 'form-message error';
-        errorContainer.textContent = message;
-        errorContainer.style.display = 'block';
+        console.log('🚨 Mostrando error:', message);
         
-        // Auto-ocultar después de 5 segundos
-        setTimeout(() => {
-            errorContainer.style.display = 'none';
-        }, 5000);
+        // Usar el modal de notificaciones si está disponible
+        if (window.notificationModal) {
+            window.notificationModal.showError(message);
+        } else {
+            // Fallback: crear un contenedor temporal de error
+            const errorContainer = document.querySelector('.form-message') || this.createMessageContainer();
+            errorContainer.className = 'form-message error';
+            errorContainer.textContent = message;
+            errorContainer.style.display = 'block';
+            
+            // Auto-ocultar después de 5 segundos
+            setTimeout(() => {
+                errorContainer.style.display = 'none';
+            }, 5000);
+        }
     }
 
     showSuccess(message) {
@@ -223,45 +522,229 @@ class RegisterComponent {
     }
 
     initializePasswordToggles() {
-        // Implementar toggles para mostrar/ocultar contraseñas
-        const passwordFields = document.querySelectorAll('input[type="password"]');
-        passwordFields.forEach(field => {
-            const container = field.parentElement;
-            if (container && !container.querySelector('.password-toggle')) {
-                const toggle = document.createElement('button');
-                toggle.type = 'button';
-                toggle.className = 'password-toggle';
-                toggle.innerHTML = '👁️';
-                toggle.addEventListener('click', () => {
-                    const type = field.type === 'password' ? 'text' : 'password';
-                    field.type = type;
-                    toggle.innerHTML = type === 'password' ? '👁️' : '🙈';
+        console.log('🔄 Inicializando password toggles...');
+        
+        // Detectar Firefox para usar método especial
+        const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+        
+        // Esperamos un poco más para asegurar que todo esté listo
+        setTimeout(() => {
+            // Toggle para contraseña principal
+            const toggleRegisterPassword = document.getElementById('toggleRegisterPassword');
+            const registerPassword = document.getElementById('registerPassword');
+            
+            console.log('toggleRegisterPassword:', toggleRegisterPassword);
+            console.log('registerPassword:', registerPassword);
+            
+            if (toggleRegisterPassword && registerPassword) {
+                // Firefox compatibility: usar múltiples event types
+                ['click', 'mousedown'].forEach(eventType => {
+                    toggleRegisterPassword.addEventListener(eventType, (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        
+                        if (eventType === 'click') { // Solo cambiar en click, no en mousedown
+                            const currentType = registerPassword.type;
+                            const newType = currentType === 'password' ? 'text' : 'password';
+                            
+                            if (isFirefox) {
+                                // Firefox: usar método focus/blur para forzar re-render
+                                const selectionStart = registerPassword.selectionStart;
+                                const selectionEnd = registerPassword.selectionEnd;
+                                const currentValue = registerPassword.value;
+                                
+                                registerPassword.blur();
+                                registerPassword.type = newType;
+                                
+                                setTimeout(() => {
+                                    registerPassword.focus();
+                                    registerPassword.value = currentValue;
+                                    if (selectionStart !== undefined && selectionEnd !== undefined) {
+                                        registerPassword.setSelectionRange(selectionStart, selectionEnd);
+                                    }
+                                }, 10);
+                            } else {
+                                // Otros navegadores: método normal
+                                registerPassword.type = newType;
+                            }
+                            
+                            const eyeIcon = toggleRegisterPassword.querySelector('.eye-icon');
+                            if (eyeIcon) {
+                                eyeIcon.textContent = newType === 'password' ? '👁️' : '🙈';
+                            }
+                            console.log('✅ Toggle registerPassword:', newType);
+                        }
+                    });
                 });
-                container.appendChild(toggle);
+                
+                // Prevenir submit del form cuando se hace click en el botón
+                toggleRegisterPassword.setAttribute('type', 'button');
+                toggleRegisterPassword.setAttribute('tabindex', '-1');
+                
+                console.log('✅ Toggle para registerPassword configurado');
+            } else {
+                console.error('❌ No se encontraron elementos para toggle de registerPassword');
             }
-        });
+            
+            // Toggle para confirmar contraseña
+            const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+            const confirmPassword = document.getElementById('confirmPassword');
+            
+            console.log('toggleConfirmPassword:', toggleConfirmPassword);
+            console.log('confirmPassword:', confirmPassword);
+            
+            if (toggleConfirmPassword && confirmPassword) {
+                // Firefox compatibility: usar múltiples event types
+                ['click', 'mousedown'].forEach(eventType => {
+                    toggleConfirmPassword.addEventListener(eventType, (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        
+                        if (eventType === 'click') { // Solo cambiar en click, no en mousedown
+                            const currentType = confirmPassword.type;
+                            const newType = currentType === 'password' ? 'text' : 'password';
+                            
+                            if (isFirefox) {
+                                // Firefox: usar método focus/blur para forzar re-render
+                                const selectionStart = confirmPassword.selectionStart;
+                                const selectionEnd = confirmPassword.selectionEnd;
+                                const currentValue = confirmPassword.value;
+                                
+                                confirmPassword.blur();
+                                confirmPassword.type = newType;
+                                
+                                setTimeout(() => {
+                                    confirmPassword.focus();
+                                    confirmPassword.value = currentValue;
+                                    if (selectionStart !== undefined && selectionEnd !== undefined) {
+                                        confirmPassword.setSelectionRange(selectionStart, selectionEnd);
+                                    }
+                                }, 10);
+                            } else {
+                                // Otros navegadores: método normal
+                                confirmPassword.type = newType;
+                            }
+                            
+                            const eyeIcon = toggleConfirmPassword.querySelector('.eye-icon');
+                            if (eyeIcon) {
+                                eyeIcon.textContent = newType === 'password' ? '👁️' : '🙈';
+                            }
+                            console.log('✅ Toggle confirmPassword:', newType);
+                        }
+                    });
+                });
+                
+                // Prevenir submit del form cuando se hace click en el botón
+                toggleConfirmPassword.setAttribute('type', 'button');
+                toggleConfirmPassword.setAttribute('tabindex', '-1');
+                
+                console.log('✅ Toggle para confirmPassword configurado');
+            } else {
+                console.error('❌ No se encontraron elementos para toggle de confirmPassword');
+            }
+            
+            console.log('✅ Password toggles inicializados');
+        }, 200); // Aumentamos el delay para Firefox
     }
 
     initializePasswordStrength() {
+        console.log('🔄 Inicializando password strength...');
+        
         const passwordField = document.getElementById('registerPassword');
-        if (passwordField) {
+        const strengthFill = document.getElementById('strengthFill');
+        const strengthText = document.getElementById('strengthText');
+        
+        console.log('passwordField:', passwordField);
+        console.log('strengthFill:', strengthFill);
+        console.log('strengthText:', strengthText);
+        
+        if (passwordField && strengthFill && strengthText) {
             passwordField.addEventListener('input', (e) => {
-                // Implementar indicador de fuerza de contraseña
-                const strength = this.calculatePasswordStrength(e.target.value);
-                // Aquí puedes agregar lógica para mostrar la fuerza
-                console.log('Fuerza de contraseña:', strength);
+                const password = e.target.value;
+                const strength = this.calculatePasswordStrength(password);
+                
+                // Actualizar barra de fortaleza
+                const percentage = (strength.score / 5) * 100;
+                strengthFill.style.width = percentage + '%';
+                
+                // Actualizar color y texto
+                let color, text;
+                switch (strength.score) {
+                    case 0:
+                    case 1:
+                        color = '#ff4444';
+                        text = 'Muy débil';
+                        break;
+                    case 2:
+                        color = '#ff8800';
+                        text = 'Débil';
+                        break;
+                    case 3:
+                        color = '#ffdd00';
+                        text = 'Regular';
+                        break;
+                    case 4:
+                        color = '#88cc00';
+                        text = 'Fuerte';
+                        break;
+                    case 5:
+                        color = '#00cc44';
+                        text = 'Muy fuerte';
+                        break;
+                }
+                
+                strengthFill.style.backgroundColor = color;
+                strengthText.textContent = text;
+                
+                // Mostrar recomendaciones
+                if (strength.recommendations.length > 0) {
+                    strengthText.textContent += ' - ' + strength.recommendations.join(', ');
+                }
             });
+            
+            console.log('✅ Password strength configurado');
+        } else {
+            console.error('❌ No se encontraron elementos para password strength');
         }
     }
 
     calculatePasswordStrength(password) {
         let score = 0;
-        if (password.length >= 8) score++;
-        if (/[a-z]/.test(password)) score++;
-        if (/[A-Z]/.test(password)) score++;
-        if (/[0-9]/.test(password)) score++;
-        if (/[^A-Za-z0-9]/.test(password)) score++;
-        return score;
+        const recommendations = [];
+        
+        if (password.length >= 8) {
+            score++;
+        } else {
+            recommendations.push('mín. 8 caracteres');
+        }
+        
+        if (/[a-z]/.test(password)) {
+            score++;
+        } else {
+            recommendations.push('minúsculas');
+        }
+        
+        if (/[A-Z]/.test(password)) {
+            score++;
+        } else {
+            recommendations.push('mayúsculas');
+        }
+        
+        if (/[0-9]/.test(password)) {
+            score++;
+        } else {
+            recommendations.push('números');
+        }
+        
+        if (/[^A-Za-z0-9]/.test(password)) {
+            score++;
+        } else {
+            recommendations.push('símbolos');
+        }
+        
+        return { score, recommendations };
     }
 
     initializeNavigation() {

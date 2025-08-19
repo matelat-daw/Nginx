@@ -150,3 +150,73 @@
         </div>
     </div>
 </div>
+
+<script>
+// Firefox First Password Toggle Fix
+(function() {
+    if (!window.isFirefox) {
+        const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+        window.isFirefox = isFirefox;
+        
+        if (isFirefox) {
+            console.log('Firefox detectado - aplicando fix para el primer toggle de contraseña');
+            
+            // Esperar a que el DOM y el componente estén listos
+            const checkAndFix = () => {
+                const registerPassword = document.getElementById('registerPassword');
+                const toggleRegisterPassword = document.getElementById('toggleRegisterPassword');
+                
+                if (registerPassword && toggleRegisterPassword) {
+                    console.log('Elementos encontrados - aplicando fix Firefox');
+                    
+                    // Forzar reconfiguraci�n del toggle
+                    const fixPasswordToggle = () => {
+                        const passwordField = document.getElementById('registerPassword');
+                        const toggleButton = document.getElementById('toggleRegisterPassword');
+                        
+                        if (passwordField && toggleButton) {
+                            // Clonar el elemento para forzar re-render en Firefox
+                            const newPasswordField = passwordField.cloneNode(true);
+                            passwordField.parentNode.replaceChild(newPasswordField, passwordField);
+                            
+                            // Reconfigurar el evento del toggle
+                            toggleButton.onclick = function(e) {
+                                e.preventDefault();
+                                const field = document.getElementById('registerPassword');
+                                if (field.type === 'password') {
+                                    field.type = 'text';
+                                    toggleButton.innerHTML = '<span class="show-icon">🙈</span>';
+                                    toggleButton.setAttribute('aria-label', 'Ocultar contraseña');
+                                } else {
+                                    field.type = 'password';
+                                    toggleButton.innerHTML = '<span class="show-icon">👁️</span>';
+                                    toggleButton.setAttribute('aria-label', 'Mostrar contraseña');
+                                }
+                                
+                                // Force Firefox to update
+                                field.focus();
+                                field.blur();
+                            };
+                            
+                            console.log('Fix Firefox aplicado al primer toggle de contraseña');
+                        }
+                    };
+                    
+                    // Aplicar el fix con un pequeño delay
+                    setTimeout(fixPasswordToggle, 100);
+                } else {
+                    // Reintentar si los elementos no están listos
+                    setTimeout(checkAndFix, 100);
+                }
+            };
+            
+            // Iniciar el check
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', checkAndFix);
+            } else {
+                checkAndFix();
+            }
+        }
+    }
+})();
+</script>
