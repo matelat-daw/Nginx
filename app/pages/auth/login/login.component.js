@@ -62,15 +62,35 @@ class LoginComponent {
         const emailConfirmed = urlParams.get('email-confirmed');
         
         if (emailConfirmed === '1') {
-            this.showSuccess('¡Tu email ha sido confirmado exitosamente! Ya puedes iniciar sesión.');
+            // Mostrar modal de confirmación exitosa
+            setTimeout(() => {
+                if (window.notificationModal) {
+                    window.notificationModal.showSuccess(
+                        '¡Email Confirmado!', 
+                        ['Tu cuenta ha sido verificada exitosamente', 'Ya puedes iniciar sesión con tus credenciales']
+                    );
+                } else {
+                    this.showSuccess('¡Tu email ha sido confirmado exitosamente! Ya puedes iniciar sesión.');
+                }
+            }, 500); // Pequeño delay para asegurar que el modal esté disponible
         } else if (message) {
             // Determinar el tipo de mensaje basado en el contenido
             const messageText = decodeURIComponent(message);
-            if (messageText.includes('exitoso') || messageText.includes('confirmado')) {
-                this.showSuccess(messageText);
-            } else {
-                this.showError(messageText);
-            }
+            setTimeout(() => {
+                if (window.notificationModal) {
+                    if (messageText.includes('exitoso') || messageText.includes('confirmado')) {
+                        window.notificationModal.showSuccess('Confirmación Exitosa', [messageText]);
+                    } else {
+                        window.notificationModal.showError('Información', [messageText]);
+                    }
+                } else {
+                    if (messageText.includes('exitoso') || messageText.includes('confirmado')) {
+                        this.showSuccess(messageText);
+                    } else {
+                        this.showError(messageText);
+                    }
+                }
+            }, 500);
         }
         
         // Limpiar la URL después de mostrar el mensaje

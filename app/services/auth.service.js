@@ -26,7 +26,7 @@ class AuthService {
         const cookies = document.cookie.split(';');
         for (let cookie of cookies) {
             const [name, value] = cookie.trim().split('=');
-            if (name === 'canarias_auth_token') {
+            if (name === 'ecc_auth_token') {
                 console.log('🍪 Token encontrado en cookie');
                 return value;
             }

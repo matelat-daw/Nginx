@@ -303,7 +303,72 @@ class RegisterComponent {
             this.handleSubmit(e);
         });
 
+        // Configurar preview de imagen de perfil
+        this.setupImagePreview();
+
         console.log('✅ Formulario de registro inicializado');
+    }
+
+    setupImagePreview() {
+        const fileInput = document.getElementById('registerProfileImage');
+        const imagePreview = document.getElementById('imagePreview');
+        const profileImageError = document.getElementById('profileImageError');
+
+        if (!fileInput || !imagePreview) {
+            console.warn('⚠️ Elementos de imagen de perfil no encontrados');
+            return;
+        }
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            profileImageError.textContent = '';
+
+            if (!file) {
+                this.resetImagePreview();
+                return;
+            }
+
+            // Validaciones del archivo
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            const maxSize = 5 * 1024 * 1024; // 5MB
+
+            if (!allowedTypes.includes(file.type)) {
+                profileImageError.textContent = 'Tipo de archivo no permitido. Solo se permiten: JPG, PNG, GIF, WebP';
+                this.resetImagePreview();
+                fileInput.value = '';
+                return;
+            }
+
+            if (file.size > maxSize) {
+                profileImageError.textContent = 'El archivo es demasiado grande. Máximo 5MB';
+                this.resetImagePreview();
+                fileInput.value = '';
+                return;
+            }
+
+            // Mostrar preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                imagePreview.classList.add('has-image');
+            };
+            reader.readAsDataURL(file);
+        });
+
+        console.log('✅ Preview de imagen configurado');
+    }
+
+    resetImagePreview() {
+        const imagePreview = document.getElementById('imagePreview');
+        if (imagePreview) {
+            imagePreview.innerHTML = `
+                <div class="preview-placeholder">
+                    <span class="preview-icon">👤</span>
+                    <span class="preview-text">Subir foto</span>
+                </div>
+            `;
+            imagePreview.classList.remove('has-image');
+        }
     }
 
     async handleSubmit(event) {
@@ -356,11 +421,21 @@ class RegisterComponent {
             console.log('📋 Resultado del registro:', result);
 
             if (result.success) {
+                // Verificar si hay imagen de perfil para subir
+                const profileImageFile = formData.get('profileImage');
+                
+                if (profileImageFile && profileImageFile.size > 0) {
+                    console.log('📸 Subiendo imagen de perfil...');
+                    await this.uploadProfileImage(profileImageFile);
+                }
+                
+                // Ocultar cualquier modal de error previo
+                if (window.notificationModal) {
+                    window.notificationModal.hide();
+                }
+                
                 // Mostrar modal de confirmación de email
                 this.showEmailConfirmationModal(userData.email);
-                
-                // También mostrar mensaje de éxito más prominente
-                this.showSuccess('🎉 ¡Registro completado! Revisa tu email para confirmar tu cuenta.');
                 
                 // Ocultar el formulario y mostrar mensaje de confirmación
                 this.showRegistrationComplete(userData.email);
@@ -376,6 +451,31 @@ class RegisterComponent {
                 submitButton.disabled = false;
                 submitButton.textContent = 'Crear Cuenta';
             }
+        }
+    }
+
+    async uploadProfileImage(file) {
+        try {
+            const formData = new FormData();
+            formData.append('profile_image', file);
+
+            const response = await fetch('/api/auth/upload-profile-image.php', {
+                method: 'POST',
+                credentials: 'include',
+                body: formData
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                console.log('✅ Imagen de perfil subida correctamente:', result.profile_image);
+            } else {
+                console.warn('⚠️ Error subiendo imagen de perfil:', result.message);
+                // No bloqueamos el registro por error en imagen, solo lo logueamos
+            }
+        } catch (error) {
+            console.error('❌ Error subiendo imagen de perfil:', error);
+            // No bloqueamos el registro por error en imagen
         }
     }
 

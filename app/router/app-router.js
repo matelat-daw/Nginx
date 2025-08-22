@@ -50,8 +50,34 @@ class AppRouter {
     }
 
     handleRouteChange() {
+        // Ocultar todos los modales antes de cambiar de ruta
+        this.hideAllModals();
+        
         const path = window.location.pathname || '/';
         this.loadRoute(path);
+    }
+    
+    hideAllModals() {
+        // Ocultar modal de notificación si existe
+        if (window.notificationModal && window.notificationModal.hide) {
+            window.notificationModal.hide();
+        }
+        
+        // Ocultar modal de confirmación de email si existe
+        if (window.emailConfirmationModal && window.emailConfirmationModal.hide) {
+            window.emailConfirmationModal.hide();
+        }
+        
+        // Ocultar cualquier otro modal que pueda estar abierto
+        const modals = document.querySelectorAll('.modal-overlay');
+        modals.forEach(modal => {
+            if (modal.style.display !== 'none') {
+                modal.style.display = 'none';
+            }
+        });
+        
+        // Restaurar scroll del body
+        document.body.style.overflow = '';
     }
 
     loadRoute(route) {
@@ -59,8 +85,14 @@ class AppRouter {
         
         if (routeHandler) {
             this.currentRoute = route;
-            const component = routeHandler();
-            this.renderComponent(component);
+            
+            try {
+                const component = routeHandler();
+                this.renderComponent(component);
+            } catch (error) {
+                console.error('Error creating component for route:', route, error);
+                throw error;
+            }
             
             // Actualizar navegación activa
             if (window.NavComponent) {
@@ -73,14 +105,62 @@ class AppRouter {
     }
 
     renderComponent(component) {
-        const routerOutlet = document.getElementById('router-outlet');
+        // Función para intentar obtener el router outlet
+        const getRouterOutlet = () => {
+            const outlet = document.getElementById('router-outlet');
+            return outlet;
+        };
+        
+        const routerOutlet = getRouterOutlet();
+        
+        // Si no encontramos el router-outlet, intentar una vez más con un pequeño delay
+        if (!routerOutlet) {
+            setTimeout(() => {
+                const retryOutlet = getRouterOutlet();
+                if (retryOutlet) {
+                    this.doRenderComponent(component, retryOutlet);
+                } else {
+                    console.error('Router outlet still not found after retry');
+                }
+            }, 50);
+            return;
+        }
+        
+        this.doRenderComponent(component, routerOutlet);
+    }
+    
+    doRenderComponent(component, routerOutlet) {
         if (routerOutlet && component) {
-            // Si el método render devuelve una promesa, espera el resultado
-            let html = '';
+            // Verificar si el componente tiene un método render que acepta un container
             if (typeof component.render === 'function') {
-                html = component.render();
+                // Intentar llamar render con el container como parámetro
+                try {
+                    const result = component.render(routerOutlet);
+                    // Si render devuelve una promesa, no hacemos nada más aquí
+                    if (result && typeof result.then === 'function') {
+                        result.catch(error => {
+                            console.error('Error renderizando componente:', error);
+                        });
+                    }
+                    // Si render devuelve un string, lo asignamos
+                    else if (typeof result === 'string') {
+                        routerOutlet.innerHTML = result;
+                    }
+                } catch (error) {
+                    console.error('Error al renderizar componente:', error);
+                    routerOutlet.innerHTML = `
+                        <div class="error-container" style="padding: 40px; text-align: center; color: #dc3545;">
+                            <h2>❌ Error cargando la página</h2>
+                            <p>${error.message}</p>
+                        </div>
+                    `;
+                }
             }
-            routerOutlet.innerHTML = html;
+            // Para componentes con template (backward compatibility)
+            else if (component.template) {
+                routerOutlet.innerHTML = component.template;
+            }
+            
             // Ejecutar lógica post-render del componente (puede ser async)
             if (component.afterRender) {
                 setTimeout(() => component.afterRender(), 10);

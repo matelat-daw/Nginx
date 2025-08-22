@@ -32,10 +32,7 @@ class EmailConfirmationModal {
                             </div>
                             
                             <div class="modal-actions">
-                                <button class="btn btn-primary" id="resendEmailBtn">
-                                    📤 Reenviar email de confirmación
-                                </button>
-                                <button class="btn btn-secondary" id="goToLoginBtn">
+                                <button class="btn btn-primary" id="goToLoginBtn">
                                     🔐 Volver al login
                                 </button>
                             </div>
@@ -113,12 +110,6 @@ class EmailConfirmationModal {
             });
         }
         
-        // Reenviar email
-        const resendBtn = document.getElementById('resendEmailBtn');
-        if (resendBtn) {
-            resendBtn.addEventListener('click', () => this.resendConfirmationEmail());
-        }
-        
         // Cerrar al hacer click fuera del modal
         const modal = document.getElementById('emailConfirmationModal');
         if (modal) {
@@ -127,48 +118,6 @@ class EmailConfirmationModal {
                     this.hide();
                 }
             });
-        }
-    }
-    
-    async resendConfirmationEmail() {
-        if (!this.currentUser) {
-            console.error('No hay usuario para reenviar email');
-            return;
-        }
-        
-        const resendBtn = document.getElementById('resendEmailBtn');
-        if (resendBtn) {
-            resendBtn.disabled = true;
-            resendBtn.textContent = '📤 Enviando...';
-        }
-        
-        try {
-            const response = await fetch('/api/auth/resend-confirmation.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email: this.currentUser.email
-                })
-            });
-            
-            const data = await response.json();
-            
-            if (response.ok) {
-                this.showNotification('✅ ' + data.message, 'success');
-            } else {
-                this.showNotification('❌ ' + (data.message || 'Error al reenviar el email'), 'error');
-            }
-            
-        } catch (error) {
-            console.error('Error reenviando email:', error);
-            this.showNotification('❌ Error de conexión. Intenta nuevamente.', 'error');
-        } finally {
-            if (resendBtn) {
-                resendBtn.disabled = false;
-                resendBtn.textContent = '📤 Reenviar email de confirmación';
-            }
         }
     }
     

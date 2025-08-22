@@ -41,6 +41,27 @@
                         </div>
                         <span class="form-error" id="phoneError"></span>
                     </div>
+                    <!-- Imagen de Perfil -->
+                    <div class="form-group">
+                        <label for="registerProfileImage" class="form-label"><span class="label-icon">📸</span>Imagen de Perfil (Opcional)</label>
+                        <div class="image-upload-container">
+                            <div class="image-preview" id="imagePreview">
+                                <div class="preview-placeholder">
+                                    <span class="preview-icon">👤</span>
+                                    <span class="preview-text">Subir foto</span>
+                                </div>
+                            </div>
+                            <input type="file" id="registerProfileImage" name="profileImage" accept="image/*" class="form-input-file" style="display: none;">
+                            <button type="button" class="btn-upload" onclick="document.getElementById('registerProfileImage').click()">
+                                <span class="upload-icon">📁</span>
+                                Seleccionar Imagen
+                            </button>
+                            <div class="upload-info">
+                                <small>Formatos: JPG, PNG, GIF, WebP. Máximo: 5MB</small>
+                            </div>
+                        </div>
+                        <span class="form-error" id="profileImageError"></span>
+                    </div>
                 </div>
                 <!-- Ubicación -->
                 <div class="form-section">

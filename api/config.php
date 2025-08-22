@@ -4,6 +4,57 @@
  * Solo contiene las funciones y configuraciones que realmente se usan
  */
 
+// Implementación simple de JWT sin dependencias externas
+class JWT {
+    public static function encode($payload, $key) {
+        $header = json_encode(['typ' => 'JWT', 'alg' => 'HS256']);
+        $payload = json_encode($payload);
+        
+        $base64Header = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($header));
+        $base64Payload = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($payload));
+        
+        $signature = hash_hmac('sha256', $base64Header . "." . $base64Payload, $key, true);
+        $base64Signature = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($signature));
+        
+        return $base64Header . "." . $base64Payload . "." . $base64Signature;
+    }
+    
+    public static function decode($jwt, $key) {
+        $parts = explode('.', $jwt);
+        if (count($parts) !== 3) {
+            throw new Exception('Invalid JWT format');
+        }
+        
+        list($base64Header, $base64Payload, $base64Signature) = $parts;
+        
+        $header = json_decode(base64_decode(str_replace(['-', '_'], ['+', '/'], $base64Header)), true);
+        $payload = json_decode(base64_decode(str_replace(['-', '_'], ['+', '/'], $base64Payload)), true);
+        
+        $expectedSignature = hash_hmac('sha256', $base64Header . "." . $base64Payload, $key, true);
+        $actualSignature = base64_decode(str_replace(['-', '_'], ['+', '/'], $base64Signature));
+        
+        if (!hash_equals($expectedSignature, $actualSignature)) {
+            throw new Exception('Invalid JWT signature');
+        }
+        
+        if (isset($payload['exp']) && $payload['exp'] < time()) {
+            throw new Exception('JWT token expired');
+        }
+        
+        return (object) $payload;
+    }
+}
+
+class Key {
+    public $key;
+    public $algorithm;
+    
+    public function __construct($key, $algorithm) {
+        $this->key = $key;
+        $this->algorithm = $algorithm;
+    }
+}
+
 // Cargar variables de entorno
 function loadEnvironmentVariables($filePath = __DIR__ . '/../.env') {
     if (!file_exists($filePath)) return false;
@@ -102,7 +153,7 @@ function logMessage($level, $message) {
 
 // Email de bienvenida con fallback para desarrollo
 function sendWelcomeEmail($userEmail, $userName, $userId, $confirmationToken) {
-    $confirmationUrl = SITE_URL . "/confirmar-email.php?token=" . urlencode($confirmationToken) . "&id=" . $userId;
+    $confirmationUrl = SITE_URL . "/api/auth/confirm-email.php?token=" . urlencode($confirmationToken) . "&id=" . $userId;
     
     $headers = [
         'From: ' . EMAIL_FROM_NAME . ' <' . EMAIL_FROM . '>',
