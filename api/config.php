@@ -225,4 +225,47 @@ function generateEmailConfirmationToken() {
 ini_set('display_errors', DEBUG_MODE ? 1 : 0);
 error_reporting(DEBUG_MODE ? E_ALL : E_ERROR | E_WARNING);
 date_default_timezone_set('Atlantic/Canary');
+
+// ====================================
+// CONFIGURACIÓN FLEXIBLE - NUEVA FUNCIONALIDAD
+// ====================================
+
+// Cargar sistema de configuración flexible
+require_once __DIR__ . '/config/api-config.php';
+
+// Función para obtener configuración activa (para compatibilidad)
+function getActiveApiConfig() {
+    return ApiConfig::getConfig();
+}
+
+// Función para verificar si un campo es requerido en la configuración activa
+function isFieldRequired($fieldName) {
+    return ApiConfig::isFieldRequired($fieldName);
+}
+
+// Función para validar datos según configuración activa
+function validateDataWithConfig($data) {
+    return ApiConfig::validateData($data);
+}
+
+// Función para filtrar datos según configuración activa  
+function filterDataWithConfig($data) {
+    return ApiConfig::filterData($data);
+}
+
+// Función para crear respuesta de usuario según configuración activa
+function createUserResponseWithConfig($userData) {
+    return ApiConfig::createUserResponse($userData);
+}
+
+// Información de la API flexible
+define('API_FLEXIBLE_VERSION', '1.0.0');
+define('API_FLEXIBLE_ENABLED', true);
+
+// Log de inicialización
+if (defined('DEBUG_MODE') && DEBUG_MODE) {
+    $activeProfile = ApiConfig::getActiveProfile();
+    logMessage('INFO', "API Flexible inicializada - Perfil activo: {$activeProfile}");
+}
+
 ?>
