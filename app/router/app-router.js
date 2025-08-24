@@ -25,8 +25,8 @@ class AppRouter {
 
     init() {
         this.defineRoutes();
-        // Escuchar cambios en el historial (popstate)
-        window.addEventListener('popstate', () => {
+        // Escuchar cambios en el hash
+        window.addEventListener('hashchange', () => {
             this.handleRouteChange();
         });
         // Delegar clicks en enlaces internos para navegación SPA
@@ -43,8 +43,9 @@ class AppRouter {
     }
 
     navigate(route) {
-        if (window.location.pathname !== route) {
-            window.history.pushState({}, '', route);
+        const currentHash = window.location.hash.slice(1) || '/';
+        if (currentHash !== route) {
+            window.location.hash = route;
             this.handleRouteChange();
         }
     }
@@ -53,8 +54,16 @@ class AppRouter {
         // Ocultar todos los modales antes de cambiar de ruta
         this.hideAllModals();
         
-        const path = window.location.pathname || '/';
-        this.loadRoute(path);
+        // Obtener ruta actual desde el hash o pathname
+        let path = window.location.hash.slice(1) || window.location.pathname || '/';
+        
+        // Separar ruta de parámetros de query
+        const [routePath, queryString] = path.split('?');
+        
+        // Parsear parámetros de query
+        const params = this.parseQueryParams(queryString);
+        
+        this.loadRoute(routePath, params);
     }
     
     hideAllModals() {
@@ -79,8 +88,21 @@ class AppRouter {
         // Restaurar scroll del body
         document.body.style.overflow = '';
     }
+    
+    parseQueryParams(queryString) {
+        const params = {};
+        if (queryString) {
+            queryString.split('&').forEach(param => {
+                const [key, value] = param.split('=');
+                if (key) {
+                    params[key] = value ? decodeURIComponent(value) : true;
+                }
+            });
+        }
+        return params;
+    }
 
-    loadRoute(route) {
+    loadRoute(route, params = {}) {
         const routeHandler = this.routes[route];
         
         if (routeHandler) {
@@ -88,6 +110,12 @@ class AppRouter {
             
             try {
                 const component = routeHandler();
+                
+                // Pasar parámetros al componente si está disponible
+                if (component && typeof component.setParams === 'function') {
+                    component.setParams(params);
+                }
+                
                 this.renderComponent(component);
             } catch (error) {
                 console.error('Error creating component for route:', route, error);

@@ -2,6 +2,20 @@
 class LoginComponent {
     constructor() {
         this.cssLoaded = false;
+        this.params = {};
+    }
+    
+    setParams(params) {
+        this.params = params;
+        
+        // Si hay un mensaje de confirmación, mostrarlo
+        if (params['email-confirmed'] && params.message) {
+            setTimeout(() => {
+                if (window.notificationModal) {
+                    window.notificationModal.show('success', params.message);
+                }
+            }, 1000); // Esperar a que el componente esté completamente cargado
+        }
     }
 
     render() {

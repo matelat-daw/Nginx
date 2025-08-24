@@ -208,6 +208,11 @@ class AuthService {
             // Limpiar datos locales
             this.token = null;
             this.currentUser = null;
+            
+            // Limpiar cookie manualmente también (por si acaso)
+            document.cookie = 'ecc_auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+            
+            console.log('🧹 Datos locales limpiados');
             this.dispatchAuthEvent('logout');
             
             return {
@@ -219,6 +224,11 @@ class AuthService {
             // Limpiar datos locales aunque falle la petición
             this.token = null;
             this.currentUser = null;
+            
+            // Limpiar cookie manualmente también
+            document.cookie = 'ecc_auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+            
+            console.log('🧹 Datos locales limpiados (fallback)');
             this.dispatchAuthEvent('logout');
             
             return {

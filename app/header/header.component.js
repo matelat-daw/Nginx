@@ -298,6 +298,16 @@ class HeaderComponent {
             this.isAuthenticated = false;
             this.currentUser = null;
             this.updateAuthSection();
+            
+            // Asegurar que se navegue al home después del logout
+            setTimeout(() => {
+                if (window.location.hash !== '#/' && window.location.hash !== '') {
+                    window.location.hash = '/';
+                    if (window.appRouter) {
+                        window.appRouter.handleRouteChange();
+                    }
+                }
+            }, 100);
         });
 
         window.addEventListener('auth-validated', (e) => {
@@ -350,9 +360,13 @@ class HeaderComponent {
                             // Mostrar modal de éxito en lugar de alert()
                             await window.logoutModal.showSuccess();
                             
-                            // Navegar al inicio después del modal
+                            // Navegar al inicio después del modal usando hash
                             if (window.appRouter) {
-                                window.appRouter.navigate('/');
+                                window.location.hash = '/';
+                                window.appRouter.handleRouteChange();
+                            } else {
+                                // Fallback: redirección directa
+                                window.location.href = '/';
                             }
                         } else {
                             // En caso de error, usar un modal de error (fallback con alert por ahora)
@@ -365,7 +379,10 @@ class HeaderComponent {
                         const result = await window.authService.logout();
                         if (result.success) {
                             alert('✅ Sesión cerrada exitosamente');
-                            window.appRouter.navigate('/');
+                            window.location.hash = '/';
+                            if (window.appRouter) {
+                                window.appRouter.handleRouteChange();
+                            }
                         }
                     }
                 }

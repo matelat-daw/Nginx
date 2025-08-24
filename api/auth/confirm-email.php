@@ -84,8 +84,9 @@ try {
     
     // Respuesta exitosa
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        // Para requests GET, redirigir a la página de login con mensaje de éxito
-        header('Location: /login?email-confirmed=1&message=' . urlencode('¡Tu email ha sido confirmado exitosamente! Ya puedes iniciar sesión.'));
+        // Para requests GET, redirigir a la página principal con el hash de login
+        $redirectUrl = SITE_URL . '/#login?email-confirmed=1&message=' . urlencode('¡Tu email ha sido confirmado exitosamente! Ya puedes iniciar sesión.');
+        header('Location: ' . $redirectUrl);
         exit();
     } else {
         // Para requests POST, devolver JSON
