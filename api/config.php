@@ -87,6 +87,49 @@ define('DB_PASS', $_ENV['DB_PASS'] ?? '');
 define('DB_CHARSET', $_ENV['DB_CHARSET'] ?? 'utf8mb4');
 define('DB_PORT', (int)($_ENV['DB_PORT'] ?? 3306));
 
+/**
+ * Función centralizada para obtener conexión PDO segura
+ * Evita repetir código de conexión en cada archivo
+ */
+function getDBConnection() {
+    static $pdo = null;
+    
+    if ($pdo === null) {
+        try {
+            $dsn = "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET;
+            $options = [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false,
+                PDO::ATTR_PERSISTENT => false, // No usar conexiones persistentes por seguridad
+                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false, // Para desarrollo local
+                PDO::ATTR_TIMEOUT => 30 // Timeout de 30 segundos
+            ];
+            
+            $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+            
+            // Log de conexión exitosa solo en modo debug
+            if (DEBUG_MODE) {
+                error_log("BD: Conexión establecida exitosamente a " . DB_HOST . ":" . DB_PORT . "/" . DB_NAME);
+            }
+            
+        } catch (PDOException $e) {
+            // Log seguro del error (sin exponer credenciales)
+            $errorMsg = "Error de conexión a BD: " . $e->getMessage();
+            error_log($errorMsg);
+            
+            // En producción, no mostrar detalles del error
+            if (!DEBUG_MODE) {
+                throw new Exception('Error de conexión a la base de datos');
+            } else {
+                throw new Exception($errorMsg);
+            }
+        }
+    }
+    
+    return $pdo;
+}
+
 // JWT
 define('JWT_SECRET', $_ENV['JWT_SECRET'] ?? 'fallback_secret_key_change_in_production');
 define('JWT_EXPIRATION', 24 * 60 * 60);
