@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - Economía Circular Canarias</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/app/components/user-profile.component.css">
+    <link rel="stylesheet" href="/app/assets/css/main.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Meta tags -->
+    <meta name="description" content="Gestiona tu perfil, productos y compras en la plataforma de economía circular de Canarias">
+    <meta name="robots" content="noindex, nofollow">
+</head>
+<body>
+    <!-- Header de navegación -->
+    <header class="main-header">
+        <nav class="nav-container">
+            <div class="nav-brand">
+                <a href="/" class="brand-link">
+                    <img src="/app/assets/images/logo.svg" alt="ECC Logo" class="brand-logo">
+                    <span class="brand-text">Economía Circular Canarias</span>
+                </a>
+            </div>
+            
+            <div class="nav-menu">
+                <a href="/" class="nav-link">Inicio</a>
+                <a href="/productos.html" class="nav-link">Productos</a>
+                <a href="/como-funciona.html" class="nav-link">Cómo Funciona</a>
+                <a href="/about.html" class="nav-link">Nosotros</a>
+            </div>
+            
+            <div class="nav-actions">
+                <div class="user-menu">
+                    <button class="user-menu-btn" id="userMenuBtn">
+                        <img src="/app/assets/images/default-avatar.png" alt="Avatar" class="user-avatar">
+                        <span class="user-name" id="userNameDisplay">Mi Cuenta</span>
+                        <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 16 16">
+                            <path d="M4.427 6.573L8 10.146l3.573-3.573a.5.5 0 01.707.707l-3.926 3.927a.5.5 0 01-.708 0L3.72 7.28a.5.5 0 11.707-.707z"/>
+                        </svg>
+                    </button>
+                    
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="/perfil.html" class="dropdown-item active">
+                            <svg width="16" height="16" viewBox="0 0 16 16">
+                                <path d="M8 8a3 3 0 100-6 3 3 0 000 6zM12.735 14c.618 0 1.093-.561.872-1.139a6.002 6.002 0 00-11.215 0c-.22.578.254 1.139.872 1.139h9.47z"/>
+                            </svg>
+                            Mi Perfil
+                        </a>
+                        <a href="/carrito.html" class="dropdown-item">
+                            <svg width="16" height="16" viewBox="0 0 16 16">
+                                <path d="M5.757 1.071a.5.5 0 01.172.686L3.383 6h9.234l-2.546-4.243a.5.5 0 11.858-.514L13.783 6H15a1 1 0 011 1v4.5a2.5 2.5 0 01-2.5 2.5h-11A2.5 2.5 0 010 11.5V7a1 1 0 011-1h1.217L5.07.929a.5.5 0 01.686-.172z"/>
+                            </svg>
+                            Mi Carrito
+                            <span class="cart-count" id="cartCount">0</span>
+                        </a>
+                        <a href="/favoritos.html" class="dropdown-item">
+                            <svg width="16" height="16" viewBox="0 0 16 16">
+                                <path d="M8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.885.837-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748z"/>
+                            </svg>
+                            Mis Favoritos
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="/configuracion.html" class="dropdown-item">
+                            <svg width="16" height="16" viewBox="0 0 16 16">
+                                <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 01-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 01.872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 012.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 012.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 01.872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 01-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 01-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 100-5.86 2.929 2.929 0 000 5.858z"/>
+                            </svg>
+                            Configuración
+                        </a>
+                        <button class="dropdown-item logout-btn" id="logoutBtn">
+                            <svg width="16" height="16" viewBox="0 0 16 16">
+                                <path d="M10 12.5a.5.5 0 01-.5.5h-8a.5.5 0 01-.5-.5v-9a.5.5 0 01.5-.5h8a.5.5 0 01.5.5v2a.5.5 0 001 0v-2A1.5 1.5 0 009.5 2h-8A1.5 1.5 0 000 3.5v9A1.5 1.5 0 001.5 14h8a1.5 1.5 0 001.5-1.5v-2a.5.5 0 00-1 0v2z"/>
+                                <path d="M15.854 8.354a.5.5 0 000-.708l-3-3a.5.5 0 00-.708.708L14.293 7.5H5.5a.5.5 0 000 1h8.793l-2.147 2.146a.5.5 0 00.708.708l3-3z"/>
+                            </svg>
+                            Cerrar Sesión
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Contenido principal -->
+    <main class="main-content">
+        <!-- El contenido del perfil se genera dinámicamente aquí -->
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h4>Economía Circular Canarias</h4>
+                <p>Conectando las islas a través del comercio local y sostenible</p>
+                <div class="social-links">
+                    <a href="#" class="social-link">Facebook</a>
+                    <a href="#" class="social-link">Instagram</a>
+                    <a href="#" class="social-link">Twitter</a>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h5>Enlaces</h5>
+                <ul class="footer-links">
+                    <li><a href="/productos.html">Productos</a></li>
+                    <li><a href="/como-funciona.html">Cómo Funciona</a></li>
+                    <li><a href="/vendedores.html">Para Vendedores</a></li>
+                    <li><a href="/contact.html">Contacto</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h5>Soporte</h5>
+                <ul class="footer-links">
+                    <li><a href="/ayuda.html">Centro de Ayuda</a></li>
+                    <li><a href="/terminos.html">Términos de Uso</a></li>
+                    <li><a href="/privacidad.html">Política de Privacidad</a></li>
+                    <li><a href="/cookies.html">Política de Cookies</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h5>Contacto</h5>
+                <div class="contact-info">
+                    <p>📧 info@economiacircularcanarias.com</p>
+                    <p>📞 +34 928 XXX XXX</p>
+                    <p>📍 Las Palmas de Gran Canaria</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2025 Economía Circular Canarias. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Notification Modal -->
+    <div id="notificationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="notificationTitle">Notificación</h3>
+                <button class="modal-close" id="notificationClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="notificationMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" id="notificationOk">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/app/services/auth.service.js"></script>
+    <script src="/app/services/api.service.js"></script>
+    <script src="/app/components/notification-modal.component.js"></script>
+    <script src="/app/components/user-profile.component.js"></script>
+    
+    <script>
+        // Verificar autenticación al cargar la página
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            // Inicializar menú de usuario
+            const userMenuBtn = document.getElementById('userMenuBtn');
+            const userDropdown = document.getElementById('userDropdown');
+            const logoutBtn = document.getElementById('logoutBtn');
+
+            // Toggle menú usuario
+            userMenuBtn?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userDropdown.classList.toggle('show');
+            });
+
+            // Cerrar menú al hacer click fuera
+            document.addEventListener('click', () => {
+                userDropdown.classList.remove('show');
+            });
+
+            // Cerrar sesión
+            logoutBtn?.addEventListener('click', () => {
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userData');
+                window.location.href = '/login.html';
+            });
+
+            // Cargar nombre de usuario
+            try {
+                const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+                const userNameDisplay = document.getElementById('userNameDisplay');
+                if (userNameDisplay && userData.full_name) {
+                    userNameDisplay.textContent = userData.full_name;
+                }
+            } catch (error) {
+                console.error('Error al cargar datos del usuario:', error);
+            }
+        });
+    </script>
+</body>
+</html>

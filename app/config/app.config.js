@@ -10,13 +10,32 @@ window.AppConfig = {
         
         // Rutas del API desde la raíz del servidor (http://localhost:8080)
         endpoints: {
+            // Autenticación
             register: '/api/auth/register.php',
             login: '/api/auth/login.php',
             logout: '/api/auth/logout.php',
             validate: '/api/auth/validate.php',
             confirmEmail: '/api/auth/confirm-email.php',
             requestPasswordReset: '/api/auth/request-password-reset.php',
-            resetPassword: '/api/auth/reset-password.php'
+            resetPassword: '/api/auth/reset-password.php',
+            
+            // Productos
+            createProduct: '/api/products/create.php',
+            listProducts: '/api/products/list.php',
+            getProduct: '/api/products/get.php',
+            updateProduct: '/api/products/update.php',
+            deleteProduct: '/api/products/delete.php',
+            getCategories: '/api/products/categories.php',
+            
+            // Pedidos
+            createOrder: '/api/orders/create.php',
+            getOrder: '/api/orders/get.php',
+            myOrders: '/api/orders/my-orders.php',
+            updateOrderStatus: '/api/orders/update-status.php',
+            
+            // Pruebas
+            testProducts: '/api/test-products.php',
+            testOrders: '/api/test-orders.php'
         }
     },
     
