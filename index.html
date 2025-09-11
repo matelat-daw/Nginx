@@ -26,36 +26,46 @@
         </div>
     </div>
 
-    <!-- Scripts de componentes -->
+    <!-- Scripts esenciales de la aplicación -->
+    <!-- 1. Configuración base -->
     <script src="app/config/app.config.js"></script>
+    
+    <!-- 2. Servicios fundamentales -->
     <script src="app/services/auth.service.js"></script>
+    
+    <!-- 3. Componentes globales requeridos -->
     <script src="app/components/email-confirmation-modal.component.js"></script>
     <script src="app/components/logout-modal.component.js"></script>
     <script src="app/components/notification-modal.component.js"></script>
+    
+    <!-- 4. Inicialización de AuthService -->
     <script>
-        // Verificación inmediata después de cargar auth.service.js
         if (!window.authService && typeof window.AuthService === 'function') {
-            console.log('🔧 Creando AuthService desde index.html...');
             try {
                 window.authService = new window.AuthService();
-                console.log('✅ AuthService creado desde index.html');
             } catch (error) {
-                console.error('❌ Error creando AuthService desde index.html:', error);
+                console.error('Error inicializando AuthService:', error);
             }
         }
     </script>
+    
+    <!-- 5. Componentes de layout -->
     <script src="app/header/header.component.js"></script>
     <script src="app/nav/nav.component.js"></script>
     <script src="app/footer/footer.component.js"></script>
+    
+    <!-- 6. Páginas principales -->
     <script src="app/pages/home/home.component.js"></script>
     <script src="app/pages/productos/productos.component.js"></script>
     <script src="app/pages/auth/login/login.component.js"></script>
     <script src="app/pages/auth/register/register.component.js"></script>
     <script src="app/pages/profile/profile.component.js"></script>
+    
+    <!-- 7. Router y aplicación principal -->
     <script src="app/router/app-router.js"></script>
     <script src="app/app.component.js"></script>
     
-    <!-- Script principal -->
+    <!-- 8. Inicialización -->
     <script src="app/assets/js/main.js"></script>
 </body>
 </html>
