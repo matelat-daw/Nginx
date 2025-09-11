@@ -319,11 +319,29 @@ class LoginComponent {
     initializePasswordToggle() {
         const toggleBtn = this.getElement().querySelector('#toggleLoginPassword');
         const passwordInput = this.getElement().querySelector('#loginPassword');
+        
         if (toggleBtn && passwordInput) {
             toggleBtn.addEventListener('click', () => {
                 const isPassword = passwordInput.type === 'password';
-                passwordInput.type = isPassword ? 'text' : 'password';
-                toggleBtn.textContent = isPassword ? '🙈' : '👁️';
+                
+                if (isPassword) {
+                    // Mostrar contraseña
+                    passwordInput.type = 'text';
+                    toggleBtn.textContent = '🙈';
+                    toggleBtn.setAttribute('aria-label', 'Ocultar contraseña');
+                } else {
+                    // Ocultar contraseña
+                    passwordInput.type = 'password';
+                    toggleBtn.textContent = '👁️';
+                    toggleBtn.setAttribute('aria-label', 'Mostrar contraseña');
+                }
+                
+                // Forzar el foco para mantener la posición del cursor
+                passwordInput.focus();
+                // Mover el cursor al final
+                setTimeout(() => {
+                    passwordInput.setSelectionRange(passwordInput.value.length, passwordInput.value.length);
+                }, 10);
             });
         }
     }

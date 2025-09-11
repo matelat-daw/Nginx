@@ -1,7 +1,7 @@
 <?php
 /**
  * Script de prueba para el sistema de pedidos y facturación
- * Ejecutar desde: http://localhost:8080/api/test-orders.php
+ * Ejecutar desde: https://localhost/Canarias-EC/api/test-orders.php
  */
 
 header('Content-Type: application/json');

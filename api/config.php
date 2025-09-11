@@ -57,18 +57,41 @@ class Key {
 
 // Cargar variables de entorno
 function loadEnvironmentVariables($filePath = __DIR__ . '/../.env') {
-    if (!file_exists($filePath)) return false;
+    if (!file_exists($filePath)) {
+        error_log("Archivo .env no encontrado en: $filePath");
+        return false;
+    }
     
-    $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    $content = file_get_contents($filePath);
+    $lines = explode("\n", $content);
+    
     foreach ($lines as $line) {
-        if (strpos(trim($line), '#') === 0 || strpos($line, '=') === false) continue;
+        $line = trim($line);
         
+        // Saltar líneas vacías y comentarios
+        if (empty($line) || strpos($line, '#') === 0) continue;
+        
+        // Verificar que tenga formato clave=valor
+        if (strpos($line, '=') === false) continue;
+        
+        // Dividir en clave y valor
         list($key, $value) = explode('=', $line, 2);
         $key = trim($key);
-        $value = trim($value, " \t\n\r\0\x0B\"'");
+        $value = trim($value);
+        
+        // Remover comillas si las hay, pero mantener el contenido
+        if ((strpos($value, '"') === 0 && strrpos($value, '"') === strlen($value) - 1) ||
+            (strpos($value, "'") === 0 && strrpos($value, "'") === strlen($value) - 1)) {
+            $value = substr($value, 1, -1);
+        }
         
         $_ENV[$key] = $value;
         putenv("$key=$value");
+        
+        // Log para debugging (solo en modo desarrollo)
+        if (defined('DEBUG_MODE') && DEBUG_MODE && $key === 'DB_PASS') {
+            error_log("Variable $key cargada con longitud: " . strlen($value));
+        }
     }
     return true;
 }
@@ -147,14 +170,19 @@ define('PASSWORD_MIN_LENGTH', 6);
 // Email
 define('EMAIL_FROM', 'matelat@gmail.com');
 define('EMAIL_FROM_NAME', 'Canarias Circular');
-define('SITE_URL', 'http://localhost:8080');
+define('SITE_URL', 'https://localhost');
 
 // Headers CORS
 function setCorsHeaders() {
     $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-    $allowedOrigins = ['http://localhost:8080', 'https://localhost:8080', 'http://127.0.0.1:8080'];
+    $allowedOrigins = [
+        'https://localhost',
+        'https://localhost:443', 
+        'https://127.0.0.1',
+        'https://127.0.0.1:443'
+    ];
     
-    header("Access-Control-Allow-Origin: " . (in_array($origin, $allowedOrigins) ? $origin : 'http://localhost:8080'));
+    header("Access-Control-Allow-Origin: " . (in_array($origin, $allowedOrigins) ? $origin : 'https://localhost'));
     header("Access-Control-Allow-Credentials: true");
     header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
     header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, Accept, Origin");

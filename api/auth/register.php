@@ -61,17 +61,8 @@ try {
         jsonResponse(null, 400, "La contraseña debe tener al menos " . PASSWORD_MIN_LENGTH . " caracteres");
     }
     
-    // Conectar a base de datos
-    $pdo = new PDO(
-        "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET,
-        DB_USER,
-        DB_PASS,
-        [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false,
-        ]
-    );
+    // Usar la función centralizada para obtener conexión DB
+    $pdo = getDBConnection();
     
     // Verificar si el email ya existe
     $stmt = $pdo->prepare("SELECT id FROM ecc_users WHERE email = ? LIMIT 1");
@@ -216,9 +207,21 @@ try {
     
 } catch (PDOException $e) {
     logMessage('ERROR', "Database error in register: " . $e->getMessage());
-    jsonResponse(null, 500, 'Error de base de datos');
+    
+    // En modo desarrollo, mostrar más detalles del error
+    if (DEBUG_MODE) {
+        jsonResponse(null, 500, 'Error de base de datos: ' . $e->getMessage());
+    } else {
+        jsonResponse(null, 500, 'Error de base de datos');
+    }
 } catch (Exception $e) {
     logMessage('ERROR', "Error in register: " . $e->getMessage());
-    jsonResponse(null, 500, 'Error interno del servidor');
+    
+    // En modo desarrollo, mostrar más detalles del error
+    if (DEBUG_MODE) {
+        jsonResponse(null, 500, 'Error interno: ' . $e->getMessage());
+    } else {
+        jsonResponse(null, 500, 'Error interno del servidor');
+    }
 }
 ?>

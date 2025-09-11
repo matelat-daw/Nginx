@@ -1,7 +1,7 @@
 <?php
 /**
  * Script de prueba para la base de datos de productos
- * Ejecutar desde: http://localhost:8080/api/test-products.php
+ * Ejecutar desde: https://localhost/Canarias-EC/api/test-products.php
  */
 
 header('Content-Type: application/json');

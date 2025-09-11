@@ -372,4 +372,6 @@ footer {
     pointer-events: none;
     transition: opacity 0.5s ease-out;
 }
-// ...existing code...
+
+/* Importar estilos de componentes específicos */
+@import url('../../../app/pages/orders/orders.component.css');

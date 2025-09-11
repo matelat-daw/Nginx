@@ -40,17 +40,8 @@ try {
         jsonResponse(null, 400, 'Formato de email inválido');
     }
     
-    // Conectar a base de datos
-    $pdo = new PDO(
-        "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET,
-        DB_USER,
-        DB_PASS,
-        [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false,
-        ]
-    );
+    // Usar la función centralizada para obtener conexión DB
+    $pdo = getDBConnection();
     
     // Buscar usuario usando repositorio flexible
     $userRepository = new FlexibleUserRepository($pdo);
