@@ -50,13 +50,13 @@ class HeaderComponent {
                         <span class="dropdown-arrow">▼</span>
                     </button>
                     <div class="user-dropdown" id="userDropdown" style="display: none;">
-                        <a href="/profile" class="dropdown-item" data-navigate="/profile">
+                        <a href="#/profile" class="dropdown-item" data-navigate="/profile">
                             👤 Mi Perfil
                         </a>
-                        <a href="/orders" class="dropdown-item" data-navigate="/orders">
+                        <a href="#/orders" class="dropdown-item" data-navigate="/orders">
                             📦 Mis Pedidos
                         </a>
-                        <a href="/settings" class="dropdown-item" data-navigate="/settings">
+                        <a href="#/settings" class="dropdown-item" data-navigate="/settings">
                             ⚙️ Configuración
                         </a>
                         <hr class="dropdown-divider">

@@ -170,3 +170,107 @@
     background: transparent;
     visibility: visible;
 }
+
+/* Estilos para modo oscuro */
+body[data-theme="dark"] .auth-card {
+    background: #1f2937;
+    color: #e5e7eb;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.3);
+}
+
+body[data-theme="dark"] .auth-title {
+    color: #f9fafb;
+}
+
+body[data-theme="dark"] .form-group label {
+    color: #f3f4f6;
+}
+
+body[data-theme="dark"] .form-group input {
+    background: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+}
+
+body[data-theme="dark"] .form-group input:focus {
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
+body[data-theme="dark"] .form-group input::placeholder {
+    color: #9ca3af;
+}
+
+body[data-theme="dark"] .password-input-wrapper input {
+    background: #374151;
+    color: #f9fafb;
+}
+
+body[data-theme="dark"] .password-input-wrapper input {
+    background: #374151;
+    color: #f9fafb;
+}
+
+body[data-theme="dark"] #toggleLoginPassword {
+    color: #9ca3af;
+}
+
+body[data-theme="dark"] #toggleLoginPassword:hover {
+    color: #e5e7eb;
+}
+
+body[data-theme="dark"] #toggleLoginPassword:focus {
+    color: #60a5fa;
+}
+
+body[data-theme="dark"] .password-toggle {
+    background: #4b5563;
+    color: #e5e7eb;
+    border-color: #6b7280;
+}
+
+body[data-theme="dark"] .password-toggle:hover {
+    background: #6b7280;
+    color: #f9fafb;
+}
+
+body[data-theme="dark"] .btn-primary {
+    background: #3b82f6;
+    color: #ffffff;
+}
+
+body[data-theme="dark"] .btn-primary:hover {
+    background: #2563eb;
+}
+
+body[data-theme="dark"] .form-links {
+    color: #d1d5db;
+}
+
+body[data-theme="dark"] .form-links a {
+    color: #60a5fa;
+}
+
+body[data-theme="dark"] .form-links a:hover {
+    color: #93c5fd;
+}
+
+body[data-theme="dark"] #passwordDisplay {
+    color: #f9fafb;
+}
+
+body[data-theme="dark"] .form-error {
+    color: #f87171;
+}
+
+body[data-theme="dark"] .error-message {
+    background: #991b1b;
+    border-color: #dc2626;
+    color: #fecaca;
+}
+
+body[data-theme="dark"] .success-message {
+    background: #065f46;
+    border-color: #059669;
+    color: #a7f3d0;
+}

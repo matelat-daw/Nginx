@@ -388,3 +388,255 @@
         justify-content: center;
     }
 }
+
+/* Estilos para modo oscuro */
+@media (prefers-color-scheme: dark) {
+    .orders-container {
+        color: #e5e7eb;
+    }
+    
+    .orders-header h1 {
+        color: #f9fafb;
+    }
+    
+    .orders-subtitle {
+        color: #d1d5db;
+    }
+    
+    .orders-content {
+        background: #1f2937;
+        color: #e5e7eb;
+    }
+    
+    .orders-filters {
+        background: #374151;
+        color: #e5e7eb;
+    }
+    
+    .filter-group label {
+        color: #f3f4f6;
+    }
+    
+    .filter-group select {
+        background: #4b5563;
+        border-color: #6b7280;
+        color: #f9fafb;
+    }
+    
+    .filter-group select:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+    }
+    
+    .no-orders {
+        color: #d1d5db;
+    }
+    
+    .no-orders h3 {
+        color: #f9fafb;
+    }
+    
+    .order-card {
+        background: #374151;
+        border-color: #4b5563;
+        color: #e5e7eb;
+    }
+    
+    .order-card:hover {
+        border-color: #6b7280;
+    }
+    
+    .order-info h3 {
+        color: #f9fafb;
+    }
+    
+    .order-date {
+        color: #9ca3af;
+    }
+    
+    .order-total {
+        color: #34d399;
+    }
+    
+    .order-items {
+        border-color: #4b5563;
+        color: #d1d5db;
+    }
+    
+    .btn-secondary {
+        background: #4b5563;
+        color: #f9fafb;
+        border-color: #6b7280;
+    }
+    
+    .btn-secondary:hover {
+        background: #6b7280;
+        border-color: #9ca3af;
+    }
+    
+    .btn-primary {
+        background: #3b82f6;
+        color: #ffffff;
+    }
+    
+    .btn-primary:hover {
+        background: #2563eb;
+    }
+    
+    .loader {
+        color: #d1d5db;
+    }
+    
+    .spinner {
+        border-color: #4b5563;
+        border-top-color: #60a5fa;
+    }
+    
+    .error-message {
+        background: #991b1b;
+        border-color: #dc2626;
+        color: #fecaca;
+    }
+    
+    .pagination button {
+        background: #374151;
+        color: #e5e7eb;
+        border-color: #4b5563;
+    }
+    
+    .pagination button:hover:not(:disabled) {
+        background: #4b5563;
+        border-color: #6b7280;
+    }
+    
+    .pagination button.active {
+        background: #3b82f6;
+        color: white;
+        border-color: #3b82f6;
+    }
+}
+
+/* Reglas específicas para cuando el body tiene data-theme="dark" */
+body[data-theme="dark"] .orders-container {
+    color: #e5e7eb;
+}
+
+body[data-theme="dark"] .orders-header h1 {
+    color: #f9fafb;
+}
+
+body[data-theme="dark"] .orders-subtitle {
+    color: #d1d5db;
+}
+
+body[data-theme="dark"] .orders-content {
+    background: #1f2937;
+    color: #e5e7eb;
+}
+
+body[data-theme="dark"] .orders-filters {
+    background: #374151;
+    color: #e5e7eb;
+}
+
+body[data-theme="dark"] .filter-group label {
+    color: #f3f4f6;
+}
+
+body[data-theme="dark"] .filter-group select {
+    background: #4b5563;
+    border-color: #6b7280;
+    color: #f9fafb;
+}
+
+body[data-theme="dark"] .filter-group select:focus {
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
+body[data-theme="dark"] .no-orders {
+    color: #d1d5db;
+}
+
+body[data-theme="dark"] .no-orders h3 {
+    color: #f9fafb;
+}
+
+body[data-theme="dark"] .order-card {
+    background: #374151;
+    border-color: #4b5563;
+    color: #e5e7eb;
+}
+
+body[data-theme="dark"] .order-card:hover {
+    border-color: #6b7280;
+}
+
+body[data-theme="dark"] .order-info h3 {
+    color: #f9fafb;
+}
+
+body[data-theme="dark"] .order-date {
+    color: #9ca3af;
+}
+
+body[data-theme="dark"] .order-total {
+    color: #34d399;
+}
+
+body[data-theme="dark"] .order-items {
+    border-color: #4b5563;
+    color: #d1d5db;
+}
+
+body[data-theme="dark"] .btn-secondary {
+    background: #4b5563;
+    color: #f9fafb;
+    border-color: #6b7280;
+}
+
+body[data-theme="dark"] .btn-secondary:hover {
+    background: #6b7280;
+    border-color: #9ca3af;
+}
+
+body[data-theme="dark"] .btn-primary {
+    background: #3b82f6;
+    color: #ffffff;
+}
+
+body[data-theme="dark"] .btn-primary:hover {
+    background: #2563eb;
+}
+
+body[data-theme="dark"] .loader {
+    color: #d1d5db;
+}
+
+body[data-theme="dark"] .spinner {
+    border-color: #4b5563;
+    border-top-color: #60a5fa;
+}
+
+body[data-theme="dark"] .error-message {
+    background: #991b1b;
+    border-color: #dc2626;
+    color: #fecaca;
+}
+
+body[data-theme="dark"] .pagination button {
+    background: #374151;
+    color: #e5e7eb;
+    border-color: #4b5563;
+}
+
+body[data-theme="dark"] .pagination button:hover:not(:disabled) {
+    background: #4b5563;
+    border-color: #6b7280;
+}
+
+body[data-theme="dark"] .pagination button.active {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}

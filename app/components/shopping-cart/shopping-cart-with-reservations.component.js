@@ -726,7 +726,7 @@ class ShoppingCart {
             
             '<div class="modal-footer">' +
             '<button onclick="this.closest(\'.confirmation-modal\').remove()" class="btn-secondary">Cerrar</button>' +
-            '<button onclick="window.location.href=\'mis-pedidos.html\'" class="btn-primary">Ver Mis Pedidos</button>' +
+            '<button onclick="window.location.href=\'#/orders\'" class="btn-primary">Ver Mis Pedidos</button>' +
             '</div>' +
             '</div>';
 

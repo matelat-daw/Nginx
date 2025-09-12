@@ -15,7 +15,7 @@ class FooterComponent {
         if (!this.cssLoaded) {
             const link = document.createElement('link');
             link.rel = 'stylesheet';
-            link.href = 'app/footer/footer.component.css';
+            link.href = 'app/components/layout/footer.component.css';
             document.head.appendChild(link);
             this.cssLoaded = true;
         }
@@ -24,7 +24,7 @@ class FooterComponent {
         const container = document.querySelector('.footer-component');
         if (container) {
             try {
-                const html = await fetch('app/footer/footer.component.html').then(r => r.text());
+                const html = await fetch('app/components/layout/footer.component.html').then(r => r.text());
                 container.innerHTML = html;
                 // Actualizar año dinámicamente
                 const yearSpan = container.querySelector('#footer-year');
