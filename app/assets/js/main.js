@@ -17,7 +17,7 @@ function handleLoadingScreen() {
     });
 }
 
-// Función para verificar que todos los servicios estén cargados
+// Función para verificar que todos los servicios estén cargados y listos
 async function waitForServices() {
     console.log('⏳ Esperando a que todos los servicios estén cargados...');
     
@@ -25,9 +25,16 @@ async function waitForServices() {
     let attempts = 0;
     
     while (attempts < maxAttempts) {
-        // Verificar que AuthService esté disponible
-        if (window.authService && typeof window.authService.register === 'function') {
-            console.log('✅ Todos los servicios están listos');
+        // Verificar que AuthService esté disponible y completamente inicializado
+        if (window.authService && 
+            typeof window.authService.register === 'function' &&
+            typeof window.authService.isAuthenticated === 'function') {
+            
+            console.log('✅ AuthService está listo');
+            
+            // Esperar un poco más para asegurar que la inicialización async haya terminado
+            await new Promise(resolve => setTimeout(resolve, 200));
+            console.log('✅ Todos los servicios están completamente listos');
             return true;
         }
         

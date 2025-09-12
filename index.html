@@ -38,15 +38,24 @@
     <script src="app/components/modals/logout-modal.component.js"></script>
     <script src="app/components/modals/notification-modal.component.js"></script>
     
-    <!-- 4. Inicialización de AuthService -->
+    <!-- 4. Inicialización asíncrona de AuthService -->
     <script>
-        if (!window.authService && typeof window.AuthService === 'function') {
-            try {
-                window.authService = new window.AuthService();
-            } catch (error) {
-                console.error('Error inicializando AuthService:', error);
+        // Inicialización automática y asíncrona del AuthService
+        (async function initializeAuthService() {
+            if (!window.authService && typeof window.AuthService === 'function') {
+                try {
+                    console.log('🔧 Creando AuthService...');
+                    window.authService = new window.AuthService();
+                    
+                    // Esperar a que termine la inicialización
+                    await window.authService.init();
+                    console.log('✅ AuthService inicializado y verificado');
+                    
+                } catch (error) {
+                    console.error('❌ Error inicializando AuthService:', error);
+                }
             }
-        }
+        })();
     </script>
     
     <!-- 5. Componentes de layout -->

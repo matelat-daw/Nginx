@@ -20,6 +20,19 @@ class AppRouter {
             '/orders': () => new OrdersComponent(),
             '/settings': () => new SettingsComponent()
         };
+        
+        // Definir rutas que requieren autenticación
+        this.protectedRoutes = ['/profile', '/orders', '/settings'];
+    }
+
+    // Verificar si una ruta requiere autenticación
+    isProtectedRoute(route) {
+        return this.protectedRoutes.includes(route);
+    }
+
+    // Verificar si el usuario está autenticado
+    isUserAuthenticated() {
+        return window.authService && window.authService.isAuthenticated();
     }
 
 
@@ -106,6 +119,19 @@ class AppRouter {
         const routeHandler = this.routes[route];
         
         if (routeHandler) {
+            // Verificar si la ruta requiere autenticación
+            if (this.isProtectedRoute(route)) {
+                if (!this.isUserAuthenticated()) {
+                    console.log(`🔒 Ruta protegida ${route} requiere autenticación, redirigiendo a login`);
+                    
+                    // Guardar la ruta a la que quería ir para redirigir después del login
+                    sessionStorage.setItem('redirectAfterLogin', route);
+                    
+                    this.navigate('/login');
+                    return;
+                }
+            }
+            
             this.currentRoute = route;
             
             try {

@@ -284,17 +284,55 @@
     .register-component .auth-header h2 { font-size: 1.5rem; }
     .register-component .checkbox-label { font-size: 0.85rem; }
 }
+[data-theme="dark"] .register-component .auth-container {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+}
+
 [data-theme="dark"] .register-component .auth-card {
-    background: #2d2d2d;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    background: #1f2937;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    border: 1px solid #374151;
 }
+
+[data-theme="dark"] .register-component .auth-header h2 {
+    color: #f9fafb;
+}
+
+[data-theme="dark"] .register-component .auth-subtitle {
+    color: #d1d5db;
+}
+
+[data-theme="dark"] .register-component .form-label {
+    color: #e5e7eb;
+}
+
 [data-theme="dark"] .register-component .form-input {
-    background: #404040;
-    border-color: #555;
-    color: #fff;
+    background: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
 }
-[data-theme="dark"] .register-component .form-input:focus { border-color: var(--canarias-blue); }
-[data-theme="dark"] .register-component .strength-bar { background: #404040; }
+
+[data-theme="dark"] .register-component .form-input:focus { 
+    border-color: var(--canarias-blue);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    background: #4b5563;
+}
+
+[data-theme="dark"] .register-component .form-input::placeholder {
+    color: #6b7280;
+}
+
+[data-theme="dark"] .register-component .password-toggle {
+    color: #9ca3af;
+}
+
+[data-theme="dark"] .register-component .password-toggle:hover {
+    color: #d1d5db;
+}
+
+[data-theme="dark"] .register-component .strength-bar { 
+    background: #374151; 
+}
 .register-component .form-section {
     margin-bottom: 2.5rem;
     padding: 1.5rem;
@@ -398,11 +436,43 @@
     .register-component .form-section { padding: 1rem; margin-bottom: 1.5rem; }
     .register-component .radio-label { padding: 0.75rem; }
 }
-[data-theme="dark"] .register-component .form-section { background: #2a2a2a; border-color: #404040; }
-[data-theme="dark"] .register-component .section-title { color: var(--canarias-white); border-bottom-color: #404040; }
-[data-theme="dark"] .register-component .radio-label { background: #333; border-color: #404040; color: var(--canarias-white); }
-[data-theme="dark"] .register-component .radio-label:hover { background: #404040; }
-[data-theme="dark"] .register-component .radio-content strong { color: var(--canarias-white); }
+[data-theme="dark"] .register-component .form-section { 
+    background: #2d3748; 
+    border-color: #4b5563; 
+}
+
+[data-theme="dark"] .register-component .section-title { 
+    color: #f9fafb; 
+    border-bottom-color: #4b5563; 
+}
+
+[data-theme="dark"] .register-component .radio-label { 
+    background: #374151; 
+    border-color: #4b5563; 
+    color: #e5e7eb; 
+}
+
+[data-theme="dark"] .register-component .radio-label:hover { 
+    background: #4b5563; 
+}
+
+[data-theme="dark"] .register-component .radio-label:has(input:checked) {
+    border-color: var(--canarias-blue);
+    background: #1e3a8a;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+[data-theme="dark"] .register-component .radio-content strong { 
+    color: #f9fafb; 
+}
+
+[data-theme="dark"] .register-component .radio-content small { 
+    color: #d1d5db; 
+}
+
+[data-theme="dark"] .register-component .form-error {
+    color: #f87171;
+}
 
 /* Estilos para mensajes de formulario */
 .register-component .form-message {
@@ -525,6 +595,71 @@
 
 [data-theme="dark"] .register-component .registration-complete p {
     color: #a7f3d0;
+}
+
+[data-theme="dark"] .register-component .registration-complete .email-notice {
+    background: rgba(31, 41, 55, 0.8);
+    border-left-color: #10b981;
+}
+
+[data-theme="dark"] .register-component .registration-complete .email-notice strong {
+    color: #34d399;
+}
+
+/* Estilos para botones en modo oscuro */
+[data-theme="dark"] .register-component .btn-primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: #ffffff;
+}
+
+[data-theme="dark"] .register-component .btn-primary:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+}
+
+[data-theme="dark"] .register-component .btn-secondary {
+    background: #374151;
+    color: #e5e7eb;
+    border-color: #4b5563;
+}
+
+[data-theme="dark"] .register-component .btn-secondary:hover {
+    background: #4b5563;
+    color: #f9fafb;
+}
+
+/* Estilos para checkbox y términos en modo oscuro */
+[data-theme="dark"] .register-component .checkbox-label {
+    color: #e5e7eb;
+}
+
+[data-theme="dark"] .register-component .checkbox-label a {
+    color: #60a5fa;
+}
+
+[data-theme="dark"] .register-component .checkbox-label a:hover {
+    color: #93c5fd;
+}
+
+/* Estilos para indicador de fortaleza de contraseña en modo oscuro */
+[data-theme="dark"] .register-component .strength-indicator {
+    background: #374151;
+}
+
+[data-theme="dark"] .register-component .strength-text {
+    color: #d1d5db;
+}
+
+/* Estilos para login link en modo oscuro */
+[data-theme="dark"] .register-component .login-link {
+    color: #d1d5db;
+}
+
+[data-theme="dark"] .register-component .login-link a {
+    color: #60a5fa;
+}
+
+[data-theme="dark"] .register-component .login-link a:hover {
+    color: #93c5fd;
 }
 
 [data-theme="dark"] .register-component .registration-complete .email-notice {

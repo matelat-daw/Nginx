@@ -11,9 +11,8 @@ class AuthService {
         
         this.currentUser = null;
         this.token = null;
-        this.init();
         
-        console.log('🔧 AuthService optimizado inicializado');
+        console.log('🔧 AuthService optimizado creado (pendiente de inicialización)');
     }
 
     // Función helper para construir URLs del API
@@ -35,17 +34,80 @@ class AuthService {
         return null;
     }
 
-    // Inicialización
-    init() {
+    // Inicialización mejorada con verificación automática
+    async init() {
         try {
+            console.log('🔧 Inicializando AuthService...');
             this.token = this.getTokenFromCookie();
+            
             if (this.token) {
-                this.validateToken().catch(error => {
-                    console.warn('⚠️ Error validando token:', error);
-                });
+                console.log('🍪 Token encontrado, validando automáticamente...');
+                const isValid = await this.validateToken();
+                
+                if (isValid) {
+                    console.log('✅ Token válido, usuario autenticado automáticamente');
+                    // Forzar actualización inmediata del header si existe
+                    this.updateHeaderAuthState();
+                } else {
+                    console.log('❌ Token inválido, limpiando estado');
+                    this.clearAuthState();
+                }
+            } else {
+                console.log('🔍 No hay token, usuario no autenticado');
+                this.clearAuthState();
             }
         } catch (error) {
             console.error('❌ Error en init():', error);
+            this.clearAuthState();
+        }
+    }
+
+    // Limpiar estado de autenticación
+    clearAuthState() {
+        this.token = null;
+        this.currentUser = null;
+        this.updateHeaderAuthState();
+    }
+
+    // Actualizar estado del header
+    updateHeaderAuthState() {
+        if (window.headerComponent) {
+            if (typeof window.headerComponent.forceAuthUpdate === 'function') {
+                window.headerComponent.forceAuthUpdate();
+            } else if (typeof window.headerComponent.refreshAuthState === 'function') {
+                window.headerComponent.refreshAuthState();
+            }
+        }
+    }
+
+    // Manejar redirección después del login
+    handlePostLoginRedirect() {
+        try {
+            const redirectTo = sessionStorage.getItem('redirectAfterLogin');
+            
+            if (redirectTo && redirectTo !== '/login' && redirectTo !== '/register') {
+                console.log(`🔀 Redirigiendo a ${redirectTo} después del login`);
+                sessionStorage.removeItem('redirectAfterLogin');
+                
+                setTimeout(() => {
+                    if (window.appRouter) {
+                        window.appRouter.navigate(redirectTo);
+                    } else {
+                        window.location.hash = redirectTo;
+                    }
+                }, 100);
+            } else {
+                // Redirigir al home si no hay redirección específica
+                setTimeout(() => {
+                    if (window.appRouter) {
+                        window.appRouter.navigate('/');
+                    } else {
+                        window.location.hash = '/';
+                    }
+                }, 100);
+            }
+        } catch (error) {
+            console.error('Error en redirección post-login:', error);
         }
     }
 
@@ -170,6 +232,9 @@ class AuthService {
                         window.headerComponent.forceAuthUpdate();
                     }, 100);
                 }
+                
+                // Redirigir a la página que quería visitar antes del login
+                this.handlePostLoginRedirect();
                 
                 return {
                     success: true,
