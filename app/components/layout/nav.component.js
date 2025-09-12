@@ -11,7 +11,7 @@ class NavComponent {
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#/productos" class="nav-link" data-navigate="/productos">
+                            <a href="#/products" class="nav-link" data-navigate="/products">
                                 🛒 Productos
                             </a>
                         </li>

@@ -65,7 +65,7 @@ try {
     
     $stmt = $pdo->prepare("
         SELECT id, first_name, last_name, email, phone, island, city, user_type, email_verified, profile_image, created_at, updated_at
-        FROM ecc_users 
+        FROM users 
         WHERE id = ?
     ");
     $stmt->execute([$userId]);

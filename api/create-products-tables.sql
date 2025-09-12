@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS products (
     INDEX idx_name (name(100)),
     
     -- Clave foránea
-    FOREIGN KEY (seller_id) REFERENCES ecc_users(id) ON DELETE CASCADE
+    FOREIGN KEY (seller_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- Tabla de categorías
@@ -177,7 +177,7 @@ CREATE TABLE IF NOT EXISTS product_reviews (
     INDEX idx_approved (is_approved),
     UNIQUE KEY unique_review (product_id, buyer_id), -- Un review por comprador
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
-    FOREIGN KEY (buyer_id) REFERENCES ecc_users(id) ON DELETE CASCADE
+    FOREIGN KEY (buyer_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- Tabla de favoritos
@@ -190,7 +190,7 @@ CREATE TABLE IF NOT EXISTS product_favorites (
     INDEX idx_user (user_id),
     INDEX idx_product (product_id),
     UNIQUE KEY unique_favorite (user_id, product_id),
-    FOREIGN KEY (user_id) REFERENCES ecc_users(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
 

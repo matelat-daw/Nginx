@@ -88,7 +88,7 @@ try {
 
     // Actualizar perfil del usuario
     $stmt = $pdo->prepare("
-        UPDATE ecc_users 
+        UPDATE users 
         SET first_name = ?, last_name = ?, phone = ?, island = ?, city = ?, user_type = ?, updated_at = NOW()
         WHERE id = ?
     ");
@@ -107,7 +107,7 @@ try {
         // Obtener datos actualizados del usuario
         $stmt = $pdo->prepare("
             SELECT id, first_name, last_name, email, phone, island, city, user_type, email_verified, created_at, updated_at
-            FROM ecc_users 
+            FROM users 
             WHERE id = ?
         ");
         $stmt->execute([$userId]);

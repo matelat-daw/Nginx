@@ -32,7 +32,7 @@ class OrdersComponent {
                         <div class="no-orders-icon">📭</div>
                         <h3>No tienes pedidos aún</h3>
                         <p>Cuando realices tu primera compra, aparecerá aquí.</p>
-                        <a href="#/productos" class="btn-primary">Ver productos</a>
+                        <a href="#/products" class="btn-primary">Ver productos</a>
                     </div>
                 </div>
             </div>

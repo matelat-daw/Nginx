@@ -97,7 +97,7 @@ try {
     $pdo = getDBConnection();
     
     // Buscar usuario por ID
-    $stmt = $pdo->prepare("SELECT * FROM ecc_users WHERE id = ? LIMIT 1");
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ? LIMIT 1");
     $stmt->execute([$userId]);
     $user = $stmt->fetch();
     

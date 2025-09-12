@@ -60,7 +60,7 @@ try {
     }
     
     // Obtener información del usuario
-    $stmt = $pdo->prepare("SELECT * FROM ecc_users WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
     $stmt->execute([$userId]);
     $user = $stmt->fetch();
     

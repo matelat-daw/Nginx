@@ -12,7 +12,7 @@ class FlexibleUserRepository {
     private $tableName;
     
     // Tablas disponibles para búsqueda automática
-    private $availableTables = ['ecc_users', 'users', 'user'];
+    private $availableTables = ['users', 'ecc_users', 'user'];
     
     public function __construct($dbConnection, $tableName = null) {
         $this->conn = $dbConnection;
@@ -36,8 +36,8 @@ class FlexibleUserRepository {
             }
         }
         
-        // Por defecto, usar ecc_users
-        return 'ecc_users';
+        // Por defecto, usar users
+        return 'users';
     }
     
     /**
@@ -61,8 +61,8 @@ class FlexibleUserRepository {
         // Primero intentar en la tabla configurada
         $user = $this->findByEmailInTable($email, $this->tableName);
         
-        // Si no se encuentra y estamos usando ecc_users, intentar en tabla legacy
-        if (!$user && $this->tableName === 'ecc_users') {
+        // Si no se encuentra y estamos usando users, intentar en tabla legacy
+        if (!$user && $this->tableName === 'users') {
             $user = $this->findByEmailInTable($email, 'user');
         }
         

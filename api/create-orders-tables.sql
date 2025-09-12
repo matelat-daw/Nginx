@@ -99,8 +99,8 @@ CREATE TABLE IF NOT EXISTS orders (
     INDEX idx_island (shipping_island),
     
     -- Claves foráneas
-    FOREIGN KEY (buyer_id) REFERENCES ecc_users(id) ON DELETE RESTRICT,
-    FOREIGN KEY (seller_id) REFERENCES ecc_users(id) ON DELETE SET NULL
+    FOREIGN KEY (buyer_id) REFERENCES users(id) ON DELETE RESTRICT,
+    FOREIGN KEY (seller_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 -- Tabla de artículos del pedido (reemplaza tu tabla "sold")
@@ -161,7 +161,7 @@ CREATE TABLE IF NOT EXISTS order_items (
     -- Claves foráneas
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT,
-    FOREIGN KEY (seller_id) REFERENCES ecc_users(id) ON DELETE RESTRICT
+    FOREIGN KEY (seller_id) REFERENCES users(id) ON DELETE RESTRICT
 );
 
 -- Tabla de pagos (para trazabilidad de transacciones)
@@ -243,7 +243,7 @@ CREATE TABLE IF NOT EXISTS order_status_history (
     -- Claves foráneas
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
     FOREIGN KEY (order_item_id) REFERENCES order_items(id) ON DELETE CASCADE,
-    FOREIGN KEY (changed_by_user_id) REFERENCES ecc_users(id) ON DELETE SET NULL
+    FOREIGN KEY (changed_by_user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 -- Tabla de facturas (opcional, para empresas)

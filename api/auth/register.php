@@ -65,7 +65,7 @@ try {
     $pdo = getDBConnection();
     
     // Verificar si el email ya existe
-    $stmt = $pdo->prepare("SELECT id FROM ecc_users WHERE email = ? LIMIT 1");
+    $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ? LIMIT 1");
     $stmt->execute([$email]);
     
     if ($stmt->rowCount() > 0) {
@@ -77,7 +77,7 @@ try {
     
     // Insertar nuevo usuario
     $stmt = $pdo->prepare("
-        INSERT INTO ecc_users (
+        INSERT INTO users (
             first_name, 
             last_name, 
             email, 
@@ -111,7 +111,7 @@ try {
     $emailConfirmationToken = generateEmailConfirmationToken();
     
     // Guardar token de confirmación en la base de datos
-    $stmt = $pdo->prepare("UPDATE ecc_users SET email_confirmation_token = ? WHERE id = ?");
+    $stmt = $pdo->prepare("UPDATE users SET email_confirmation_token = ? WHERE id = ?");
     $stmt->execute([$emailConfirmationToken, $userId]);
     
     // Enviar email de bienvenida con confirmación

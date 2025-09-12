@@ -10,7 +10,7 @@ class AppRouter {
     defineRoutes() {
         this.routes = {
             '/': () => new HomeComponent(),
-            '/productos': () => new ProductosComponent(),
+            '/products': () => new ProductsComponent(),
             '/economia-circular': () => new EconomiaCircularComponent(),
             '/sobre-nosotros': () => new SobreNosotrosComponent(),
             '/contacto': () => new ContactoComponent(),

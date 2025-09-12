@@ -1,8 +1,8 @@
--- Script de creación de tabla ecc_users
+-- Script de creación de tabla users
 -- Base de datos: users
 -- Tabla optimizada para el sistema de Economía Circular Canarias
 
-CREATE TABLE IF NOT EXISTS `ecc_users` (
+CREATE TABLE IF NOT EXISTS `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(50) NOT NULL,
   `email` varchar(255) NOT NULL,
@@ -37,11 +37,11 @@ CREATE TABLE IF NOT EXISTS `ecc_users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Insertar usuario de prueba (contraseña: test123)
-INSERT IGNORE INTO `ecc_users` 
+INSERT IGNORE INTO `users` 
 (`username`, `email`, `password_hash`, `first_name`, `last_name`, `email_confirmed`) 
 VALUES 
 ('admin', 'admin@test.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Admin', 'Test', 1);
 
 -- Verificar que se creó correctamente
-SELECT 'Tabla ecc_users creada exitosamente' as resultado;
-SELECT COUNT(*) as total_usuarios FROM ecc_users;
+SELECT 'Tabla users creada exitosamente' as resultado;
+SELECT COUNT(*) as total_usuarios FROM users;

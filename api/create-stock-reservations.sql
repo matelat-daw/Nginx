@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS stock_reservations (
     INDEX idx_session (session_token),
     
     -- Claves foráneas
-    FOREIGN KEY (user_id) REFERENCES ecc_users(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
     
     -- Evitar duplicados para el mismo usuario/producto
