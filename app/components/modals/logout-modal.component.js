@@ -28,7 +28,6 @@ class LogoutModal {
                 </div>
             </div>
         `;
-        
         this.successTemplate = `
             <div class="modal-overlay" id="logoutSuccessModal" style="display: none;">
                 <div class="modal-container logout-success-modal">
@@ -54,7 +53,6 @@ class LogoutModal {
             </div>
         `;
     }
-    
     show() {
         return new Promise((resolve) => {
             // Inyectar modal en el DOM si no existe
@@ -62,18 +60,15 @@ class LogoutModal {
                 document.body.insertAdjacentHTML('beforeend', this.template);
                 this.setupModalEventListeners(resolve);
             }
-            
             // Mostrar modal
             const modal = document.getElementById('logoutModal');
             if (modal) {
                 modal.style.display = 'flex';
                 document.body.style.overflow = 'hidden'; // Prevenir scroll
             }
-            
             this.addModalStyles();
         });
     }
-    
     hide() {
         const modal = document.getElementById('logoutModal');
         if (modal) {
@@ -81,27 +76,22 @@ class LogoutModal {
             document.body.style.overflow = ''; // Restaurar scroll
         }
     }
-    
     showSuccess() {
         return new Promise((resolve) => {
             // Primero ocultar el modal de confirmación
             this.hide();
-            
             // Inyectar modal de éxito si no existe
             if (!document.getElementById('logoutSuccessModal')) {
                 document.body.insertAdjacentHTML('beforeend', this.successTemplate);
                 this.setupSuccessModalEventListeners(resolve);
             }
-            
             // Mostrar modal de éxito
             const successModal = document.getElementById('logoutSuccessModal');
             if (successModal) {
                 successModal.style.display = 'flex';
                 document.body.style.overflow = 'hidden';
             }
-            
             this.addModalStyles();
-            
             // Auto-cerrar después de 3 segundos
             setTimeout(() => {
                 this.hideSuccess();
@@ -109,7 +99,6 @@ class LogoutModal {
             }, 3000);
         });
     }
-    
     hideSuccess() {
         const modal = document.getElementById('logoutSuccessModal');
         if (modal) {
@@ -117,26 +106,22 @@ class LogoutModal {
             document.body.style.overflow = '';
         }
     }
-    
     setupModalEventListeners(resolve) {
         const cancelBtn = document.getElementById('cancelLogoutBtn');
         const confirmBtn = document.getElementById('confirmLogoutBtn');
         const modal = document.getElementById('logoutModal');
-        
         if (cancelBtn) {
             cancelBtn.addEventListener('click', () => {
                 this.hide();
                 resolve(false); // Usuario canceló
             });
         }
-        
         if (confirmBtn) {
             confirmBtn.addEventListener('click', () => {
                 this.hide();
                 resolve(true); // Usuario confirmó
             });
         }
-        
         // Cerrar al hacer clic fuera del modal
         if (modal) {
             modal.addEventListener('click', (e) => {
@@ -146,7 +131,6 @@ class LogoutModal {
                 }
             });
         }
-        
         // Cerrar con Escape
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
@@ -155,18 +139,15 @@ class LogoutModal {
             }
         });
     }
-    
     setupSuccessModalEventListeners(resolve) {
         const closeBtn = document.getElementById('closeSuccessBtn');
         const modal = document.getElementById('logoutSuccessModal');
-        
         if (closeBtn) {
             closeBtn.addEventListener('click', () => {
                 this.hideSuccess();
                 resolve();
             });
         }
-        
         // Cerrar al hacer clic fuera del modal
         if (modal) {
             modal.addEventListener('click', (e) => {
@@ -177,7 +158,6 @@ class LogoutModal {
             });
         }
     }
-    
     addModalStyles() {
         if (!document.getElementById('logout-modal-styles')) {
             const style = document.createElement('style');
@@ -196,7 +176,6 @@ class LogoutModal {
                     z-index: 10000;
                     backdrop-filter: blur(4px);
                 }
-                
                 .modal-container {
                     background: white;
                     border-radius: 15px;
@@ -207,7 +186,6 @@ class LogoutModal {
                     overflow-y: auto;
                     animation: modalSlideIn 0.3s ease-out;
                 }
-                
                 .logout-modal .modal-header {
                     background: linear-gradient(135deg, #ef4444, #dc2626);
                     color: white;
@@ -215,7 +193,6 @@ class LogoutModal {
                     border-radius: 15px 15px 0 0;
                     text-align: center;
                 }
-                
                 .logout-success-modal .modal-header {
                     background: linear-gradient(135deg, #10b981, #059669);
                     color: white;
@@ -223,49 +200,41 @@ class LogoutModal {
                     border-radius: 15px 15px 0 0;
                     text-align: center;
                 }
-                
                 .modal-header h2 {
                     margin: 0;
                     font-size: 1.5rem;
                     font-weight: 600;
                 }
-                
                 .modal-body {
                     padding: 2rem;
                 }
-                
                 .logout-content,
                 .logout-success-content {
                     text-align: center;
                 }
-                
                 .logout-icon,
                 .success-icon {
                     font-size: 4rem;
                     margin-bottom: 1rem;
                 }
-                
                 .logout-content h3,
                 .logout-success-content h3 {
                     color: #374151;
                     margin-bottom: 1rem;
                     font-size: 1.5rem;
                 }
-                
                 .logout-content p,
                 .logout-success-content p {
                     color: #6b7280;
                     margin-bottom: 0.5rem;
                     line-height: 1.6;
                 }
-                
                 .logout-note,
                 .success-note {
                     font-size: 0.9rem !important;
                     color: #9ca3af !important;
                     font-style: italic;
                 }
-                
                 .modal-footer {
                     padding: 1.5rem 2rem;
                     border-top: 1px solid #e5e7eb;
@@ -273,7 +242,6 @@ class LogoutModal {
                     gap: 1rem;
                     justify-content: flex-end;
                 }
-                
                 .btn {
                     padding: 0.75rem 1.5rem;
                     border: none;
@@ -283,37 +251,30 @@ class LogoutModal {
                     transition: all 0.3s ease;
                     font-size: 1rem;
                 }
-                
                 .btn-secondary {
                     background: #6b7280;
                     color: white;
                 }
-                
                 .btn-secondary:hover {
                     background: #4b5563;
                     transform: translateY(-1px);
                 }
-                
                 .btn-danger {
                     background: #ef4444;
                     color: white;
                 }
-                
                 .btn-danger:hover {
                     background: #dc2626;
                     transform: translateY(-1px);
                 }
-                
                 .btn-primary {
                     background: #3b82f6;
                     color: white;
                 }
-                
                 .btn-primary:hover {
                     background: #2563eb;
                     transform: translateY(-1px);
                 }
-                
                 @keyframes modalSlideIn {
                     from {
                         opacity: 0;
@@ -324,38 +285,31 @@ class LogoutModal {
                         transform: translateY(0) scale(1);
                     }
                 }
-                
                 /* Tema oscuro */
                 [data-theme="dark"] .modal-container {
                     background: #1f2937;
                     color: #f9fafb;
                 }
-                
                 [data-theme="dark"] .logout-content h3,
                 [data-theme="dark"] .logout-success-content h3 {
                     color: #f9fafb;
                 }
-                
                 [data-theme="dark"] .logout-content p,
                 [data-theme="dark"] .logout-success-content p {
                     color: #d1d5db;
                 }
-                
                 [data-theme="dark"] .modal-footer {
                     border-top-color: #374151;
                 }
-                
                 /* Responsive */
                 @media (max-width: 640px) {
                     .modal-container {
                         width: 95%;
                         margin: 1rem;
                     }
-                    
                     .modal-footer {
                         flex-direction: column;
                     }
-                    
                     .btn {
                         width: 100%;
                     }
@@ -365,9 +319,7 @@ class LogoutModal {
         }
     }
 }
-
 // Crear instancia global del modal
 window.logoutModal = new LogoutModal();
-
 // Exportar la clase
 window.LogoutModal = LogoutModal;

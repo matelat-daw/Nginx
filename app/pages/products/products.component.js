@@ -63,10 +63,8 @@ class ProductsComponent {
                 imagen: "🌶️"
             }
         ];
-
         this.template = this.generateTemplate();
     }
-
     generateTemplate() {
         const productosHTML = this.productos.map(producto => `
             <div class="card producto-card" data-producto-id="${producto.id}">
@@ -93,14 +91,12 @@ class ProductsComponent {
                 </div>
             </div>
         `).join('');
-
         return `
             <div class="productos-component">
                 <section class="productos-header text-center mb-2">
                     <h1>🛒 Productos Locales de Canarias</h1>
                     <p>Descubre la mejor selección de productos canarios sostenibles y de calidad</p>
                 </section>
-
                 <section class="filtros mb-2">
                     <div class="card">
                         <h3>🔍 Filtrar Productos</h3>
@@ -114,7 +110,6 @@ class ProductsComponent {
                                 <option value="Hortalizas">Hortalizas</option>
                                 <option value="Condimentos">Condimentos</option>
                             </select>
-                            
                             <select id="filtroOrigen" class="filtro-select">
                                 <option value="">Todas las islas</option>
                                 <option value="Tenerife">Tenerife</option>
@@ -125,20 +120,17 @@ class ProductsComponent {
                                 <option value="La Gomera">La Gomera</option>
                                 <option value="El Hierro">El Hierro</option>
                             </select>
-                            
                             <button id="limpiarFiltros" class="btn btn-secondary">
                                 🧹 Limpiar Filtros
                             </button>
                         </div>
                     </div>
                 </section>
-
                 <section class="productos-grid">
                     <div class="grid grid-3" id="productosContainer">
                         ${productosHTML}
                     </div>
                 </section>
-
                 <section class="productos-stats text-center mt-2">
                     <div class="card">
                         <h3>📊 Estadísticas de Productos</h3>
@@ -159,54 +151,45 @@ class ProductsComponent {
                     </div>
                 </section>
             </div>
-
             <style>
                 .producto-card {
                     position: relative;
                     overflow: hidden;
                 }
-                
                 .producto-header {
                     display: flex;
                     justify-content: space-between;
                     align-items: flex-start;
                     margin-bottom: 1rem;
                 }
-                
                 .producto-emoji {
                     font-size: 3rem;
                 }
-                
                 .producto-badges {
                     display: flex;
                     flex-direction: column;
                     gap: 0.5rem;
                     align-items: flex-end;
                 }
-                
                 .badge {
                     padding: 0.3rem 0.8rem;
                     border-radius: 15px;
                     font-size: 0.8rem;
                     font-weight: bold;
                 }
-                
                 .badge-origen {
                     background: var(--canarias-blue);
                     color: white;
                 }
-                
                 .badge-sostenible {
                     background: var(--canarias-green);
                     color: white;
                 }
-                
                 .producto-descripcion {
                     color: #666;
                     line-height: 1.5;
                     margin-bottom: 1rem;
                 }
-                
                 .producto-info {
                     display: flex;
                     justify-content: space-between;
@@ -214,24 +197,20 @@ class ProductsComponent {
                     margin-bottom: 1rem;
                     font-size: 0.9rem;
                 }
-                
                 .precio {
                     font-weight: bold;
                     color: var(--canarias-green);
                     font-size: 1.1rem;
                 }
-                
                 .producto-actions {
                     display: flex;
                     gap: 0.5rem;
                 }
-                
                 .producto-actions .btn {
                     flex: 1;
                     padding: 0.5rem;
                     font-size: 0.9rem;
                 }
-                
                 .filtros-container {
                     display: flex;
                     gap: 1rem;
@@ -239,7 +218,6 @@ class ProductsComponent {
                     align-items: center;
                     margin-top: 1rem;
                 }
-                
                 .filtro-select {
                     padding: 0.5rem;
                     border: 2px solid var(--canarias-border);
@@ -248,16 +226,13 @@ class ProductsComponent {
                     flex: 1;
                     min-width: 150px;
                 }
-                
                 @media (max-width: 768px) {
                     .producto-actions {
                         flex-direction: column;
                     }
-                    
                     .filtros-container {
                         flex-direction: column;
                     }
-                    
                     .filtro-select {
                         width: 100%;
                     }
@@ -265,29 +240,23 @@ class ProductsComponent {
             </style>
         `;
     }
-
     render() {
         return this.template;
     }
-
     afterRender() {
         this.initializeFiltros();
         this.initializeProductoActions();
     }
-
     initializeFiltros() {
         const filtroCategoria = document.getElementById('filtroCategoria');
         const filtroOrigen = document.getElementById('filtroOrigen');
         const limpiarFiltros = document.getElementById('limpiarFiltros');
-
         if (filtroCategoria) {
             filtroCategoria.addEventListener('change', () => this.aplicarFiltros());
         }
-
         if (filtroOrigen) {
             filtroOrigen.addEventListener('change', () => this.aplicarFiltros());
         }
-
         if (limpiarFiltros) {
             limpiarFiltros.addEventListener('click', () => {
                 filtroCategoria.value = '';
@@ -296,24 +265,19 @@ class ProductsComponent {
             });
         }
     }
-
     aplicarFiltros() {
         const categoriaSeleccionada = document.getElementById('filtroCategoria').value;
         const origenSeleccionado = document.getElementById('filtroOrigen').value;
-        
         const productosFiltrados = this.productos.filter(producto => {
             const coincideCategoria = !categoriaSeleccionada || producto.categoria === categoriaSeleccionada;
             const coincideOrigen = !origenSeleccionado || producto.origen === origenSeleccionado;
             return coincideCategoria && coincideOrigen;
         });
-
         this.renderProductos(productosFiltrados);
     }
-
     renderProductos(productos) {
         const container = document.getElementById('productosContainer');
         if (!container) return;
-
         const productosHTML = productos.map(producto => `
             <div class="card producto-card" data-producto-id="${producto.id}">
                 <div class="producto-header">
@@ -339,22 +303,18 @@ class ProductsComponent {
                 </div>
             </div>
         `).join('');
-
         container.innerHTML = productosHTML;
         this.initializeProductoActions();
     }
-
     initializeProductoActions() {
         const botonesVer = document.querySelectorAll('.btn-ver-producto');
         const botonesComprar = document.querySelectorAll('.btn-comprar');
-
         botonesVer.forEach(boton => {
             boton.addEventListener('click', (e) => {
                 const productoId = e.target.getAttribute('data-producto-id');
                 this.verProducto(productoId);
             });
         });
-
         botonesComprar.forEach(boton => {
             boton.addEventListener('click', (e) => {
                 const productoId = e.target.getAttribute('data-producto-id');
@@ -362,14 +322,12 @@ class ProductsComponent {
             });
         });
     }
-
     verProducto(productoId) {
         const producto = this.productos.find(p => p.id == productoId);
         if (producto) {
             alert(`Ver detalles de: ${producto.nombre}\n\n${producto.descripcion}\n\nPrecio: ${producto.precio}€\nOrigen: ${producto.origen}`);
         }
     }
-
     comprarProducto(productoId) {
         const producto = this.productos.find(p => p.id == productoId);
         if (producto) {
@@ -377,6 +335,5 @@ class ProductsComponent {
         }
     }
 }
-
 // Exportar el componente
 window.ProductsComponent = ProductsComponent;

@@ -375,3 +375,95 @@ footer {
 
 /* Importar estilos de componentes específicos */
 @import url('../../../app/pages/orders/orders.component.css');
+
+/* ===============================
+   MODO OSCURO - ESTILOS GENERALES
+   =============================== */
+
+/* Variables para modo oscuro */
+[data-theme="dark"] {
+    --canarias-blue: #60a5fa;
+    --canarias-yellow: #fbbf24;
+    --canarias-white: #f9fafb;
+    --canarias-green: #34d399;
+    --canarias-ocean: #06b6d4;
+    --canarias-dark: #f9fafb;
+    --canarias-light-gray: #111827;
+    --canarias-border: #374151;
+}
+
+/* Estilos base para modo oscuro */
+[data-theme="dark"] body {
+    background-color: #111827;
+    color: #f9fafb;
+}
+
+/* Header en modo oscuro */
+[data-theme="dark"] header {
+    background: linear-gradient(135deg, #1e40af, #1e3a8a);
+}
+
+/* Nav en modo oscuro */
+[data-theme="dark"] nav {
+    background: #1f2937;
+    border-bottom-color: #fbbf24;
+}
+
+/* Main content en modo oscuro */
+[data-theme="dark"] main {
+    background: #111827;
+}
+
+/* Cards en modo oscuro */
+[data-theme="dark"] .card {
+    background: #1f2937;
+    color: #f9fafb;
+    border: 1px solid #374151;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+/* Botones en modo oscuro */
+[data-theme="dark"] .btn-primary {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: #ffffff;
+}
+
+[data-theme="dark"] .btn-primary:hover {
+    background: linear-gradient(135deg, #2563eb, #1e40af);
+}
+
+[data-theme="dark"] .btn-secondary {
+    background: #374151;
+    color: #e5e7eb;
+    border-color: #4b5563;
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+    background: #4b5563;
+    color: #f9fafb;
+}
+
+[data-theme="dark"] .btn-success {
+    background: linear-gradient(135deg, #059669, #047857);
+    color: #ffffff;
+}
+
+[data-theme="dark"] .btn-success:hover {
+    background: linear-gradient(135deg, #047857, #065f46);
+}
+
+/* Grid y utilidades en modo oscuro */
+[data-theme="dark"] .text-center {
+    color: #f9fafb;
+}
+
+/* Router outlet en modo oscuro */
+[data-theme="dark"] .router-outlet {
+    background: #111827;
+    color: #f9fafb;
+}
+
+/* Pantalla de carga en modo oscuro */
+[data-theme="dark"] .loading-screen {
+    background: linear-gradient(135deg, #1e40af, #1e3a8a);
+}

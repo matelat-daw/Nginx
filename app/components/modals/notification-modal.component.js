@@ -6,7 +6,6 @@ class NotificationModal {
         this.isVisible = false;
         this.init();
     }
-
     init() {
         // Crear el modal si no existe
         if (!document.getElementById('notificationModal')) {
@@ -15,7 +14,6 @@ class NotificationModal {
         this.modal = document.getElementById('notificationModal');
         this.setupEventListeners();
     }
-
     createModal() {
         const modalHTML = `
             <div id="notificationModal" class="modal-overlay" style="display: none;">
@@ -35,11 +33,9 @@ class NotificationModal {
                 </div>
             </div>
         `;
-
         document.body.insertAdjacentHTML('beforeend', modalHTML);
         this.addModalStyles();
     }
-
     addModalStyles() {
         if (!document.getElementById('notificationModalStyles')) {
             const styles = `
@@ -48,7 +44,6 @@ class NotificationModal {
                         max-width: 480px;
                         width: 90%;
                     }
-
                     .notification-modal .modal-header {
                         display: flex;
                         align-items: center;
@@ -56,12 +51,10 @@ class NotificationModal {
                         padding: 20px 24px 16px;
                         border-bottom: 1px solid var(--border-color, #e2e8f0);
                     }
-
                     .notification-icon {
                         font-size: 24px;
                         line-height: 1;
                     }
-
                     .notification-title {
                         margin: 0;
                         font-size: 18px;
@@ -69,7 +62,6 @@ class NotificationModal {
                         color: var(--text-primary, #1e293b);
                         flex: 1;
                     }
-
                     .notification-message {
                         margin: 0;
                         padding: 20px 24px;
@@ -77,7 +69,6 @@ class NotificationModal {
                         line-height: 1.5;
                         color: var(--text-secondary, #475569);
                     }
-
                     .notification-details {
                         padding: 0 24px 20px;
                         font-size: 14px;
@@ -86,54 +77,42 @@ class NotificationModal {
                         border-radius: 8px;
                         margin: 0 24px;
                     }
-
                     .notification-details ul {
                         margin: 8px 0;
                         padding-left: 20px;
                     }
-
                     .notification-details li {
                         margin-bottom: 4px;
                     }
-
                     /* Tipos de notificación */
                     .notification-modal.error .notification-icon {
                         color: #ef4444;
                     }
-
                     .notification-modal.error .notification-title {
                         color: #dc2626;
                     }
-
                     .notification-modal.success .notification-icon {
                         color: #10b981;
                     }
-
                     .notification-modal.success .notification-title {
                         color: #059669;
                     }
-
                     .notification-modal.warning .notification-icon {
                         color: #f59e0b;
                     }
-
                     .notification-modal.warning .notification-title {
                         color: #d97706;
                     }
-
                     .notification-modal.info .notification-icon {
                         color: #3b82f6;
                     }
-
                     .notification-modal.info .notification-title {
                         color: #2563eb;
                     }
-
                     /* Animaciones */
                     .notification-modal {
                         animation: notificationSlideIn 0.3s ease-out;
                     }
-
                     @keyframes notificationSlideIn {
                         from {
                             opacity: 0;
@@ -149,20 +128,16 @@ class NotificationModal {
             document.head.insertAdjacentHTML('beforeend', styles);
         }
     }
-
     setupEventListeners() {
         const closeBtn = document.getElementById('closeNotificationModal');
         const acceptBtn = document.getElementById('notificationAcceptBtn');
         const overlay = document.getElementById('notificationModal');
-
         if (closeBtn) {
             closeBtn.addEventListener('click', () => this.hide());
         }
-
         if (acceptBtn) {
             acceptBtn.addEventListener('click', () => this.hide());
         }
-
         if (overlay) {
             overlay.addEventListener('click', (e) => {
                 if (e.target === overlay) {
@@ -170,7 +145,6 @@ class NotificationModal {
                 }
             });
         }
-
         // Cerrar con ESC
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && this.isVisible) {
@@ -178,7 +152,6 @@ class NotificationModal {
             }
         });
     }
-
     show(options = {}) {
         const {
             type = 'info',
@@ -187,17 +160,14 @@ class NotificationModal {
             details = null,
             icon = null
         } = options;
-
         if (!this.modal) {
             this.init();
         }
-
         // Configurar contenido
         const iconElement = document.getElementById('notificationIcon');
         const titleElement = document.getElementById('notificationTitle');
         const messageElement = document.getElementById('notificationMessage');
         const detailsElement = document.getElementById('notificationDetails');
-
         // Configurar icono según tipo
         const icons = {
             error: '❌',
@@ -205,19 +175,15 @@ class NotificationModal {
             warning: '⚠️',
             info: 'ℹ️'
         };
-
         if (iconElement) {
             iconElement.textContent = icon || icons[type] || icons.info;
         }
-
         if (titleElement) {
             titleElement.textContent = title;
         }
-
         if (messageElement) {
             messageElement.textContent = message;
         }
-
         // Configurar detalles si se proporcionan
         if (detailsElement) {
             if (details) {
@@ -231,17 +197,14 @@ class NotificationModal {
                 detailsElement.style.display = 'none';
             }
         }
-
         // Aplicar clase de tipo
         const modalContainer = this.modal.querySelector('.modal-container');
         if (modalContainer) {
             modalContainer.className = `modal-container notification-modal ${type}`;
         }
-
         // Mostrar modal
         this.modal.style.display = 'flex';
         this.isVisible = true;
-
         // Focus en el botón de cerrar para accesibilidad
         setTimeout(() => {
             const acceptBtn = document.getElementById('notificationAcceptBtn');
@@ -250,14 +213,12 @@ class NotificationModal {
             }
         }, 100);
     }
-
     hide() {
         if (this.modal) {
             this.modal.style.display = 'none';
             this.isVisible = false;
         }
     }
-
     // Métodos de conveniencia
     showError(message, details = null) {
         this.show({
@@ -267,7 +228,6 @@ class NotificationModal {
             details
         });
     }
-
     showSuccess(message, details = null) {
         this.show({
             type: 'success',
@@ -276,7 +236,6 @@ class NotificationModal {
             details
         });
     }
-
     showWarning(message, details = null) {
         this.show({
             type: 'warning',
@@ -285,7 +244,6 @@ class NotificationModal {
             details
         });
     }
-
     showInfo(message, details = null) {
         this.show({
             type: 'info',
@@ -295,8 +253,5 @@ class NotificationModal {
         });
     }
 }
-
 // Instancia global del modal de notificaciones
 window.notificationModal = new NotificationModal();
-
-console.log('✅ NotificationModal cargado y disponible globalmente');

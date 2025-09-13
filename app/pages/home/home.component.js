@@ -3,12 +3,10 @@ class HomeComponent {
     constructor() {
         this.cssLoaded = false;
     }
-
     render() {
         // Devuelve un contenedor vacío, el HTML se inyecta en afterRender
         return '<div class="home-component"></div>';
     }
-
     async afterRender() {
         // Cargar CSS solo una vez
         if (!this.cssLoaded) {
@@ -18,7 +16,6 @@ class HomeComponent {
             document.head.appendChild(link);
             this.cssLoaded = true;
         }
-
         // Cargar HTML de forma asíncrona
         const container = document.querySelector('.home-component');
         if (container) {
@@ -29,7 +26,6 @@ class HomeComponent {
                 container.innerHTML = '<div>Error cargando home.component.html</div>';
             }
         }
-
         // Esperar a que el HTML esté en el DOM antes de inicializar lógica
         setTimeout(() => {
             this.initializeNavigation();
@@ -37,7 +33,6 @@ class HomeComponent {
             this.initCanariasSlider();
         }, 0);
     }
-
     initCanariasSlider() {
         // Ajustar ancho igual al bloque hero-section
         const heroCard = document.querySelector('.hero-section .card');
@@ -53,13 +48,11 @@ class HomeComponent {
         const nextBtn = document.getElementById('sliderNextBtn');
         const dotsContainer = document.getElementById('sliderDots');
         let current = 0;
-
         // Autoplay cada 3 segundos
         let autoplay = setInterval(() => {
             current = (current + 1) % slides.length;
             updateSlider();
         }, 3000);
-
         // Pausar autoplay al interactuar
         [prevBtn, nextBtn, dotsContainer, track].forEach(el => {
             if (!el) return;
@@ -71,7 +64,6 @@ class HomeComponent {
                 }, 3000);
             });
         });
-
         // Crear dots
         dotsContainer.innerHTML = '';
         slides.forEach((_, i) => {
@@ -80,19 +72,16 @@ class HomeComponent {
             dot.addEventListener('click', () => goToSlide(i));
             dotsContainer.appendChild(dot);
         });
-
         function updateSlider() {
             track.style.transform = `translateX(-${current * 100}%)`;
             dotsContainer.querySelectorAll('.slider-dot').forEach((dot, i) => {
                 dot.classList.toggle('active', i === current);
             });
         }
-
         function goToSlide(idx) {
             current = idx;
             updateSlider();
         }
-
         prevBtn.onclick = () => {
             current = (current - 1 + slides.length) % slides.length;
             updateSlider();
@@ -101,7 +90,6 @@ class HomeComponent {
             current = (current + 1) % slides.length;
             updateSlider();
         };
-
         // Swipe para móvil
         let startX = null;
         track.addEventListener('touchstart', e => {
@@ -114,13 +102,11 @@ class HomeComponent {
             if (dx < -50) nextBtn.click();
             startX = null;
         });
-
         // Inicializar
         updateSlider();
     }
     initializeNavigation() {
         const navLinks = this.getElement().querySelectorAll('[data-navigate]');
-        
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -129,26 +115,21 @@ class HomeComponent {
             });
         });
     }
-
     animateStats() {
         const statsNumbers = this.getElement().querySelectorAll('.stats-section h3');
-        
         statsNumbers.forEach((stat, index) => {
             setTimeout(() => {
                 stat.style.transform = 'scale(1.1)';
                 stat.style.transition = 'transform 0.5s ease';
-                
                 setTimeout(() => {
                     stat.style.transform = 'scale(1)';
                 }, 500);
             }, index * 200);
         });
     }
-
     getElement() {
         return document.querySelector('.home-component');
     }
 }
-
 // Exportar el componente
 window.HomeComponent = HomeComponent;

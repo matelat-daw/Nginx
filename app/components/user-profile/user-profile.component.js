@@ -2,7 +2,6 @@
  * Componente de Perfil de Usuario
  * Gestiona el dashboard y perfil de usuarios compradores y vendedores
  */
-
 class UserProfileComponent {
     constructor() {
         this.container = null;
@@ -10,11 +9,9 @@ class UserProfileComponent {
         this.currentView = 'dashboard';
         this.init();
     }
-
     init() {
         this.loadUserData();
     }
-
     async loadUserData() {
         try {
             const token = localStorage.getItem('authToken');
@@ -22,7 +19,6 @@ class UserProfileComponent {
                 window.location.href = '/login.html';
                 return;
             }
-
             const response = await fetch('/api/auth/dashboard.php', {
                 method: 'GET',
                 headers: {
@@ -30,9 +26,7 @@ class UserProfileComponent {
                     'Content-Type': 'application/json'
                 }
             });
-
             const result = await response.json();
-
             if (result.success) {
                 this.userData = result.data;
                 this.render();
@@ -45,14 +39,12 @@ class UserProfileComponent {
             this.showError('Error de conexión');
         }
     }
-
     render() {
         if (!this.container) {
             this.container = document.createElement('div');
             this.container.className = 'user-profile-container';
             document.body.appendChild(this.container);
         }
-
         this.container.innerHTML = `
             <div class="profile-header">
                 <div class="profile-info">
@@ -81,7 +73,6 @@ class UserProfileComponent {
                     </div>
                 </div>
             </div>
-
             <div class="profile-navigation">
                 <button class="nav-btn ${this.currentView === 'dashboard' ? 'active' : ''}" 
                         onclick="userProfile.switchView('dashboard')">
@@ -104,15 +95,12 @@ class UserProfileComponent {
                     Editar Perfil
                 </button>
             </div>
-
             <div class="profile-content">
                 ${this.renderCurrentView()}
             </div>
         `;
-
         this.attachEventListeners();
     }
-
     renderCurrentView() {
         switch (this.currentView) {
             case 'dashboard':
@@ -129,7 +117,6 @@ class UserProfileComponent {
                 return this.renderDashboard();
         }
     }
-
     renderDashboard() {
         return `
             <div class="dashboard-grid">
@@ -149,7 +136,6 @@ class UserProfileComponent {
                             <span class="stat-label">Total gastado</span>
                         </div>
                     </div>
-                    
                     <h4>Compras Recientes</h4>
                     <div class="recent-items">
                         ${this.userData.recent_purchases.map(order => `
@@ -167,7 +153,6 @@ class UserProfileComponent {
                         `).join('')}
                     </div>
                 </div>
-
                 <div class="dashboard-section">
                     <h3>Actividad como Vendedor</h3>
                     <div class="activity-stats">
@@ -184,7 +169,6 @@ class UserProfileComponent {
                             <span class="stat-label">Ingresos (30 días)</span>
                         </div>
                     </div>
-
                     <h4>Ventas Recientes</h4>
                     <div class="recent-items">
                         ${this.userData.recent_sales.map(sale => `
@@ -202,7 +186,6 @@ class UserProfileComponent {
                         `).join('')}
                     </div>
                 </div>
-
                 ${this.userData.products_attention.length > 0 ? `
                     <div class="dashboard-section attention-section">
                         <h3>⚠️ Productos que Requieren Atención</h3>
@@ -225,7 +208,6 @@ class UserProfileComponent {
             </div>
         `;
     }
-
     renderPurchases() {
         // Este método cargará las compras dinámicamente
         return `
@@ -250,7 +232,6 @@ class UserProfileComponent {
             </div>
         `;
     }
-
     renderProducts() {
         return `
             <div class="products-section">
@@ -275,7 +256,6 @@ class UserProfileComponent {
             </div>
         `;
     }
-
     renderSales() {
         return `
             <div class="sales-section">
@@ -307,7 +287,6 @@ class UserProfileComponent {
             </div>
         `;
     }
-
     renderProfileEdit() {
         return `
             <div class="profile-edit-section">
@@ -325,7 +304,6 @@ class UserProfileComponent {
                                    value="${this.userData.user.email || ''}" required>
                         </div>
                     </div>
-                    
                     <div class="form-row">
                         <div class="form-group">
                             <label for="full_name">Nombre completo</label>
@@ -338,7 +316,6 @@ class UserProfileComponent {
                                    value="${this.userData.user.phone || ''}">
                         </div>
                     </div>
-                    
                     <div class="form-row">
                         <div class="form-group">
                             <label for="island">Isla</label>
@@ -359,18 +336,15 @@ class UserProfileComponent {
                                    value="${this.userData.user.city || ''}">
                         </div>
                     </div>
-                    
                     <div class="form-group">
                         <label for="address">Dirección</label>
                         <textarea id="address" name="address" rows="3">${this.userData.user.address || ''}</textarea>
                     </div>
-                    
                     <div class="form-group">
                         <label for="postal_code">Código postal</label>
                         <input type="text" id="postal_code" name="postal_code" 
                                value="${this.userData.user.postal_code || ''}">
                     </div>
-                    
                     <div class="form-actions">
                         <button type="submit" class="btn-primary">Guardar Cambios</button>
                         <button type="button" onclick="userProfile.deleteAccount()" class="btn-danger">
@@ -381,7 +355,6 @@ class UserProfileComponent {
             </div>
         `;
     }
-
     // Métodos auxiliares
     getStatusText(status) {
         const statusMap = {
@@ -395,11 +368,9 @@ class UserProfileComponent {
         };
         return statusMap[status] || status;
     }
-
     switchView(view) {
         this.currentView = view;
         this.render();
-        
         // Cargar datos específicos de la vista
         if (view === 'purchases') {
             this.loadPurchases();
@@ -409,25 +380,21 @@ class UserProfileComponent {
             this.loadSales();
         }
     }
-
     attachEventListeners() {
         // Event listener para el formulario de perfil
         const profileForm = document.getElementById('profile-edit-form');
         if (profileForm) {
             profileForm.addEventListener('submit', (e) => this.updateProfile(e));
         }
-
         // Event listeners para filtros
         const orderStatusFilter = document.getElementById('order-status-filter');
         if (orderStatusFilter) {
             orderStatusFilter.addEventListener('change', () => this.loadPurchases());
         }
-
         const productStatusFilter = document.getElementById('product-status-filter');
         if (productStatusFilter) {
             productStatusFilter.addEventListener('change', () => this.loadProducts());
         }
-
         const salesPeriodFilter = document.getElementById('sales-period-filter');
         const salesStatusFilter = document.getElementById('sales-status-filter');
         if (salesPeriodFilter) {
@@ -437,52 +404,36 @@ class UserProfileComponent {
             salesStatusFilter.addEventListener('change', () => this.loadSales());
         }
     }
-
     // Métodos para cargar datos específicos (implementar según necesidad)
     async loadPurchases(page = 1) {
         // Implementar carga de compras
-        console.log('Cargando compras...');
     }
-
     async loadProducts(page = 1) {
         // Implementar carga de productos
-        console.log('Cargando productos...');
     }
-
     async loadSales(page = 1) {
         // Implementar carga de ventas
-        console.log('Cargando ventas...');
     }
-
     async updateProfile(event) {
         event.preventDefault();
         // Implementar actualización de perfil
-        console.log('Actualizando perfil...');
     }
-
     async deleteAccount() {
         if (confirm('¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.')) {
             // Implementar eliminación de cuenta
-            console.log('Eliminando cuenta...');
         }
     }
-
     showAddProductForm() {
         // Mostrar formulario para agregar producto
-        console.log('Mostrando formulario de producto...');
     }
-
     editProduct(productId) {
         // Editar producto específico
-        console.log('Editando producto:', productId);
     }
-
     showError(message) {
         // Mostrar mensaje de error
         console.error(message);
     }
 }
-
 // Inicializar el componente cuando se carga la página
 let userProfile;
 document.addEventListener('DOMContentLoaded', () => {

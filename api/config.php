@@ -161,7 +161,7 @@ define('JWT_EXPIRATION', 24 * 60 * 60);
 define('COOKIE_NAME', 'ecc_auth_token');
 define('COOKIE_EXPIRATION', 24 * 60 * 60);
 define('COOKIE_SECURE', false);
-define('COOKIE_HTTP_ONLY', true);
+define('COOKIE_HTTP_ONLY', false);
 define('COOKIE_SAME_SITE', 'Lax');
 
 // Seguridad

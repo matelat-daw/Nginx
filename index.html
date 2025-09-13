@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Economía Circular de Canarias | Productos Locales</title>
     <meta name="description" content="Descubre la Economía Circular en Canarias con Productos Locales y Sostenibles. Apoya a los Productores Canarios y Fomenta un Consumo Responsable. Si Compras Aquí, Vuelve a Ti.">
-    
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏝️</text></svg>">
-    
     <!-- Estilos principales -->
     <link rel="stylesheet" href="app/assets/css/styles.css">
 </head>
@@ -25,44 +23,61 @@
             <p class="loading-text">Cargando aplicación...</p>
         </div>
     </div>
-
     <!-- Scripts esenciales de la aplicación -->
     <!-- 1. Configuración base -->
     <script src="app/config/app.config.js"></script>
-    
     <!-- 2. Servicios fundamentales -->
     <script src="app/services/auth.service.js"></script>
-    
     <!-- 3. Componentes globales requeridos -->
     <script src="app/components/modals/email-confirmation-modal.component.js"></script>
     <script src="app/components/modals/logout-modal.component.js"></script>
     <script src="app/components/modals/notification-modal.component.js"></script>
-    
     <!-- 4. Inicialización asíncrona de AuthService -->
     <script>
-        // Inicialización automática y asíncrona del AuthService
-        (async function initializeAuthService() {
-            if (!window.authService && typeof window.AuthService === 'function') {
-                try {
-                    console.log('🔧 Creando AuthService...');
+        // Función simple para verificar sesión al cargar la página
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Esperar un momento para que todos los scripts se carguen
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            // Función para obtener cookie
+            function getCookie(name) {
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    const [cookieName, cookieValue] = cookie.trim().split('=');
+                    if (cookieName === name) {
+                        return cookieValue;
+                    }
+                }
+                // Método alternativo con regex
+                const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+                return match ? match[2] : null;
+            }
+            
+            const token = getCookie('ecc_auth_token');
+            
+            if (token) {
+                console.log('🍪 Token encontrado, inicializando sesión...');
+                
+                // Crear AuthService si no existe
+                if (!window.authService && window.AuthService) {
                     window.authService = new window.AuthService();
+                    const sessionRestored = await window.authService.init();
                     
-                    // Esperar a que termine la inicialización
-                    await window.authService.init();
-                    console.log('✅ AuthService inicializado y verificado');
-                    
-                } catch (error) {
-                    console.error('❌ Error inicializando AuthService:', error);
+                    // Forzar actualización del header después de la inicialización
+                    setTimeout(() => {
+                        if (window.headerComponent && sessionRestored) {
+                            window.headerComponent.refreshAuthState();
+                            console.log('🔄 Header actualizado después de restaurar sesión');
+                        }
+                    }, 100);
                 }
             }
-        })();
+        });
     </script>
-    
     <!-- 5. Componentes de layout -->
-    <script src="app/components/layout/header.component.js"></script>
-    <script src="app/components/layout/nav.component.js"></script>
-    <script src="app/components/layout/footer.component.js"></script>
-    
+    <script src="app/components/header/header.component.js"></script>
+    <script src="app/components/nav/nav.component.js"></script>
+    <script src="app/components/footer/footer.component.js"></script>
     <!-- 6. Páginas principales -->
     <script src="app/pages/home/home.component.js"></script>
     <script src="app/pages/products/products.component.js"></script>
@@ -70,11 +85,9 @@
     <script src="app/pages/auth/register/register.component.js"></script>
     <script src="app/pages/profile/profile.component.js"></script>
     <script src="app/pages/orders/orders.component.js"></script>
-    
     <!-- 7. Router y aplicación principal -->
     <script src="app/router/app-router.js"></script>
     <script src="app/app.component.js"></script>
-    
     <!-- 8. Inicialización -->
     <script src="app/assets/js/main.js"></script>
 </body>
