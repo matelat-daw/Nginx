@@ -1,0 +1,132 @@
+<!-- Cart Modal Component Template - Economía Circular Canarias -->
+
+<!-- Template principal del modal del carrito -->
+<template id="cartModalTemplate">
+    <div id="cartModal" class="cart-modal-overlay">
+        <div class="cart-modal">
+            <div class="cart-modal-header">
+                <h2>🛒 Carrito de Compras</h2>
+                <button class="cart-modal-close" id="cartModalClose">✕</button>
+            </div>
+            
+            <div class="cart-modal-content" id="cartModalContent">
+                <!-- El contenido se insertará dinámicamente -->
+            </div>
+            
+            <div class="cart-modal-footer" id="cartModalFooter" style="display: none;">
+                <!-- El footer se insertará dinámicamente -->
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- Template para carrito vacío -->
+<template id="cartEmptyTemplate">
+    <div class="cart-empty">
+        <div class="cart-empty-icon">🛒</div>
+        <h3>Tu carrito está vacío</h3>
+        <p>¡Explora nuestros productos y encuentra algo increíble!</p>
+        <button class="btn btn-primary" id="continueShopping">
+            🏪 Continuar Comprando
+        </button>
+    </div>
+</template>
+
+<!-- Template para lista de items del carrito -->
+<template id="cartItemsTemplate">
+    <div class="cart-items" id="cartItemsList">
+        <!-- Los items se insertarán dinámicamente -->
+    </div>
+</template>
+
+<!-- Template para item individual del carrito -->
+<template id="cartItemTemplate">
+    <div class="cart-item" data-product-id="">
+        <div class="cart-item-image">
+            <img src="" 
+                 alt="" 
+                 class="cart-product-image"
+                 loading="lazy"
+                 onload="this.style.opacity=1;"
+                 onerror="this.src='/assets/img/default-product.svg'; this.style.opacity=1;">
+        </div>
+        <div class="cart-item-details">
+            <h4 class="cart-item-name"></h4>
+            <p class="cart-item-category"></p>
+            <p class="cart-item-price"></p>
+        </div>
+        <div class="cart-item-quantity">
+            <button class="quantity-btn quantity-decrease" data-product-id="">-</button>
+            <span class="quantity-display"></span>
+            <button class="quantity-btn quantity-increase" data-product-id="">+</button>
+        </div>
+        <div class="cart-item-total"></div>
+        <button class="cart-item-remove" data-product-id="" title="Eliminar producto">
+            🗑️
+        </button>
+    </div>
+</template>
+
+<!-- Template para footer del carrito -->
+<template id="cartFooterTemplate">
+    <div class="cart-modal-footer">
+        <div class="cart-summary">
+            <div class="cart-summary-line">
+                <span>Total de productos:</span>
+                <span class="item-count"></span>
+            </div>
+            <div class="cart-summary-line cart-total">
+                <span>Total a pagar:</span>
+                <span class="total-amount"></span>
+            </div>
+        </div>
+        <div class="cart-actions">
+            <button class="btn btn-outline-secondary" id="clearCart">
+                🗑️ Vaciar Carrito
+            </button>
+            <button class="btn btn-primary" id="proceedCheckout">
+                💳 Proceder al Pago
+            </button>
+        </div>
+    </div>
+</template>
+
+<!-- Template para modal de confirmación eliminar item -->
+<template id="confirmRemoveTemplate">
+    <div class="cart-confirm-modal">
+        <div class="cart-confirm-content">
+            <h3>🗑️ Eliminar Producto</h3>
+            <p>¿Estás seguro de que quieres eliminar este producto del carrito?</p>
+            <div class="cart-confirm-actions">
+                <button class="btn btn-secondary cart-confirm-cancel">Cancelar</button>
+                <button class="btn btn-danger cart-confirm-ok">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- Template para modal de confirmación vaciar carrito -->
+<template id="confirmClearTemplate">
+    <div class="cart-clear-modal">
+        <div class="cart-clear-content">
+            <h3>🗑️ Vaciar Carrito</h3>
+            <p>¿Estás seguro de que quieres eliminar <strong>todos los productos</strong> del carrito?</p>
+            <p class="warning-text">Esta acción no se puede deshacer.</p>
+            <div class="cart-clear-actions">
+                <button class="btn btn-secondary cart-clear-cancel">Cancelar</button>
+                <button class="btn btn-danger cart-clear-ok">Vaciar Carrito</button>
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- Template para notificaciones -->
+<template id="notificationTemplate">
+    <div class="cart-notification">
+        <div class="cart-notification-content">
+            <span class="cart-notification-icon"></span>
+            <div class="cart-notification-text"></div>
+            <button class="cart-notification-close">✕</button>
+        </div>
+    </div>
+</template>

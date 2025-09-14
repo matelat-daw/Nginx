@@ -15,6 +15,18 @@ class HeaderComponent {
             this.currentUser = window.authService.getCurrentUser();
         }
     }
+
+    // Utilidad para obtener contenido de template
+    getTemplateContent(templateId) {
+        const template = document.getElementById(templateId);
+        if (template && template.content) {
+            const clone = template.content.cloneNode(true);
+            const tempDiv = document.createElement('div');
+            tempDiv.appendChild(clone);
+            return { element: clone, html: tempDiv.innerHTML };
+        }
+        return null;
+    }
     // Cargar template HTML
     async loadTemplate() {
         if (this.template) return this.template;
@@ -29,62 +41,66 @@ class HeaderComponent {
     }
     // Template de respaldo si falla la carga
     getFallbackTemplate() {
+        // En caso de error, usar una versión muy básica
         return `
             <header>
                 <div class="header-content">
-                    <a href="/" class="logo" data-navigate="/">
-                        🏝️ Economía Circular Canarias
-                    </a>
+                    <a href="/" class="logo">🏝️ Economía Circular Canarias</a>
                     <div class="header-actions">
-                        <button class="theme-toggle" id="themeToggle">
-                            🌙 Modo Oscuro
-                        </button>
-                        <div class="auth-section" id="authSection">
-                            <!-- El contenido de autenticación se insertará dinámicamente -->
+                        <button class="theme-toggle" id="themeToggle">🌙</button>
+                        <div class="cart-section" id="cartSection">
+                            <button class="cart-button" id="cartButton">🛒</button>
                         </div>
+                        <div class="auth-section" id="authSection"></div>
                     </div>
                 </div>
             </header>
         `;
     }
+    // Renderizar sección de autenticación usando templates del HTML
     renderAuthSection() {
         if (this.isAuthenticated && this.currentUser) {
-            // Obtener nombre del usuario
-            const userName = this.currentUser.first_name || this.currentUser.firstName || 'Usuario';
-            return `
-                <div class="user-menu">
-                    <button class="user-button" id="userMenuToggle">
-                        👤 ${userName}
-                        <span class="dropdown-arrow">▼</span>
-                    </button>
-                    <div class="user-dropdown" id="userDropdown" style="display: none;">
-                        <a href="#/profile" class="dropdown-item" data-navigate="/profile">
-                            👤 Mi Perfil
-                        </a>
-                        <a href="#/orders" class="dropdown-item" data-navigate="/orders">
-                            📦 Mis Pedidos
-                        </a>
-                        <a href="#/settings" class="dropdown-item" data-navigate="/settings">
-                            ⚙️ Configuración
-                        </a>
-                        <hr class="dropdown-divider">
-                        <button class="dropdown-item logout-btn" id="logoutBtn">
-                            🚪 Cerrar Sesión
-                        </button>
-                    </div>
-                </div>
-            `;
+            // Usar template del HTML para usuario autenticado
+            const templateData = this.getTemplateContent('userMenuTemplate');
+            if (templateData) {
+                // Actualizar el nombre del usuario
+                const userName = this.currentUser.first_name || this.currentUser.firstName || 'Usuario';
+                const userNameSpan = templateData.element.querySelector('.user-name');
+                if (userNameSpan) {
+                    userNameSpan.textContent = userName;
+                }
+                // Reconstruir el HTML con el nombre actualizado
+                const tempDiv = document.createElement('div');
+                tempDiv.appendChild(templateData.element);
+                return tempDiv.innerHTML;
+            }
         } else {
-            return `
-                <div class="auth-buttons">
-                    <a href="/login" class="btn btn-outline-primary" data-navigate="/login">
-                        🔐 Login
-                    </a>
-                    <a href="/register" class="btn btn-primary" data-navigate="/register">
-                        👤 Registro
-                    </a>
+            // Usar template del HTML para botones de auth
+            const templateData = this.getTemplateContent('authButtonsTemplate');
+            if (templateData) {
+                return templateData.html;
+            }
+        }
+        
+        // Fallback si no hay templates disponibles
+        return this.getFallbackAuthSection();
+    }
+
+    // Fallback para auth section si no hay templates
+    getFallbackAuthSection() {
+        if (this.isAuthenticated && this.currentUser) {
+            const userName = this.currentUser.first_name || this.currentUser.firstName || 'Usuario';
+            return `<div class="user-menu">
+                <button class="user-button" id="userMenuToggle">👤 ${userName}</button>
+                <div class="user-dropdown" id="userDropdown" style="display: none;">
+                    <button class="dropdown-item logout-btn" id="logoutBtn">🚪 Cerrar Sesión</button>
                 </div>
-            `;
+            </div>`;
+        } else {
+            return `<div class="auth-buttons">
+                <a href="/login" class="btn btn-outline-primary" data-navigate="/login">🔐 Login</a>
+                <a href="/register" class="btn btn-primary" data-navigate="/register">👤 Registro</a>
+            </div>`;
         }
     }
     async render() {
@@ -122,6 +138,7 @@ class HeaderComponent {
         this.initializeThemeToggle();
         this.initializeNavigation();
         this.initializeAuthEvents();
+        this.initializeCart();
         this.updateAuthSection();
     }
     
@@ -269,6 +286,52 @@ class HeaderComponent {
             this.isAuthenticated = window.authService.isAuthenticated();
             this.currentUser = window.authService.getCurrentUser();
             this.updateAuthSection();
+        }
+    }
+
+    // Inicializar carrito
+    initializeCart() {
+        this.updateCartCount();
+        this.initializeCartEvents();
+        
+        const cartButton = document.getElementById('cartButton');
+        if (cartButton) {
+            cartButton.addEventListener('click', () => {
+                this.openCartModal();
+            });
+        }
+    }
+
+    // Inicializar eventos del carrito
+    initializeCartEvents() {
+        // Escuchar cambios en el carrito
+        document.addEventListener('cart-updated', (e) => {
+            this.updateCartCount();
+        });
+    }
+
+    // Actualizar contador del carrito
+    updateCartCount() {
+        const cartCount = document.getElementById('cartCount');
+        if (cartCount && window.cartService) {
+            const itemCount = window.cartService.getItemCount();
+            
+            if (itemCount > 0) {
+                cartCount.textContent = itemCount;
+                cartCount.style.display = 'inline-block';
+            } else {
+                cartCount.style.display = 'none';
+            }
+        }
+    }
+
+    // Abrir modal del carrito
+    openCartModal() {
+        if (window.CartModal) {
+            const cartModal = new window.CartModal();
+            cartModal.show();
+        } else {
+            console.log('CartModal no disponible aún');
         }
     }
 }
