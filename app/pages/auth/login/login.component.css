@@ -25,32 +25,77 @@
     margin-bottom: 0.1rem;
 }
 .form-group input {
-    padding: 0.6rem 0.8rem;
+    padding: 12px 15px;
     border: 1px solid #d1d5db;
     border-radius: 6px;
-    font-size: 1rem;
+    font-size: 16px;
     outline: none;
     transition: border 0.2s;
+    width: 100%;
+    font-family: inherit;
 }
 .form-group input:focus {
     border-color: #3b82f6;
 }
 .password-input-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    position: relative;
+    display: block;
+    width: 100%;
 }
+
+.password-input-wrapper input {
+    width: 100%;
+    padding: 12px 50px 12px 15px; /* Espacio para el botón a la derecha */
+    font-family: inherit;
+    color: #333;
+    background-color: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: border-color 0.2s;
+    -webkit-text-security: none; /* Evita problemas en WebKit */
+}
+
+.password-input-wrapper input[type="password"] {
+    font-family: 'Courier New', monospace; /* Fuente uniforme para dots */
+}
+
+.password-input-wrapper input[type="text"] {
+    font-family: inherit; /* Fuente normal para texto visible */
+}
+
+.password-input-wrapper input:focus {
+    border-color: #3b82f6;
+    outline: none;
+}
+
 #toggleLoginPassword {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
     background: none;
     border: none;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     cursor: pointer;
     color: #6b7280;
-    padding: 0 0.3rem;
+    padding: 4px;
     transition: color 0.2s;
+    z-index: 10;
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
 }
+
 #toggleLoginPassword:hover {
     color: #111827;
+}
+
+#toggleLoginPassword:focus {
+    color: #3b82f6;
 }
 .form-error {
     color: #ef4444;
@@ -104,4 +149,128 @@
 }
 .form-links a:hover {
     color: #1d4ed8;
+}
+
+#passwordDisplay {
+    position: absolute;
+    top: 12px;
+    left: 15px;
+    right: 50px; /* Espacio para el botón */
+    color: #333;
+    display: none;
+    font-family: inherit;
+    font-size: 16px;
+    z-index: 5;
+    pointer-events: none;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    line-height: 24px;
+    padding: 0;
+    background: transparent;
+    visibility: visible;
+}
+
+/* Estilos para modo oscuro */
+body[data-theme="dark"] .auth-card {
+    background: #1f2937;
+    color: #e5e7eb;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.3);
+}
+
+body[data-theme="dark"] .auth-title {
+    color: #f9fafb;
+}
+
+body[data-theme="dark"] .form-group label {
+    color: #f3f4f6;
+}
+
+body[data-theme="dark"] .form-group input {
+    background: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+}
+
+body[data-theme="dark"] .form-group input:focus {
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
+body[data-theme="dark"] .form-group input::placeholder {
+    color: #9ca3af;
+}
+
+body[data-theme="dark"] .password-input-wrapper input {
+    background: #374151;
+    color: #f9fafb;
+}
+
+body[data-theme="dark"] .password-input-wrapper input {
+    background: #374151;
+    color: #f9fafb;
+}
+
+body[data-theme="dark"] #toggleLoginPassword {
+    color: #9ca3af;
+}
+
+body[data-theme="dark"] #toggleLoginPassword:hover {
+    color: #e5e7eb;
+}
+
+body[data-theme="dark"] #toggleLoginPassword:focus {
+    color: #60a5fa;
+}
+
+body[data-theme="dark"] .password-toggle {
+    background: #4b5563;
+    color: #e5e7eb;
+    border-color: #6b7280;
+}
+
+body[data-theme="dark"] .password-toggle:hover {
+    background: #6b7280;
+    color: #f9fafb;
+}
+
+body[data-theme="dark"] .btn-primary {
+    background: #3b82f6;
+    color: #ffffff;
+}
+
+body[data-theme="dark"] .btn-primary:hover {
+    background: #2563eb;
+}
+
+body[data-theme="dark"] .form-links {
+    color: #d1d5db;
+}
+
+body[data-theme="dark"] .form-links a {
+    color: #60a5fa;
+}
+
+body[data-theme="dark"] .form-links a:hover {
+    color: #93c5fd;
+}
+
+body[data-theme="dark"] #passwordDisplay {
+    color: #f9fafb;
+}
+
+body[data-theme="dark"] .form-error {
+    color: #f87171;
+}
+
+body[data-theme="dark"] .error-message {
+    background: #991b1b;
+    border-color: #dc2626;
+    color: #fecaca;
+}
+
+body[data-theme="dark"] .success-message {
+    background: #065f46;
+    border-color: #059669;
+    color: #a7f3d0;
 }

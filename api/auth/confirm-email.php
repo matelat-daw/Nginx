@@ -48,7 +48,7 @@ try {
     // Buscar usuario con el token de confirmación
     $stmt = $pdo->prepare("
         SELECT id, email, first_name, email_verified, created_at 
-        FROM ecc_users 
+        FROM users 
         WHERE email_confirmation_token = ? 
         AND email_verified = 0
         LIMIT 1
@@ -71,7 +71,7 @@ try {
     
     // Confirmar email del usuario
     $stmt = $pdo->prepare("
-        UPDATE ecc_users 
+        UPDATE users 
         SET email_verified = 1, 
             email_confirmation_token = NULL, 
             updated_at = ? 
@@ -84,8 +84,9 @@ try {
     
     // Respuesta exitosa
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        // Para requests GET, redirigir a la página de login con mensaje de éxito
-        header('Location: /login?email-confirmed=1&message=' . urlencode('¡Tu email ha sido confirmado exitosamente! Ya puedes iniciar sesión.'));
+        // Para requests GET, redirigir a la página principal con el hash de login
+        $redirectUrl = SITE_URL . '/#login?email-confirmed=1&message=' . urlencode('¡Tu email ha sido confirmado exitosamente! Ya puedes iniciar sesión.');
+        header('Location: ' . $redirectUrl);
         exit();
     } else {
         // Para requests POST, devolver JSON

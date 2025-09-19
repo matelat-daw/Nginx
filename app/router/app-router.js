@@ -5,12 +5,11 @@ class AppRouter {
         this.currentRoute = '';
         this.init();
     }
-
     // Definir rutas de la aplicación
     defineRoutes() {
         this.routes = {
             '/': () => new HomeComponent(),
-            '/productos': () => new ProductosComponent(),
+            '/products': () => new ProductsComponent(),
             '/economia-circular': () => new EconomiaCircularComponent(),
             '/sobre-nosotros': () => new SobreNosotrosComponent(),
             '/contacto': () => new ContactoComponent(),
@@ -20,13 +19,21 @@ class AppRouter {
             '/orders': () => new OrdersComponent(),
             '/settings': () => new SettingsComponent()
         };
+        // Definir rutas que requieren autenticación
+        this.protectedRoutes = ['/profile', '/orders', '/settings'];
     }
-
-
+    // Verificar si una ruta requiere autenticación
+    isProtectedRoute(route) {
+        return this.protectedRoutes.includes(route);
+    }
+    // Verificar si el usuario está autenticado
+    isUserAuthenticated() {
+        return window.authService && window.authService.isAuthenticated();
+    }
     init() {
         this.defineRoutes();
-        // Escuchar cambios en el historial (popstate)
-        window.addEventListener('popstate', () => {
+        // Escuchar cambios en el hash
+        window.addEventListener('hashchange', () => {
             this.handleRouteChange();
         });
         // Delegar clicks en enlaces internos para navegación SPA
@@ -41,33 +48,33 @@ class AppRouter {
         // Cargar ruta inicial
         this.handleRouteChange();
     }
-
     navigate(route) {
-        if (window.location.pathname !== route) {
-            window.history.pushState({}, '', route);
+        const currentHash = window.location.hash.slice(1) || '/';
+        if (currentHash !== route) {
+            window.location.hash = route;
             this.handleRouteChange();
         }
     }
-
     handleRouteChange() {
         // Ocultar todos los modales antes de cambiar de ruta
         this.hideAllModals();
-        
-        const path = window.location.pathname || '/';
-        this.loadRoute(path);
+        // Obtener ruta actual desde el hash o pathname
+        let path = window.location.hash.slice(1) || window.location.pathname || '/';
+        // Separar ruta de parámetros de query
+        const [routePath, queryString] = path.split('?');
+        // Parsear parámetros de query
+        const params = this.parseQueryParams(queryString);
+        this.loadRoute(routePath, params);
     }
-    
     hideAllModals() {
         // Ocultar modal de notificación si existe
         if (window.notificationModal && window.notificationModal.hide) {
             window.notificationModal.hide();
         }
-        
         // Ocultar modal de confirmación de email si existe
         if (window.emailConfirmationModal && window.emailConfirmationModal.hide) {
             window.emailConfirmationModal.hide();
         }
-        
         // Ocultar cualquier otro modal que pueda estar abierto
         const modals = document.querySelectorAll('.modal-overlay');
         modals.forEach(modal => {
@@ -75,25 +82,45 @@ class AppRouter {
                 modal.style.display = 'none';
             }
         });
-        
         // Restaurar scroll del body
         document.body.style.overflow = '';
     }
-
-    loadRoute(route) {
+    parseQueryParams(queryString) {
+        const params = {};
+        if (queryString) {
+            queryString.split('&').forEach(param => {
+                const [key, value] = param.split('=');
+                if (key) {
+                    params[key] = value ? decodeURIComponent(value) : true;
+                }
+            });
+        }
+        return params;
+    }
+    loadRoute(route, params = {}) {
         const routeHandler = this.routes[route];
-        
         if (routeHandler) {
+            // Verificar si la ruta requiere autenticación
+            if (this.isProtectedRoute(route)) {
+                if (!this.isUserAuthenticated()) {
+                    // Guardar la ruta a la que quería ir para redirigir después del login
+                    sessionStorage.setItem('redirectAfterLogin', route);
+                    this.navigate('/login');
+                    return;
+                }
+            }
             this.currentRoute = route;
-            
             try {
                 const component = routeHandler();
+                // Pasar parámetros al componente si está disponible
+                if (component && typeof component.setParams === 'function') {
+                    component.setParams(params);
+                }
                 this.renderComponent(component);
             } catch (error) {
                 console.error('Error creating component for route:', route, error);
                 throw error;
             }
-            
             // Actualizar navegación activa
             if (window.NavComponent) {
                 window.NavComponent.updateActiveLink();
@@ -103,16 +130,13 @@ class AppRouter {
             this.navigate('/');
         }
     }
-
     renderComponent(component) {
         // Función para intentar obtener el router outlet
         const getRouterOutlet = () => {
             const outlet = document.getElementById('router-outlet');
             return outlet;
         };
-        
         const routerOutlet = getRouterOutlet();
-        
         // Si no encontramos el router-outlet, intentar una vez más con un pequeño delay
         if (!routerOutlet) {
             setTimeout(() => {
@@ -125,10 +149,8 @@ class AppRouter {
             }, 50);
             return;
         }
-        
         this.doRenderComponent(component, routerOutlet);
     }
-    
     doRenderComponent(component, routerOutlet) {
         if (routerOutlet && component) {
             // Verificar si el componente tiene un método render que acepta un container
@@ -160,19 +182,16 @@ class AppRouter {
             else if (component.template) {
                 routerOutlet.innerHTML = component.template;
             }
-            
             // Ejecutar lógica post-render del componente (puede ser async)
             if (component.afterRender) {
                 setTimeout(() => component.afterRender(), 10);
             }
         }
     }
-
     getCurrentRoute() {
         return this.currentRoute;
     }
 }
-
 // Crear componentes simples para las rutas faltantes
 class EconomiaCircularComponent {
     constructor() {
@@ -186,7 +205,6 @@ class EconomiaCircularComponent {
                         </p>
                     </div>
                 </section>
-
                 <section class="principios mb-2">
                     <h2 class="text-center mb-1">🔄 Principios de la Economía Circular</h2>
                     <div class="grid grid-3">
@@ -204,7 +222,6 @@ class EconomiaCircularComponent {
                         </div>
                     </div>
                 </section>
-
                 <section class="impacto">
                     <div class="card">
                         <h2 class="text-center">🌍 Nuestro Impacto en Canarias</h2>
@@ -233,11 +250,9 @@ class EconomiaCircularComponent {
             </div>
         `;
     }
-
     render() {
         return this.template;
     }
-
     afterRender() {
         // Animación de entrada para las tarjetas
         const cards = document.querySelectorAll('.economia-circular-component .card');
@@ -246,7 +261,6 @@ class EconomiaCircularComponent {
                 card.style.opacity = '0';
                 card.style.transform = 'translateY(20px)';
                 card.style.transition = 'all 0.5s ease';
-                
                 setTimeout(() => {
                     card.style.opacity = '1';
                     card.style.transform = 'translateY(0)';
@@ -255,7 +269,6 @@ class EconomiaCircularComponent {
         });
     }
 }
-
 class SobreNosotrosComponent {
     constructor() {
         this.template = `
@@ -268,7 +281,6 @@ class SobreNosotrosComponent {
                         </p>
                     </div>
                 </section>
-
                 <section class="mision mb-2">
                     <div class="grid grid-2">
                         <div class="card">
@@ -289,7 +301,6 @@ class SobreNosotrosComponent {
                         </div>
                     </div>
                 </section>
-
                 <section class="valores mb-2">
                     <h2 class="text-center mb-1">💎 Nuestros Valores</h2>
                     <div class="grid grid-3">
@@ -307,7 +318,6 @@ class SobreNosotrosComponent {
                         </div>
                     </div>
                 </section>
-
                 <section class="equipo">
                     <div class="card text-center">
                         <h2>👥 Nuestro Equipo</h2>
@@ -325,11 +335,9 @@ class SobreNosotrosComponent {
             </div>
         `;
     }
-
     render() {
         return this.template;
     }
-
     afterRender() {
         // Agregar efectos de hover a las tarjetas de valores
         const valorCards = document.querySelectorAll('.valores .card');
@@ -338,14 +346,12 @@ class SobreNosotrosComponent {
                 card.style.transform = 'scale(1.05)';
                 card.style.transition = 'transform 0.3s ease';
             });
-            
             card.addEventListener('mouseleave', () => {
                 card.style.transform = 'scale(1)';
             });
         });
     }
 }
-
 class ContactoComponent {
     constructor() {
         this.template = `
@@ -358,7 +364,6 @@ class ContactoComponent {
                         </p>
                     </div>
                 </section>
-
                 <section class="contacto-info mb-2">
                     <div class="grid grid-2">
                         <div class="card">
@@ -377,7 +382,6 @@ class ContactoComponent {
                                 </p>
                             </div>
                         </div>
-                        
                         <div class="card">
                             <h2>📝 Envíanos un Mensaje</h2>
                             <form id="contactForm" class="mt-1">
@@ -385,12 +389,10 @@ class ContactoComponent {
                                     <label for="nombre">Nombre:</label>
                                     <input type="text" id="nombre" name="nombre" required style="width: 100%; padding: 0.5rem; margin-top: 0.5rem; border: 2px solid var(--canarias-border); border-radius: 5px;">
                                 </div>
-                                
                                 <div class="form-group mb-1">
                                     <label for="email">Email:</label>
                                     <input type="email" id="email" name="email" required style="width: 100%; padding: 0.5rem; margin-top: 0.5rem; border: 2px solid var(--canarias-border); border-radius: 5px;">
                                 </div>
-                                
                                 <div class="form-group mb-1">
                                     <label for="asunto">Asunto:</label>
                                     <select id="asunto" name="asunto" required style="width: 100%; padding: 0.5rem; margin-top: 0.5rem; border: 2px solid var(--canarias-border); border-radius: 5px;">
@@ -401,12 +403,10 @@ class ContactoComponent {
                                         <option value="otro">Otro</option>
                                     </select>
                                 </div>
-                                
                                 <div class="form-group mb-1">
                                     <label for="mensaje">Mensaje:</label>
                                     <textarea id="mensaje" name="mensaje" rows="4" required style="width: 100%; padding: 0.5rem; margin-top: 0.5rem; border: 2px solid var(--canarias-border); border-radius: 5px; resize: vertical;"></textarea>
                                 </div>
-                                
                                 <button type="submit" class="btn btn-primary">
                                     📧 Enviar Mensaje
                                 </button>
@@ -414,7 +414,6 @@ class ContactoComponent {
                         </div>
                     </div>
                 </section>
-
                 <section class="redes-sociales">
                     <div class="card text-center">
                         <h2>🌐 Síguenos en Redes Sociales</h2>
@@ -432,11 +431,9 @@ class ContactoComponent {
             </div>
         `;
     }
-
     render() {
         return this.template;
     }
-
     afterRender() {
         const form = document.getElementById('contactForm');
         if (form) {
@@ -446,25 +443,18 @@ class ContactoComponent {
             });
         }
     }
-
     handleFormSubmit(e) {
         const formData = new FormData(e.target);
         const data = Object.fromEntries(formData);
-        
         // Simular envío del formulario
         alert(`¡Gracias ${data.nombre}! 
-        
 Hemos recibido tu mensaje sobre: ${data.asunto}
-
 Te responderemos a ${data.email} en las próximas 24-48 horas.
-
 ¡Gracias por contactar con Economía Circular Canarias!`);
-        
         // Limpiar formulario
         e.target.reset();
     }
 }
-
 // Exportar clases
 window.AppRouter = AppRouter;
 window.EconomiaCircularComponent = EconomiaCircularComponent;

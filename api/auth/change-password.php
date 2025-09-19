@@ -75,7 +75,7 @@ try {
     );
 
     // Verificar contraseña actual
-    $stmt = $pdo->prepare("SELECT password_hash FROM ecc_users WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT password_hash FROM users WHERE id = ?");
     $stmt->execute([$userId]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -100,7 +100,7 @@ try {
     ]);
 
     $stmt = $pdo->prepare("
-        UPDATE ecc_users 
+        UPDATE users 
         SET password_hash = ?, updated_at = NOW()
         WHERE id = ?
     ");

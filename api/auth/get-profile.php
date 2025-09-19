@@ -55,12 +55,8 @@ try {
     // Log de debug para conexión DB
     error_log("Attempting to connect to database: " . DB_HOST . "/" . DB_NAME);
     
-    $pdo = new PDO(
-        "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8",
-        DB_USER,
-        DB_PASS,
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-    );
+    // Usar la función centralizada para obtener conexión DB
+    $pdo = getDBConnection();
     
     error_log("Database connection successful");
 
@@ -69,7 +65,7 @@ try {
     
     $stmt = $pdo->prepare("
         SELECT id, first_name, last_name, email, phone, island, city, user_type, email_verified, profile_image, created_at, updated_at
-        FROM ecc_users 
+        FROM users 
         WHERE id = ?
     ");
     $stmt->execute([$userId]);

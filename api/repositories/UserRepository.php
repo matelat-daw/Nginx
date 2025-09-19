@@ -8,7 +8,7 @@ require_once __DIR__ . '/../models/User.php';
 
 class UserRepository {
     private $conn;
-    private $table_name = "ecc_users";
+    private $table_name = "users";
     
     public function __construct($dbConnection) {
         $this->conn = $dbConnection;

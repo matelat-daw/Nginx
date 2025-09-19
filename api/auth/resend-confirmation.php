@@ -42,7 +42,7 @@ try {
     // Buscar usuario
     $stmt = $pdo->prepare("
         SELECT id, email, first_name, email_verified, created_at 
-        FROM ecc_users 
+        FROM users 
         WHERE email = ? 
         LIMIT 1
     ");
@@ -61,7 +61,7 @@ try {
     // Verificar límite de tiempo para reenvío (1 minuto)
     $stmt = $pdo->prepare("
         SELECT updated_at 
-        FROM ecc_users 
+        FROM users 
         WHERE id = ? 
         AND updated_at > DATE_SUB(NOW(), INTERVAL 1 MINUTE)
     ");
@@ -76,7 +76,7 @@ try {
     
     // Actualizar token en la base de datos
     $stmt = $pdo->prepare("
-        UPDATE ecc_users 
+        UPDATE users 
         SET email_confirmation_token = ?, 
             updated_at = ? 
         WHERE id = ?

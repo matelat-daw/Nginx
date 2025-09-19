@@ -74,3 +74,157 @@
     .canarias-slider { max-width: 98vw; }
     .isla-img { width: 98vw; max-width: 98vw; height: 100px; }
 }
+
+/* Estilos para modo oscuro */
+[data-theme="dark"] .home-component {
+    background: #111827;
+    color: #f9fafb;
+}
+
+[data-theme="dark"] .canarias-slider {
+    background: #1f2937;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+}
+
+[data-theme="dark"] .slider-btn {
+    background: #374151;
+    color: #60a5fa;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+[data-theme="dark"] .slider-btn:hover {
+    background: #60a5fa;
+    color: #1f2937;
+}
+
+[data-theme="dark"] .slider-dot {
+    background: #4b5563;
+}
+
+[data-theme="dark"] .slider-dot.active {
+    background: #60a5fa;
+}
+
+/* Estilos para cards en modo oscuro */
+[data-theme="dark"] .card {
+    background: #1f2937 !important;
+    color: #f9fafb !important;
+    border: 1px solid #374151;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+[data-theme="dark"] .hero-section .card {
+    background: linear-gradient(135deg, #1e40af, #1e3a8a) !important;
+    color: #f9fafb !important;
+}
+
+[data-theme="dark"] .cta-section .card {
+    background: linear-gradient(135deg, #92400e, #78350f) !important;
+    color: #fbbf24 !important;
+}
+
+[data-theme="dark"] .cta-section .card h2 {
+    color: #fbbf24 !important;
+}
+
+[data-theme="dark"] .cta-section .card p {
+    color: #fde68a !important;
+}
+
+/* Estilos para texto y elementos específicos en modo oscuro */
+[data-theme="dark"] .home-component h1,
+[data-theme="dark"] .home-component h2,
+[data-theme="dark"] .home-component h3 {
+    color: #f9fafb;
+}
+
+[data-theme="dark"] .home-component p {
+    color: #d1d5db;
+}
+
+/* Badges y etiquetas en modo oscuro */
+[data-theme="dark"] .home-component .card span[style*="background: var(--canarias-green)"] {
+    background: #065f46 !important;
+    color: #d1fae5 !important;
+}
+
+[data-theme="dark"] .home-component .card span[style*="background: var(--canarias-yellow)"] {
+    background: #92400e !important;
+    color: #fef3c7 !important;
+}
+
+/* Botones en modo oscuro */
+[data-theme="dark"] .btn-primary {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: #ffffff;
+}
+
+[data-theme="dark"] .btn-primary:hover {
+    background: linear-gradient(135deg, #2563eb, #1e40af);
+}
+
+[data-theme="dark"] .btn-secondary {
+    background: #374151;
+    color: #e5e7eb;
+    border-color: #4b5563;
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+    background: #4b5563;
+    color: #f9fafb;
+}
+
+[data-theme="dark"] .btn-success {
+    background: linear-gradient(135deg, #059669, #047857);
+    color: #ffffff;
+}
+
+[data-theme="dark"] .btn-success:hover {
+    background: linear-gradient(135deg, #047857, #065f46);
+}
+
+/* Imágenes con mejor contraste en modo oscuro */
+[data-theme="dark"] .isla-img {
+    border: 1px solid #374151;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+/* Mejoras adicionales para estadísticas */
+[data-theme="dark"] .impact-slide h3 {
+    color: #60a5fa !important;
+}
+
+[data-theme="dark"] .impact-slide h3[style*="color: var(--canarias-green)"] {
+    color: #34d399 !important;
+}
+
+[data-theme="dark"] .impact-slide h3[style*="color: var(--canarias-ocean)"] {
+    color: #06b6d4 !important;
+}
+
+/* Títulos de islas en modo oscuro */
+[data-theme="dark"] .isla-slide h3 {
+    color: #f9fafb;
+}
+
+/* Links de navegación en modo oscuro */
+[data-theme="dark"] .home-component a[data-navigate] {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* Asegurar que todos los elementos heredan el color correcto */
+[data-theme="dark"] .home-component * {
+    border-color: #374151;
+}
+
+/* Slider responsive en modo oscuro */
+@media (max-width: 600px) {
+    [data-theme="dark"] .canarias-slider {
+        background: #1f2937;
+    }
+    
+    [data-theme="dark"] .isla-img {
+        border-color: #4b5563;
+    }
+}

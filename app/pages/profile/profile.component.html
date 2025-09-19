@@ -30,7 +30,6 @@
             </button>
         </div>
     </div>
-
     <div class="profile-content">
         <div class="profile-sections">
             <!-- Información Personal -->
@@ -39,7 +38,6 @@
                     <span class="section-icon">👤</span>
                     Información Personal
                 </h2>
-                
                 <form id="profileForm" class="profile-form">
                     <div class="form-row">
                         <div class="form-group half">
@@ -50,7 +48,6 @@
                             <input type="text" id="profileFirstName" name="firstName" 
                                    class="form-input" disabled required>
                         </div>
-                        
                         <div class="form-group half">
                             <label for="profileLastName" class="form-label">
                                 <span class="label-icon">👤</span>
@@ -60,7 +57,6 @@
                                    class="form-input" disabled required>
                         </div>
                     </div>
-
                     <div class="form-group">
                         <label for="profileEmail" class="form-label">
                             <span class="label-icon">📧</span>
@@ -70,7 +66,6 @@
                                class="form-input" disabled readonly>
                         <small class="form-help">El email no se puede cambiar</small>
                     </div>
-
                     <div class="form-group">
                         <label for="profilePhone" class="form-label">
                             <span class="label-icon">📱</span>
@@ -80,7 +75,6 @@
                                class="form-input" disabled required 
                                placeholder="Ej: +34 123 456 789">
                     </div>
-
                     <div class="form-row">
                         <div class="form-group half">
                             <label for="profileIsland" class="form-label">
@@ -98,7 +92,6 @@
                                 <option value="El Hierro">El Hierro</option>
                             </select>
                         </div>
-                        
                         <div class="form-group half">
                             <label for="profileCity" class="form-label">
                                 <span class="label-icon">🏙️</span>
@@ -109,7 +102,6 @@
                                    placeholder="Tu ciudad o municipio">
                         </div>
                     </div>
-
                     <div class="form-group">
                         <label for="profileUserType" class="form-label">
                             <span class="label-icon">🏢</span>
@@ -125,14 +117,12 @@
                     </div>
                 </form>
             </div>
-
             <!-- Seguridad -->
             <div class="profile-section">
                 <h2 class="section-title">
                     <span class="section-icon">🔒</span>
                     Seguridad
                 </h2>
-                
                 <div class="security-options">
                     <div class="security-item">
                         <div class="security-info">
@@ -146,14 +136,12 @@
                     </div>
                 </div>
             </div>
-
             <!-- Zona de Peligro -->
             <div class="profile-section danger-section">
                 <h2 class="section-title">
                     <span class="section-icon">⚠️</span>
                     Zona de Peligro
                 </h2>
-                
                 <div class="danger-content">
                     <div class="danger-item">
                         <div class="danger-info">
@@ -170,7 +158,6 @@
         </div>
     </div>
 </div>
-
 <!-- Modal de Cambio de Contraseña -->
 <div id="changePasswordModal" class="modal-overlay" style="display: none;">
     <div class="modal-container">
@@ -181,7 +168,6 @@
             </h2>
             <button class="modal-close" id="closePasswordModal">&times;</button>
         </div>
-        
         <div class="modal-body">
             <form id="changePasswordForm" class="password-form">
                 <div class="form-group">
@@ -198,7 +184,6 @@
                         </button>
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label for="newPasswordInput" class="form-label">
                         <span class="label-icon">🔑</span>
@@ -219,7 +204,6 @@
                         <small class="requirement" id="numberReq">✗ Un número</small>
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label for="confirmPasswordInput" class="form-label">
                         <span class="label-icon">🔑</span>
@@ -237,7 +221,6 @@
                 </div>
             </form>
         </div>
-        
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" id="cancelPasswordChange">
                 <span class="btn-icon">❌</span>
@@ -250,7 +233,6 @@
         </div>
     </div>
 </div>
-
 <!-- Modal de Confirmación de Eliminación -->
 <div id="deleteAccountModal" class="modal-overlay" style="display: none;">
     <div class="modal-container delete-modal">
@@ -261,7 +243,6 @@
             </h2>
             <button class="modal-close" id="closeDeleteModal">&times;</button>
         </div>
-        
         <div class="modal-body">
             <div class="warning-content">
                 <div class="warning-icon">🚨</div>
@@ -274,7 +255,6 @@
                     <li>Todos los datos asociados a tu cuenta</li>
                 </ul>
             </div>
-            
             <form id="deleteAccountForm" class="delete-form">
                 <div class="form-group">
                     <label for="deletePasswordInput" class="form-label">
@@ -292,7 +272,6 @@
                 </div>
             </form>
         </div>
-        
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" id="cancelAccountDelete">
                 <span class="btn-icon">❌</span>

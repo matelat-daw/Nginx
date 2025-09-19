@@ -1,0 +1,59 @@
+<!-- Header Component Template - Economía Circular Canarias -->
+<header>
+    <div class="header-content">
+        <a href="/" class="logo" data-navigate="/">
+            🏝️ Economía Circular Canarias
+        </a>
+        <div class="header-actions">
+            <button class="theme-toggle" id="themeToggle">
+                🌙 Modo Oscuro
+            </button>
+            <!-- Carrito de compras -->
+            <div class="cart-section" id="cartSection">
+                <button class="cart-button" id="cartButton">
+                    🛒
+                    <span class="cart-count" id="cartCount" style="display: none;">0</span>
+                </button>
+            </div>
+            <div class="auth-section" id="authSection">
+                <!-- El contenido de autenticación se insertará dinámicamente -->
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Templates para secciones dinámicas -->
+<template id="userMenuTemplate">
+    <div class="user-menu">
+        <button class="user-button" id="userMenuToggle">
+            👤 <span class="user-name">Usuario</span>
+            <span class="dropdown-arrow">▼</span>
+        </button>
+        <div class="user-dropdown" id="userDropdown" style="display: none;">
+            <a href="#/profile" class="dropdown-item" data-navigate="/profile">
+                👤 Mi Perfil
+            </a>
+            <a href="#/orders" class="dropdown-item" data-navigate="/orders">
+                📦 Mis Pedidos
+            </a>
+            <a href="#/settings" class="dropdown-item" data-navigate="/settings">
+                ⚙️ Configuración
+            </a>
+            <hr class="dropdown-divider">
+            <button class="dropdown-item logout-btn" id="logoutBtn">
+                🚪 Cerrar Sesión
+            </button>
+        </div>
+    </div>
+</template>
+
+<template id="authButtonsTemplate">
+    <div class="auth-buttons">
+        <a href="/login" class="btn btn-outline-primary" data-navigate="/login">
+            🔐 Login
+        </a>
+        <a href="/register" class="btn btn-primary" data-navigate="/register">
+            👤 Registro
+        </a>
+    </div>
+</template>

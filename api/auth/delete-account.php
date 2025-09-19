@@ -61,7 +61,7 @@ try {
     );
 
     // Verificar contraseña del usuario
-    $stmt = $pdo->prepare("SELECT password_hash, email FROM ecc_users WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT password_hash, email FROM users WHERE id = ?");
     $stmt->execute([$userId]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -76,7 +76,7 @@ try {
 
     try {
         // Eliminar usuario
-        $stmt = $pdo->prepare("DELETE FROM ecc_users WHERE id = ?");
+        $stmt = $pdo->prepare("DELETE FROM users WHERE id = ?");
         $stmt->execute([$userId]);
 
         if ($stmt->rowCount() > 0) {

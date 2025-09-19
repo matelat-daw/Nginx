@@ -107,7 +107,7 @@ try {
     );
 
     // Eliminar imagen anterior si existe
-    $stmt = $pdo->prepare("SELECT profile_image FROM ecc_users WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT profile_image FROM users WHERE id = ?");
     $stmt->execute([$userId]);
     $currentUser = $stmt->fetch(PDO::FETCH_ASSOC);
     
@@ -119,7 +119,7 @@ try {
     }
 
     // Guardar nueva ruta en base de datos
-    $stmt = $pdo->prepare("UPDATE ecc_users SET profile_image = ?, updated_at = NOW() WHERE id = ?");
+    $stmt = $pdo->prepare("UPDATE users SET profile_image = ?, updated_at = NOW() WHERE id = ?");
     $stmt->execute([$relativePath, $userId]);
 
     echo json_encode([

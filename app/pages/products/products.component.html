@@ -1,0 +1,89 @@
+<div class="productos-component">
+    <section class="productos-header text-center mb-2">
+        <h1>🛒 Productos Locales de Canarias</h1>
+        <p>Descubre la mejor selección de productos canarios sostenibles y de calidad</p>
+    </section>
+    
+    <section class="filtros mb-2">
+        <div class="card">
+            <h3>🔍 Filtrar Productos</h3>
+            <div class="filtros-container">
+                <select id="filtroCategoria" class="filtro-select">
+                    <option value="">Todas las categorías</option>
+                    <option value="Lácteos">Lácteos</option>
+                    <option value="Frutas">Frutas</option>
+                    <option value="Endulzantes">Endulzantes</option>
+                    <option value="Bebidas">Bebidas</option>
+                    <option value="Hortalizas">Hortalizas</option>
+                    <option value="Condimentos">Condimentos</option>
+                </select>
+                <select id="filtroOrigen" class="filtro-select">
+                    <option value="">Todas las islas</option>
+                    <option value="Tenerife">Tenerife</option>
+                    <option value="Gran Canaria">Gran Canaria</option>
+                    <option value="Lanzarote">Lanzarote</option>
+                    <option value="Fuerteventura">Fuerteventura</option>
+                    <option value="La Palma">La Palma</option>
+                    <option value="La Gomera">La Gomera</option>
+                    <option value="El Hierro">El Hierro</option>
+                </select>
+                <button id="limpiarFiltros" class="btn btn-secondary">
+                    🧹 Limpiar Filtros
+                </button>
+            </div>
+        </div>
+    </section>
+    
+    <section class="productos-grid">
+        <div class="grid grid-3" id="productosContainer">
+            <!-- Los productos se cargarán dinámicamente aquí -->
+        </div>
+    </section>
+    
+    <section class="productos-stats text-center mt-2">
+        <div class="card">
+            <h3>📊 Estadísticas de Productos</h3>
+            <div class="grid grid-3 mt-1">
+                <div>
+                    <h4 style="color: var(--canarias-blue);" id="totalProducts">0</h4>
+                    <p>Productos Disponibles</p>
+                </div>
+                <div>
+                    <h4 style="color: var(--canarias-green);" id="sustainableProducts">0</h4>
+                    <p>Productos Sostenibles</p>
+                </div>
+                <div>
+                    <h4 style="color: var(--canarias-yellow);">7</h4>
+                    <p>Islas Representadas</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Template para el card de producto -->
+<template id="productCardTemplate">
+    <div class="card producto-card" data-producto-id="">
+        <div class="producto-header">
+            <span class="producto-emoji"></span>
+            <div class="producto-badges">
+                <span class="badge badge-origen"></span>
+                <span class="badge badge-sostenible" style="display: none;">♻️ Sostenible</span>
+            </div>
+        </div>
+        <h3 class="producto-nombre"></h3>
+        <p class="producto-descripcion"></p>
+        <div class="producto-info">
+            <span class="categoria"></span>
+            <span class="precio"></span>
+        </div>
+        <div class="producto-actions mt-1">
+            <button class="btn btn-primary btn-ver-producto" data-producto-id="">
+                👁️ Ver Producto
+            </button>
+            <button class="btn btn-success btn-comprar" data-producto-id="">
+                🛒 Comprar
+            </button>
+        </div>
+    </div>
+</template>

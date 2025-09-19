@@ -93,20 +93,11 @@ try {
         ], 401);
     }
     
-    // Conectar a base de datos para verificar que el usuario aún existe
-    $pdo = new PDO(
-        "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET,
-        DB_USER,
-        DB_PASS,
-        [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false,
-        ]
-    );
+    // Usar la función centralizada para obtener conexión DB
+    $pdo = getDBConnection();
     
     // Buscar usuario por ID
-    $stmt = $pdo->prepare("SELECT * FROM ecc_users WHERE id = ? LIMIT 1");
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ? LIMIT 1");
     $stmt->execute([$userId]);
     $user = $stmt->fetch();
     

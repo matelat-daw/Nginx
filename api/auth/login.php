@@ -37,24 +37,15 @@ try {
         jsonResponse(null, 400, 'Formato de email inválido');
     }
     
-    // Conectar a base de datos
-    $pdo = new PDO(
-        "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET,
-        DB_USER,
-        DB_PASS,
-        [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false,
-        ]
-    );
+    // Usar la función centralizada para obtener conexión DB
+    $pdo = getDBConnection();
     
-    // Buscar usuario por email (primero en ecc_users)
-    $stmt = $pdo->prepare("SELECT * FROM ecc_users WHERE email = ? LIMIT 1");
+    // Buscar usuario por email (primero en users)
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? LIMIT 1");
     $stmt->execute([$email]);
     $user = $stmt->fetch();
     
-    // Si no está en ecc_users, buscar en tabla user
+    // Si no está en users, buscar en tabla user
     if (!$user) {
         $stmt = $pdo->prepare("SELECT * FROM user WHERE email = ? LIMIT 1");
         $stmt->execute([$email]);
@@ -84,7 +75,7 @@ try {
         jsonResponse(null, 401, 'Credenciales incorrectas');
     }
     
-    // Verificar si el email está confirmado (solo para tabla ecc_users)
+    // Verificar si el email está confirmado (solo para tabla users)
     $emailVerified = isset($user['email_verified']) ? (bool)$user['email_verified'] : true;
     
     if (!$emailVerified) {
@@ -149,8 +140,20 @@ try {
     
 } catch (PDOException $e) {
     logMessage('ERROR', "Database error in login: " . $e->getMessage());
-    jsonResponse(null, 500, 'Error de base de datos');
+    
+    // En modo desarrollo, mostrar más detalles del error
+    if (DEBUG_MODE) {
+        jsonResponse(null, 500, 'Error de base de datos: ' . $e->getMessage());
+    } else {
+        jsonResponse(null, 500, 'Error de base de datos');
+    }
 } catch (Exception $e) {
     logMessage('ERROR', "Error in login: " . $e->getMessage());
-    jsonResponse(null, 500, 'Error interno del servidor');
+    
+    // En modo desarrollo, mostrar más detalles del error  
+    if (DEBUG_MODE) {
+        jsonResponse(null, 500, 'Error interno: ' . $e->getMessage());
+    } else {
+        jsonResponse(null, 500, 'Error interno del servidor');
+    }
 }

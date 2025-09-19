@@ -1,0 +1,63 @@
+.footer-content p,
+.footer-content small {
+    color: #fff !important;
+}
+footer, .footer-content {
+    color: #fff !important;
+}
+.island-badge {
+    color: #232f3e !important;
+}
+footer, .footer-content {
+    color: #fff;
+}
+.island-badge {
+    color: var(--canarias-dark);
+}
+
+footer {
+    background: #232f3e !important;
+    color: #fff !important;
+    text-align: center;
+    padding: 2rem 0;
+    margin-top: auto;
+    border-top: 4px solid #FFD700;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+.islands-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.island-badge {
+    background: var(--canarias-yellow);
+    color: var(--canarias-dark);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.mt-1 { margin-top: 1rem; }
+
+@media (max-width: 600px) {
+    .footer-content {
+        padding: 0 0.5rem;
+    }
+    .islands-list {
+        gap: 0.4rem;
+    }
+}

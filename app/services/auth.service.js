@@ -1,4 +1,6 @@
 // Auth Service Optimizado - Economía Circular Canarias
+console.log('📥 Cargando AuthService...');
+
 class AuthService {
     constructor() {
         // Configuración de endpoints
@@ -8,47 +10,159 @@ class AuthService {
             logout: '/api/auth/logout.php',
             validate: '/api/auth/validate.php'
         };
-        
         this.currentUser = null;
         this.token = null;
-        this.init();
-        
-        console.log('🔧 AuthService optimizado inicializado');
     }
-
     // Función helper para construir URLs del API
     getApiUrl(endpoint) {
-        return this.endpoints[endpoint] || '';
+        const url = this.endpoints[endpoint] || '';
+        console.log(`🔗 GetApiUrl: ${endpoint} -> ${url}`);
+        return url;
     }
-
     // Obtener token de la cookie
     getTokenFromCookie() {
+        const cookieName = 'ecc_auth_token';
+        
+        // Método principal: buscar en cookies parseadas
         const cookies = document.cookie.split(';');
         for (let cookie of cookies) {
             const [name, value] = cookie.trim().split('=');
-            if (name === 'ecc_auth_token') {
-                console.log('🍪 Token encontrado en cookie');
+            if (name === cookieName) {
                 return value;
             }
         }
-        console.log('🍪 No se encontró token en cookies');
+        
+        // Método alternativo usando regex
+        const match = document.cookie.match(new RegExp('(^| )' + cookieName + '=([^;]+)'));
+        if (match) {
+            return match[2];
+        }
+        
         return null;
     }
-
-    // Inicialización
-    init() {
+    
+    // Verificar si tenemos datos de sesión válidos
+    hasValidSession() {
+        const token = this.getTokenFromCookie();
+        return token !== null && token !== undefined && token !== '';
+    }
+    // Inicialización mejorada con verificación automática
+    async init() {
         try {
-            this.token = this.getTokenFromCookie();
-            if (this.token) {
-                this.validateToken().catch(error => {
-                    console.warn('⚠️ Error validando token:', error);
-                });
+            // Verificar si tenemos una sesión válida
+            const hasSession = this.hasValidSession();
+            
+            if (hasSession) {
+                this.token = this.getTokenFromCookie();
+                
+                // Intentar validar el token
+                const isValid = await this.validateToken();
+                
+                if (isValid) {
+                    // Token válido - usuario autenticado
+                    this.dispatchAuthEvent('login', this.currentUser);
+                    
+                    // Forzar actualización inmediata del header si existe
+                    this.updateHeaderAuthState();
+                    
+                    // También forzar actualización después de un pequeño delay para componentes que se cargan tarde
+                    setTimeout(() => {
+                        this.updateHeaderAuthState();
+                        this.dispatchAuthEvent('authRestored', this.currentUser);
+                    }, 500);
+                    
+                    return true; // Sesión restaurada exitosamente
+                } else {
+                    // Token inválido - limpiar estado
+                    this.clearAuthState();
+                    return false; // Sesión expirada
+                }
+            } else {
+                // No hay token - usuario no autenticado
+                this.clearAuthState();
+                return false; // No hay sesión
             }
         } catch (error) {
             console.error('❌ Error en init():', error);
+            this.clearAuthState();
+            return false; // Error en inicialización
         }
     }
-
+    // Limpiar estado de autenticación
+    clearAuthState() {
+        this.token = null;
+        this.currentUser = null;
+        
+        // Limpiar cookie de autenticación
+        document.cookie = 'ecc_auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        
+        // Disparar evento de logout solo si había usuario autenticado previamente
+        this.dispatchAuthEvent('logout');
+        
+        // Actualizar header
+        this.updateHeaderAuthState();
+    }
+    // Actualizar estado del header
+    updateHeaderAuthState() {
+        // Intentar múltiples maneras de actualizar el header
+        setTimeout(() => {
+            // Método 1: Componente header específico
+            if (window.headerComponent) {
+                if (typeof window.headerComponent.forceAuthUpdate === 'function') {
+                    window.headerComponent.forceAuthUpdate();
+                } else if (typeof window.headerComponent.refreshAuthState === 'function') {
+                    window.headerComponent.refreshAuthState();
+                }
+            }
+            
+            // Método 2: Buscar componente header en el DOM y forzar actualización
+            const headerElement = document.querySelector('header');
+            if (headerElement && headerElement._component) {
+                const component = headerElement._component;
+                if (typeof component.forceAuthUpdate === 'function') {
+                    component.forceAuthUpdate();
+                } else if (typeof component.refreshAuthState === 'function') {
+                    component.refreshAuthState();
+                }
+            }
+            
+            // Método 3: Evento global para que todos los componentes se actualicen
+            const authEvent = new CustomEvent('globalAuthUpdate', { 
+                detail: { 
+                    isAuthenticated: this.isAuthenticated(),
+                    user: this.getCurrentUser()
+                } 
+            });
+            document.dispatchEvent(authEvent);
+        }, 100);
+    }
+    // Manejar redirección después del login
+    handlePostLoginRedirect() {
+        try {
+            const redirectTo = sessionStorage.getItem('redirectAfterLogin');
+            if (redirectTo && redirectTo !== '/login' && redirectTo !== '/register') {
+                sessionStorage.removeItem('redirectAfterLogin');
+                setTimeout(() => {
+                    if (window.appRouter) {
+                        window.appRouter.navigate(redirectTo);
+                    } else {
+                        window.location.hash = redirectTo;
+                    }
+                }, 100);
+            } else {
+                // Redirigir al home si no hay redirección específica
+                setTimeout(() => {
+                    if (window.appRouter) {
+                        window.appRouter.navigate('/');
+                    } else {
+                        window.location.hash = '/';
+                    }
+                }, 100);
+            }
+        } catch (error) {
+            console.error('Error en redirección post-login:', error);
+        }
+    }
     // Registro de usuario
     async register(userData) {
         try {
@@ -59,16 +173,12 @@ class AuthService {
                     message: 'Todos los campos requeridos deben estar completos'
                 };
             }
-
             if (userData.password !== userData.confirmPassword) {
                 return {
                     success: false,
                     message: 'Las contraseñas no coinciden'
                 };
             }
-
-            console.log('🔄 Enviando registro al servidor...');
-
             const response = await fetch(this.getApiUrl('register'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -84,19 +194,14 @@ class AuthService {
                     password: userData.password
                 })
             });
-
             const data = await response.json();
-            console.log('📩 Respuesta de registro:', data);
-
             if (response.ok && data.success) {
                 // Auto-login si se incluye token
                 if (data.data?.token && data.data?.user) {
                     this.token = data.data.token;
                     this.currentUser = data.data.user;
                     this.dispatchAuthEvent('login', this.currentUser);
-                    console.log('✅ Registro exitoso con auto-login');
                 }
-                
                 return {
                     success: true,
                     message: data.message,
@@ -116,7 +221,6 @@ class AuthService {
             };
         }
     }
-
     // Login de usuario
     async login(credentials) {
         try {
@@ -126,9 +230,6 @@ class AuthService {
                     message: 'Email y contraseña son requeridos'
                 };
             }
-
-            console.log('🔄 Enviando login al servidor...');
-
             const response = await fetch(this.getApiUrl('login'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -139,16 +240,11 @@ class AuthService {
                     rememberMe: credentials.rememberMe || false
                 })
             });
-
             const data = await response.json();
-            console.log('📩 Respuesta de login:', data);
-
             if (response.ok && data.success) {
                 // Verificar si requiere confirmación de email
                 if (data.data.requiresEmailConfirmation) {
-                    console.log('⚠️ Email no confirmado');
                     this.dispatchAuthEvent('email-not-confirmed', data.data.user);
-                    
                     return {
                         success: false,
                         requiresEmailConfirmation: true,
@@ -156,21 +252,18 @@ class AuthService {
                         user: data.data.user
                     };
                 }
-                
                 // Login exitoso normal
                 this.token = data.data.token;
                 this.currentUser = data.data.user;
-                
-                console.log('✅ Login exitoso, usuario:', this.currentUser);
                 this.dispatchAuthEvent('login', this.currentUser);
-                
                 // Forzar actualización del header si está disponible
                 if (window.headerComponent && typeof window.headerComponent.forceAuthUpdate === 'function') {
                     setTimeout(() => {
                         window.headerComponent.forceAuthUpdate();
                     }, 100);
                 }
-                
+                // Redirigir a la página que quería visitar antes del login
+                this.handlePostLoginRedirect();
                 return {
                     success: true,
                     message: data.message,
@@ -190,26 +283,21 @@ class AuthService {
             };
         }
     }
-
     // Logout
     async logout() {
         try {
-            console.log('🔄 Cerrando sesión...');
-            
             const response = await fetch(this.getApiUrl('logout'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include'
             });
-
             const data = await response.json();
-            console.log('📩 Respuesta de logout:', data);
-
             // Limpiar datos locales
             this.token = null;
             this.currentUser = null;
+            // Limpiar cookie manualmente también (por si acaso)
+            document.cookie = 'ecc_auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
             this.dispatchAuthEvent('logout');
-            
             return {
                 success: true,
                 message: data.message || 'Sesión cerrada exitosamente'
@@ -219,103 +307,128 @@ class AuthService {
             // Limpiar datos locales aunque falle la petición
             this.token = null;
             this.currentUser = null;
+            // Limpiar cookie manualmente también
+            document.cookie = 'ecc_auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
             this.dispatchAuthEvent('logout');
-            
             return {
                 success: true,
                 message: 'Sesión cerrada'
             };
         }
     }
-
     // Validar token actual
     async validateToken() {
         if (!this.token) {
-            console.log('🔍 No hay token para validar');
+            console.log('❌ ValidateToken: No hay token');
             return false;
         }
-
+        
         try {
-            console.log('🔍 Validando token...');
+            const validateUrl = this.getApiUrl('validate');
+            console.log('🔄 ValidateToken: Enviando petición a:', validateUrl);
+            console.log('🔑 ValidateToken: Token (primeros 20 chars):', this.token.substring(0, 20) + '...');
             
-            const response = await fetch(this.getApiUrl('validate'), {
+            const response = await fetch(validateUrl, {
                 method: 'GET',
                 headers: { 'Authorization': `Bearer ${this.token}` },
                 credentials: 'include'
             });
-
+            
+            console.log('📩 ValidateToken: Status:', response.status, 'OK:', response.ok);
+            
             const data = await response.json();
-            console.log('📩 Respuesta de validación:', data);
-
-            if (response.ok && data.success && data.data?.valid) {
-                this.currentUser = data.data.user;
-                console.log('✅ Token válido, usuario:', this.currentUser);
-                this.dispatchAuthEvent('validated', this.currentUser);
+            console.log('📋 ValidateToken: Respuesta completa:', data);
+            
+            if (response.ok && data.success) {
+                // La estructura real es: data.data.valid y data.data.user (debido a jsonResponse wrapper)
+                const validationData = data.data || data; // Fallback por si cambia la estructura
                 
-                // Forzar actualización del header si está disponible
-                if (window.headerComponent && typeof window.headerComponent.forceAuthUpdate === 'function') {
-                    setTimeout(() => {
-                        window.headerComponent.forceAuthUpdate();
-                    }, 100);
+                if (validationData.valid) {
+                    this.currentUser = validationData.user;
+                    console.log('✅ ValidateToken: Usuario establecido:', this.currentUser);
+                    this.dispatchAuthEvent('validated', this.currentUser);
+                    
+                    // Forzar actualización del header si está disponible
+                    if (window.headerComponent && typeof window.headerComponent.forceAuthUpdate === 'function') {
+                        setTimeout(() => {
+                            window.headerComponent.forceAuthUpdate();
+                        }, 100);
+                    }
+                    return true;
+                } else {
+                    console.log('❌ ValidateToken: Token no válido según servidor');
+                    this.token = null;
+                    this.currentUser = null;
+                    this.dispatchAuthEvent('logout');
+                    return false;
                 }
-                
-                return true;
             } else {
                 // Token inválido
+                console.log('❌ ValidateToken: Validación falló');
+                console.log('❌ ValidateToken: response.ok:', response.ok);
+                console.log('❌ ValidateToken: data.success:', data.success);
+                console.log('❌ ValidateToken: data.data?.valid:', data.data?.valid);
+                
                 this.token = null;
                 this.currentUser = null;
                 this.dispatchAuthEvent('logout');
                 return false;
             }
         } catch (error) {
-            console.error('Error validando token:', error);
+            console.error('❌ ValidateToken: Error de red:', error);
             this.token = null;
             this.currentUser = null;
             this.dispatchAuthEvent('logout');
             return false;
         }
     }
-
     // Métodos de estado
     isAuthenticated() {
         return this.token !== null && this.currentUser !== null;
     }
-
     getCurrentUser() {
         return this.currentUser;
     }
-
     getToken() {
         return this.token;
     }
-
     // Disparar eventos de autenticación
     dispatchAuthEvent(type, data = null) {
+        // Evento principal con formato auth-*
         const event = new CustomEvent(`auth-${type}`, { detail: data });
         window.dispatchEvent(event);
-        console.log(`🔔 Evento disparado: auth-${type}`, data ? data.firstName || data.email : '');
+        // Eventos específicos para mejor compatibilidad
+        if (type === 'login') {
+            const loginEvent = new CustomEvent('userLogin', { detail: data });
+            window.dispatchEvent(loginEvent);
+        } else if (type === 'logout') {
+            const logoutEvent = new CustomEvent('userLogout', { detail: data });
+            window.dispatchEvent(logoutEvent);
+        }
+        // Evento general de cambio de estado
+        const stateEvent = new CustomEvent('authStateChanged', { 
+            detail: { 
+                type, 
+                isAuthenticated: this.isAuthenticated(),
+                user: this.getCurrentUser(),
+                data 
+            } 
+        });
+        window.dispatchEvent(stateEvent);
     }
 }
-
 // Crear instancia global optimizada
-console.log('🔧 Creando AuthService optimizado...');
-
 try {
     window.authService = new AuthService();
-    console.log('✅ AuthService optimizado creado exitosamente');
-    
     // Verificar métodos disponibles
     ['register', 'login', 'logout', 'validateToken', 'isAuthenticated'].forEach(method => {
-        console.log(`📋 ${method}:`, typeof window.authService[method]);
     });
-    
 } catch (error) {
     console.error('❌ Error al crear AuthService:', error);
 }
-
 // Exportar la clase
 window.AuthService = AuthService;
-
+console.log('✅ AuthService class exportada y disponible en window.AuthService');
 // Función de emergencia
 window.ensureAuthService = function() {
     if (!window.authService && typeof window.AuthService === 'function') {
@@ -329,11 +442,9 @@ window.ensureAuthService = function() {
     }
     return !!window.authService;
 };
-
 // Verificación final
 setTimeout(() => {
     if (!window.authService) {
-        console.log('⚠️ Ejecutando función de emergencia...');
         window.ensureAuthService();
     }
 }, 50);
