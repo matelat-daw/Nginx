@@ -1,17 +1,13 @@
 <?php
 /**
  * Controlador de Validación de Token - Economía Circular Canarias
- * 
- * Validación optimizada con configuración centralizada
+ * Versión 2.0 - Optimizado con nuevas funciones helper
  */
 
-// Incluir configuración
 require_once __DIR__ . '/../config.php';
 
-// Headers CORS
+// Headers CORS y seguridad
 setCorsHeaders();
-
-// Manejar preflight requests
 handlePreflight();
 
 try {
@@ -35,55 +31,20 @@ try {
         ], 401);
     }
     
-    // Validar token JWT manualmente (mismo método que login/register)
-    $parts = explode('.', $token);
-    if (count($parts) !== 3) {
+    // Validar token usando función optimizada
+    if (!JWT::validate($token, JWT_SECRET)) {
         jsonResponse([
             'success' => false,
             'valid' => false,
-            'message' => 'Formato de token inválido'
+            'message' => 'Token inválido o expirado'
         ], 401);
     }
     
-    // Decodificar payload
-    $payload = json_decode(base64_decode(str_replace(['-', '_'], ['+', '/'], $parts[1])), true);
-    
-    if (!$payload) {
-        jsonResponse([
-            'success' => false,
-            'valid' => false,
-            'message' => 'Token corrupto'
-        ], 401);
-    }
-    
-    // Verificar expiración
-    if (isset($payload['exp']) && time() > $payload['exp']) {
-        jsonResponse([
-            'success' => false,
-            'valid' => false,
-            'message' => 'Token expirado'
-        ], 401);
-    }
-    
-    // Verificar signature
-    $header = $parts[0];
-    $payloadPart = $parts[1];
-    $signature = $parts[2];
-    
-    $expectedSignature = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode(
-        hash_hmac('sha256', $header . '.' . $payloadPart, JWT_SECRET, true)
-    ));
-    
-    if ($signature !== $expectedSignature) {
-        jsonResponse([
-            'success' => false,
-            'valid' => false,
-            'message' => 'Token signature inválida'
-        ], 401);
-    }
+    // Decodificar payload usando nuestro método personalizado
+    $decoded = JWT::decode($token, JWT_SECRET);
     
     // Obtener user_id del payload
-    $userId = isset($payload['user_id']) ? $payload['user_id'] : null;
+    $userId = $decoded->userId ?? $decoded->user_id ?? null;
     
     if (!$userId) {
         jsonResponse([
@@ -131,8 +92,8 @@ try {
         'user' => $userData,
         'tokenInfo' => [
             'user_id' => $userId,
-            'email' => $payload['email'],
-            'expires_at' => $payload['exp'],
+            'email' => $decoded->email,
+            'expires_at' => $decoded->exp,
             'issued_for' => $user['email']
         ]
     ], 200, 'Token válido');

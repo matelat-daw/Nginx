@@ -27,16 +27,7 @@ require_once __DIR__ . '/../repositories/ProductRepository.php';
 
 try {
     // Conectar a la base de datos
-    $pdo = new PDO(
-        "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET,
-        DB_USER,
-        DB_PASS,
-        [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false
-        ]
-    );
+    $pdo = getDBConnection();
     
     // Verificar autenticación
     $headers = getallheaders();
@@ -51,7 +42,7 @@ try {
     $token = substr($authHeader, 7);
     
     try {
-        $decoded = JWT::decode($token, new Key(JWT_SECRET, 'HS256'));
+        $decoded = JWT::decode($token, JWT_SECRET);
         $sellerId = $decoded->userId;
     } catch (Exception $e) {
         http_response_code(401);

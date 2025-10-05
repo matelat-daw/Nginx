@@ -2,41 +2,21 @@
 /**
  * API Endpoint: Obtener Producto por ID o Slug
  * GET /api/products/get.php?id=123 o GET /api/products/get.php?slug=producto-ejemplo
+ * Versión 2.0 - Optimizado
  */
 
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+require_once __DIR__ . '/../config.php';
 
-// Manejar preflight OPTIONS
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
+setCorsHeaders();
+handlePreflight();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-    http_response_code(405);
-    echo json_encode(['error' => 'Método no permitido']);
-    exit();
+    jsonResponse(null, 405, 'Método no permitido');
 }
 
-require_once __DIR__ . '/../config.php';
-require_once __DIR__ . '/../models/Product.php';
-require_once __DIR__ . '/../repositories/ProductRepository.php';
-
 try {
-    // Conectar a la base de datos
-    $pdo = new PDO(
-        "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET,
-        DB_USER,
-        DB_PASS,
-        [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false
-        ]
-    );
+    // Conexión DB centralizada
+    $pdo = getDBConnection();
     
     $productRepository = new ProductRepository($pdo);
     
@@ -73,7 +53,7 @@ try {
     if (!empty($authHeader) && str_starts_with($authHeader, 'Bearer ')) {
         $token = substr($authHeader, 7);
         try {
-            $decoded = JWT::decode($token, new Key(JWT_SECRET, 'HS256'));
+            $decoded = JWT::decode($token, JWT_SECRET);
             $userId = $decoded->userId;
             $isOwner = ($userId == $product->sellerId);
         } catch (Exception $e) {

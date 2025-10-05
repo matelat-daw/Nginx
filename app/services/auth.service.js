@@ -90,6 +90,9 @@ class AuthService {
     }
     // Limpiar estado de autenticación
     clearAuthState() {
+        console.warn('⚠️ AuthService.clearAuthState() llamado - LIMPIANDO SESIÓN');
+        console.trace('Stack trace de clearAuthState:');
+        
         this.token = null;
         this.currentUser = null;
         
@@ -384,27 +387,45 @@ class AuthService {
     }
     // Métodos de estado
     isAuthenticated() {
-        return this.token !== null && this.currentUser !== null;
+        const hasToken = this.token !== null && this.token !== undefined && this.token !== '';
+        const hasUser = this.currentUser !== null && this.currentUser !== undefined;
+        const result = hasToken && hasUser;
+        console.log('🔍 AuthService.isAuthenticated():', result, '(token:', hasToken, ', user:', hasUser, ')');
+        return result;
     }
+    
     getCurrentUser() {
+        console.log('🔍 AuthService.getCurrentUser():', this.currentUser);
         return this.currentUser;
     }
+    
     getToken() {
         return this.token;
     }
     // Disparar eventos de autenticación
     dispatchAuthEvent(type, data = null) {
-        // Evento principal con formato auth-*
-        const event = new CustomEvent(`auth-${type}`, { detail: data });
-        window.dispatchEvent(event);
+        console.log(`📢 AuthService: Disparando evento 'auth-${type}'`, data ? 'con datos' : 'sin datos');
+        
+        // Evento principal con formato auth-* en document
+        const authEvent = new CustomEvent(`auth-${type}`, { detail: data });
+        document.dispatchEvent(authEvent);
+        
+        // También en window para compatibilidad
+        window.dispatchEvent(authEvent);
+        
         // Eventos específicos para mejor compatibilidad
         if (type === 'login') {
+            console.log('📢 AuthService: Disparando evento userLogin');
             const loginEvent = new CustomEvent('userLogin', { detail: data });
             window.dispatchEvent(loginEvent);
+            document.dispatchEvent(loginEvent);
         } else if (type === 'logout') {
+            console.log('📢 AuthService: Disparando evento userLogout');
             const logoutEvent = new CustomEvent('userLogout', { detail: data });
             window.dispatchEvent(logoutEvent);
+            document.dispatchEvent(logoutEvent);
         }
+        
         // Evento general de cambio de estado
         const stateEvent = new CustomEvent('authStateChanged', { 
             detail: { 
@@ -415,6 +436,9 @@ class AuthService {
             } 
         });
         window.dispatchEvent(stateEvent);
+        document.dispatchEvent(stateEvent);
+        
+        console.log('✅ AuthService: Todos los eventos disparados');
     }
 }
 // Crear instancia global optimizada

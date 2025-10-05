@@ -49,7 +49,7 @@ try {
     $token = substr($authHeader, 7);
     
     try {
-        $decoded = JWT::decode($token, new Key(JWT_SECRET, 'HS256'));
+        $decoded = JWT::decode($token, JWT_SECRET);
         $buyerId = $decoded->userId;
     } catch (Exception $e) {
         http_response_code(401);

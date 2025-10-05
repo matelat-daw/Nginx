@@ -1,18 +1,15 @@
 <?php
 /**
  * Controlador de Registro - Economía Circular Canarias
- * 
- * Registro optimizado con configuración centralizada
+ * Versión 2.0 - Optimizado con nuevas funciones helper
  */
 
-// Incluir configuración
 require_once __DIR__ . '/../config.php';
 
-// Headers CORS
+// Headers CORS y seguridad
 setCorsHeaders();
-
-// Manejar preflight requests
 handlePreflight();
+applySecurityMiddleware(true); // Con rate limiting
 
 // Solo permitir método POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -138,21 +135,8 @@ try {
         logMessage('INFO', "Welcome email sent successfully to: {$email} (User ID: {$userId})");
     }
     
-    // Generar token JWT
-    $header = json_encode(['typ' => 'JWT', 'alg' => 'HS256']);
-    $payload = json_encode([
-        'user_id' => $userId,
-        'email' => $email,
-        'exp' => time() + JWT_EXPIRATION
-    ]);
-    
-    $base64Header = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($header));
-    $base64Payload = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($payload));
-    
-    $signature = hash_hmac('sha256', $base64Header . "." . $base64Payload, JWT_SECRET, true);
-    $base64Signature = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($signature));
-    
-    $jwt = $base64Header . "." . $base64Payload . "." . $base64Signature;
+    // Generar token JWT usando función optimizada
+    $jwt = JWT::generateToken($userId, $email);
     
     // Establecer cookie
     setcookie(COOKIE_NAME, $jwt, [

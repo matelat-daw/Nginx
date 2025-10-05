@@ -1,14 +1,65 @@
 <?php
 /**
  * Configuración API Optimizada - Economía Circular Canarias
- * Solo contiene las funciones y configuraciones que realmente se usan
+ * Versión 2.0 - Todas las optimizaciones implementadas
  */
 
-// Implementación simple de JWT sin dependencias externas
+// ====================================
+// AUTOLOADER PSR-4
+// ====================================
+spl_autoload_register(function ($class) {
+    $paths = [
+        __DIR__ . '/models/',
+        __DIR__ . '/repositories/',
+        __DIR__ . '/services/',
+        __DIR__ . '/middleware/'
+    ];
+    
+    foreach ($paths as $path) {
+        $file = $path . $class . '.php';
+        if (file_exists($file)) {
+            require_once $file;
+            return;
+        }
+    }
+});
+
+// ====================================
+// COMPRESIÓN GZIP PARA RESPUESTAS
+// ====================================
+if (!ob_start('ob_gzhandler')) {
+    ob_start();
+}
+
+// ====================================
+// JWT UNIFICADO - Implementación completa y optimizada
+// ====================================
 class JWT {
+    /**
+     * Generar token JWT para login/register
+     */
+    public static function generateToken($userId, $email, $expiration = null) {
+        $exp = $expiration ?? (time() + JWT_EXPIRATION);
+        $payload = [
+            'userId' => $userId,
+            'user_id' => $userId, // Compatibilidad
+            'email' => $email,
+            'exp' => $exp,
+            'iat' => time()
+        ];
+        
+        return self::encode($payload, JWT_SECRET);
+    }
+    
+    /**
+     * Codificar payload en JWT
+     */
     public static function encode($payload, $key) {
+        if (is_array($payload)) {
+            $payload = json_encode($payload);
+        }
+        
         $header = json_encode(['typ' => 'JWT', 'alg' => 'HS256']);
-        $payload = json_encode($payload);
         
         $base64Header = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($header));
         $base64Payload = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($payload));
@@ -19,6 +70,9 @@ class JWT {
         return $base64Header . "." . $base64Payload . "." . $base64Signature;
     }
     
+    /**
+     * Decodificar y validar JWT
+     */
     public static function decode($jwt, $key) {
         $parts = explode('.', $jwt);
         if (count($parts) !== 3) {
@@ -43,13 +97,25 @@ class JWT {
         
         return (object) $payload;
     }
+    
+    /**
+     * Validar token simple (retorna true/false)
+     */
+    public static function validate($jwt, $key) {
+        try {
+            self::decode($jwt, $key);
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
 }
 
 class Key {
     public $key;
     public $algorithm;
     
-    public function __construct($key, $algorithm) {
+    public function __construct($key, $algorithm = 'HS256') {
         $this->key = $key;
         $this->algorithm = $algorithm;
     }
@@ -167,12 +233,22 @@ define('COOKIE_SAME_SITE', 'Lax');
 // Seguridad
 define('PASSWORD_MIN_LENGTH', 6);
 
+// Rate Limiting
+define('RATE_LIMIT_REQUESTS', 100);
+define('RATE_LIMIT_WINDOW', 3600); // 1 hora
+
 // Email
 define('EMAIL_FROM', 'matelat@gmail.com');
 define('EMAIL_FROM_NAME', 'Canarias Circular');
 define('SITE_URL', 'https://localhost');
 
-// Headers CORS
+// ====================================
+// FUNCIONES HELPER OPTIMIZADAS
+// ====================================
+
+/**
+ * Headers CORS centralizados
+ */
 function setCorsHeaders() {
     $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
     $allowedOrigins = [
@@ -189,7 +265,9 @@ function setCorsHeaders() {
     header("Content-Type: application/json; charset=utf-8");
 }
 
-// Preflight requests
+/**
+ * Manejar preflight requests
+ */
 function handlePreflight() {
     if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
         setCorsHeaders();
@@ -199,7 +277,9 @@ function handlePreflight() {
     }
 }
 
-// Respuestas JSON
+/**
+ * Respuestas JSON estandarizadas
+ */
 function jsonResponse($data, $statusCode = 200, $message = null) {
     http_response_code($statusCode);
     
@@ -213,6 +293,93 @@ function jsonResponse($data, $statusCode = 200, $message = null) {
     
     echo json_encode($response, JSON_UNESCAPED_UNICODE);
     exit();
+}
+
+/**
+ * Validar y extraer token JWT de headers
+ * @param bool $required Si es true, termina la ejecución si no hay token válido
+ * @return object|null Payload del token o null
+ */
+function validateAuthToken($required = true) {
+    $headers = getallheaders();
+    $authHeader = $headers['Authorization'] ?? '';
+    
+    if (empty($authHeader) || !str_starts_with($authHeader, 'Bearer ')) {
+        if ($required) {
+            jsonResponse(null, 401, 'Token de autorización requerido');
+        }
+        return null;
+    }
+    
+    try {
+        $token = substr($authHeader, 7);
+        return JWT::decode($token, JWT_SECRET);
+    } catch (Exception $e) {
+        if ($required) {
+            jsonResponse(null, 401, 'Token inválido o expirado');
+        }
+        return null;
+    }
+}
+
+/**
+ * Aplicar middleware de seguridad y rate limiting
+ */
+function applySecurityMiddleware($rateLimit = true) {
+    // Headers de seguridad
+    header('X-XSS-Protection: 1; mode=block');
+    header('X-Content-Type-Options: nosniff');
+    header('X-Frame-Options: SAMEORIGIN');
+    header('Referrer-Policy: strict-origin-when-cross-origin');
+    
+    // CSP básico
+    $csp = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';";
+    header("Content-Security-Policy: {$csp}");
+    
+    // Rate limiting si está habilitado
+    if ($rateLimit) {
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        $cacheFile = sys_get_temp_dir() . '/rate_limit_' . md5($ip) . '.tmp';
+        
+        $now = time();
+        $requests_data = [];
+        
+        // Leer requests anteriores
+        if (file_exists($cacheFile)) {
+            $data = file_get_contents($cacheFile);
+            $requests_data = json_decode($data, true) ?: [];
+        }
+        
+        // Filtrar requests dentro de la ventana de tiempo
+        $requests_data = array_filter($requests_data, function($timestamp) use ($now) {
+            return ($now - $timestamp) < RATE_LIMIT_WINDOW;
+        });
+        
+        // Verificar límite
+        if (count($requests_data) >= RATE_LIMIT_REQUESTS) {
+            jsonResponse(null, 429, 'Demasiadas solicitudes. Intenta de nuevo más tarde.');
+        }
+        
+        // Agregar request actual
+        $requests_data[] = $now;
+        file_put_contents($cacheFile, json_encode($requests_data), LOCK_EX);
+    }
+}
+
+/**
+ * Cacheo simple de consultas
+ */
+function getCachedData($key, $callback, $ttl = 3600) {
+    $cacheFile = sys_get_temp_dir() . '/cache_' . md5($key) . '.tmp';
+    
+    if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < $ttl)) {
+        $data = file_get_contents($cacheFile);
+        return json_decode($data, true);
+    }
+    
+    $data = $callback();
+    file_put_contents($cacheFile, json_encode($data), LOCK_EX);
+    return $data;
 }
 
 // Logging básico

@@ -1,18 +1,15 @@
 <?php
 /**
  * Controlador de Login - Economía Circular Canarias
- * 
- * Login optimizado con configuración centralizada
+ * Versión 2.0 - Optimizado con nuevas funciones helper
  */
 
-// Incluir configuración
 require_once __DIR__ . '/../config.php';
 
-// Headers CORS
+// Headers CORS y seguridad
 setCorsHeaders();
-
-// Manejar preflight requests
 handlePreflight();
+applySecurityMiddleware(true); // Con rate limiting
 
 // Solo permitir método POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -37,7 +34,7 @@ try {
         jsonResponse(null, 400, 'Formato de email inválido');
     }
     
-    // Usar la función centralizada para obtener conexión DB
+    // Conexión DB centralizada
     $pdo = getDBConnection();
     
     // Buscar usuario por email (primero en users)
@@ -92,21 +89,8 @@ try {
         ], 200, 'Tu cuenta está registrada pero necesitas confirmar tu email para continuar. Revisa tu bandeja de entrada y haz clic en el enlace de confirmación.');
     }
     
-    // Generar token JWT
-    $header = json_encode(['typ' => 'JWT', 'alg' => 'HS256']);
-    $payload = json_encode([
-        'user_id' => $user['id'],
-        'email' => $user['email'],
-        'exp' => time() + JWT_EXPIRATION
-    ]);
-    
-    $base64Header = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($header));
-    $base64Payload = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($payload));
-    
-    $signature = hash_hmac('sha256', $base64Header . "." . $base64Payload, JWT_SECRET, true);
-    $base64Signature = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($signature));
-    
-    $jwt = $base64Header . "." . $base64Payload . "." . $base64Signature;
+    // Generar token JWT usando función optimizada
+    $jwt = JWT::generateToken($user['id'], $user['email']);
     
     // Establecer cookie
     setcookie(COOKIE_NAME, $jwt, [
@@ -127,7 +111,8 @@ try {
         'island' => $user['island'] ?? '',
         'city' => $user['city'] ?? '',
         'userType' => $user['user_type'] ?? $user['userType'] ?? 'user',
-        'emailVerified' => isset($user['email_verified']) ? (bool)$user['email_verified'] : true
+        'emailVerified' => isset($user['email_verified']) ? (bool)$user['email_verified'] : true,
+        'profileImage' => $user['profile_image'] ?? null
     ];
     
     // Log del login exitoso

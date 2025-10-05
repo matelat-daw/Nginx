@@ -87,7 +87,20 @@ header {
     background: rgba(255, 255, 255, 0.3);
 }
 
+/* Estilos para la foto de perfil en el botón */
+.user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    display: inline-block;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+
 .user-dropdown {
+    display: none !important;
     position: absolute;
     top: 100%;
     right: 0;
@@ -98,6 +111,11 @@ header {
     min-width: 200px;
     z-index: 1001;
     margin-top: 0.5rem;
+}
+
+/* Cuando está visible */
+.user-dropdown[style*="display: block"] {
+    display: block !important;
 }
 
 .dropdown-item {

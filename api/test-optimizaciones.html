@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Optimizada - Economía Circular Canarias</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .test-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .test-section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .result {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .success {
+            border-left: 4px solid #10b981;
+        }
+        .error {
+            border-left: 4px solid #ef4444;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status-ok {
+            background: #10b981;
+            color: white;
+        }
+        .status-error {
+            background: #ef4444;
+            color: white;
+        }
+        .info-box {
+            background: #e0e7ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test API Optimizada - Economía Circular Canarias</h1>
+        
+        <div class="info-box">
+            <strong>ℹ️ Información:</strong> Esta página te permite probar todos los endpoints optimizados de la API.
+            Las optimizaciones incluyen: JWT unificado, conexiones PDO centralizadas, middleware de seguridad, rate limiting y compresión GZIP.
+        </div>
+
+        <!-- Test 1: Health Check -->
+        <div class="test-section">
+            <h2>1️⃣ Health Check - Validar Token</h2>
+            <button onclick="testValidate()">🔍 Test Validate Token</button>
+            <div id="result-validate" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Test 2: Login -->
+        <div class="test-section">
+            <h2>2️⃣ Autenticación - Login</h2>
+            <input type="email" id="login-email" placeholder="Email" value="test@test.com" style="padding:10px; margin:5px; width:250px; border:1px solid #ccc; border-radius:5px;">
+            <input type="password" id="login-password" placeholder="Password" value="123456" style="padding:10px; margin:5px; width:250px; border:1px solid #ccc; border-radius:5px;">
+            <button onclick="testLogin()">🔐 Test Login</button>
+            <div id="result-login" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Test 3: Register -->
+        <div class="test-section">
+            <h2>3️⃣ Registro de Usuario</h2>
+            <button onclick="testRegister()">📝 Test Register (Usuario Random)</button>
+            <div id="result-register" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Test 4: Products List -->
+        <div class="test-section">
+            <h2>4️⃣ Productos - Listar (Con Caché)</h2>
+            <button onclick="testProductsList()">📦 Test Products List</button>
+            <button onclick="testProductsListCached()">⚡ Test Cached (2da llamada)</button>
+            <div id="result-products" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Test 5: Get Product -->
+        <div class="test-section">
+            <h2>5️⃣ Obtener Producto por ID</h2>
+            <input type="number" id="product-id" placeholder="Product ID" value="1" style="padding:10px; margin:5px; width:150px; border:1px solid #ccc; border-radius:5px;">
+            <button onclick="testGetProduct()">🔍 Test Get Product</button>
+            <div id="result-get-product" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Test 6: Rate Limiting -->
+        <div class="test-section">
+            <h2>6️⃣ Rate Limiting - Protección contra ataques</h2>
+            <button onclick="testRateLimiting()">⚡ Enviar 10 Requests Rápidos</button>
+            <div id="result-rate-limit" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Test 7: GZIP Compression -->
+        <div class="test-section">
+            <h2>7️⃣ Compresión GZIP - Verificar Headers</h2>
+            <button onclick="testGZIP()">📊 Test GZIP Compression</button>
+            <div id="result-gzip" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Test 8: Security Headers -->
+        <div class="test-section">
+            <h2>8️⃣ Headers de Seguridad</h2>
+            <button onclick="testSecurityHeaders()">🔒 Test Security Headers</button>
+            <div id="result-security" class="result" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentToken = null;
+
+        // Test 1: Validate Token
+        async function testValidate() {
+            const resultDiv = document.getElementById('result-validate');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result';
+            resultDiv.textContent = '⏳ Probando validación de token...';
+
+            try {
+                const response = await fetch('/api/auth/validate.php');
+                const data = await response.json();
+                
+                resultDiv.className = 'result ' + (data.success ? 'success' : 'error');
+                resultDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = '❌ Error: ' + error.message;
+            }
+        }
+
+        // Test 2: Login
+        async function testLogin() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const resultDiv = document.getElementById('result-login');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result';
+            resultDiv.textContent = '⏳ Probando login...';
+
+            try {
+                const response = await fetch('/api/auth/login.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await response.json();
+                
+                if (data.success && data.data && data.data.token) {
+                    currentToken = data.data.token;
+                }
+                
+                resultDiv.className = 'result ' + (data.success ? 'success' : 'error');
+                resultDiv.textContent = '✅ Status: ' + response.status + '\n\n' + JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = '❌ Error: ' + error.message;
+            }
+        }
+
+        // Test 3: Register
+        async function testRegister() {
+            const randomEmail = 'test_' + Date.now() + '@test.com';
+            const resultDiv = document.getElementById('result-register');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result';
+            resultDiv.textContent = '⏳ Registrando usuario: ' + randomEmail;
+
+            try {
+                const response = await fetch('/api/auth/register.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        firstName: 'Test',
+                        lastName: 'User',
+                        email: randomEmail,
+                        password: '123456',
+                        island: 'Tenerife',
+                        city: 'Santa Cruz'
+                    })
+                });
+                const data = await response.json();
+                
+                resultDiv.className = 'result ' + (data.success ? 'success' : 'error');
+                resultDiv.textContent = '✅ Status: ' + response.status + '\n\n' + JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = '❌ Error: ' + error.message;
+            }
+        }
+
+        // Test 4: Products List
+        let firstCallTime = null;
+        async function testProductsList() {
+            const resultDiv = document.getElementById('result-products');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result';
+            resultDiv.textContent = '⏳ Obteniendo lista de productos...';
+
+            const startTime = performance.now();
+            try {
+                const response = await fetch('/api/products/list.php?limit=5');
+                const data = await response.json();
+                const endTime = performance.now();
+                const duration = (endTime - startTime).toFixed(2);
+                firstCallTime = duration;
+                
+                resultDiv.className = 'result ' + (data.success ? 'success' : 'error');
+                resultDiv.textContent = `✅ Status: ${response.status}\n⏱️ Tiempo: ${duration}ms\n📦 Productos: ${data.data?.products?.length || 0}\n\n${JSON.stringify(data, null, 2).substring(0, 500)}...`;
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = '❌ Error: ' + error.message;
+            }
+        }
+
+        async function testProductsListCached() {
+            const resultDiv = document.getElementById('result-products');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result';
+            resultDiv.textContent = '⏳ Obteniendo lista de productos (debería ser más rápido)...';
+
+            const startTime = performance.now();
+            try {
+                const response = await fetch('/api/products/list.php?limit=5');
+                const data = await response.json();
+                const endTime = performance.now();
+                const duration = (endTime - startTime).toFixed(2);
+                
+                const improvement = firstCallTime ? ((firstCallTime - duration) / firstCallTime * 100).toFixed(2) : 0;
+                
+                resultDiv.className = 'result ' + (data.success ? 'success' : 'error');
+                resultDiv.textContent = `✅ Status: ${response.status}\n⏱️ 1ra llamada: ${firstCallTime}ms\n⏱️ 2da llamada: ${duration}ms\n🚀 Mejora: ${improvement}%\n📦 Productos: ${data.data?.products?.length || 0}\n\n${JSON.stringify(data, null, 2).substring(0, 500)}...`;
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = '❌ Error: ' + error.message;
+            }
+        }
+
+        // Test 5: Get Product
+        async function testGetProduct() {
+            const productId = document.getElementById('product-id').value;
+            const resultDiv = document.getElementById('result-get-product');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result';
+            resultDiv.textContent = '⏳ Obteniendo producto ID: ' + productId;
+
+            try {
+                const response = await fetch(`/api/products/get.php?id=${productId}`);
+                const data = await response.json();
+                
+                resultDiv.className = 'result ' + (data.success ? 'success' : 'error');
+                resultDiv.textContent = '✅ Status: ' + response.status + '\n\n' + JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = '❌ Error: ' + error.message;
+            }
+        }
+
+        // Test 6: Rate Limiting
+        async function testRateLimiting() {
+            const resultDiv = document.getElementById('result-rate-limit');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result';
+            resultDiv.textContent = '⏳ Enviando 10 requests rápidos para probar rate limiting...';
+
+            const results = [];
+            const promises = [];
+
+            for (let i = 0; i < 10; i++) {
+                promises.push(
+                    fetch('/api/auth/validate.php')
+                        .then(r => ({ status: r.status, ok: r.ok }))
+                        .catch(e => ({ status: 'ERROR', error: e.message }))
+                );
+            }
+
+            const responses = await Promise.all(promises);
+            const blocked = responses.filter(r => r.status === 429).length;
+            const allowed = responses.filter(r => r.status !== 429).length;
+
+            resultDiv.className = 'result ' + (blocked > 0 ? 'success' : 'error');
+            resultDiv.textContent = `📊 Resultado del test de Rate Limiting:\n\n✅ Requests permitidos: ${allowed}\n🚫 Requests bloqueados: ${blocked}\n\n${blocked > 0 ? '✅ Rate limiting funcionando correctamente!' : '⚠️ No se detectó rate limiting (puede estar deshabilitado o límite muy alto)'}\n\n${JSON.stringify(responses, null, 2)}`;
+        }
+
+        // Test 7: GZIP
+        async function testGZIP() {
+            const resultDiv = document.getElementById('result-gzip');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result';
+            resultDiv.textContent = '⏳ Verificando compresión GZIP...';
+
+            try {
+                const response = await fetch('/api/products/list.php?limit=20');
+                const headers = {};
+                response.headers.forEach((value, key) => {
+                    headers[key] = value;
+                });
+                
+                const hasGzip = headers['content-encoding']?.includes('gzip');
+                
+                resultDiv.className = 'result ' + (hasGzip ? 'success' : 'error');
+                resultDiv.textContent = `📊 Headers de respuesta:\n\n${JSON.stringify(headers, null, 2)}\n\n${hasGzip ? '✅ GZIP activado!' : '⚠️ GZIP no detectado (puede ser transparente en navegador)'}`;
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = '❌ Error: ' + error.message;
+            }
+        }
+
+        // Test 8: Security Headers
+        async function testSecurityHeaders() {
+            const resultDiv = document.getElementById('result-security');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result';
+            resultDiv.textContent = '⏳ Verificando headers de seguridad...';
+
+            try {
+                const response = await fetch('/api/auth/login.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: 'test@test.com', password: '123456' })
+                });
+                
+                const securityHeaders = {
+                    'X-XSS-Protection': response.headers.get('X-XSS-Protection'),
+                    'X-Content-Type-Options': response.headers.get('X-Content-Type-Options'),
+                    'X-Frame-Options': response.headers.get('X-Frame-Options'),
+                    'Referrer-Policy': response.headers.get('Referrer-Policy'),
+                    'Content-Security-Policy': response.headers.get('Content-Security-Policy')
+                };
+                
+                const hasSecurityHeaders = Object.values(securityHeaders).some(v => v !== null);
+                
+                resultDiv.className = 'result ' + (hasSecurityHeaders ? 'success' : 'error');
+                resultDiv.textContent = `🔒 Headers de seguridad:\n\n${JSON.stringify(securityHeaders, null, 2)}\n\n${hasSecurityHeaders ? '✅ Headers de seguridad detectados!' : '⚠️ No se detectaron headers de seguridad'}`;
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = '❌ Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

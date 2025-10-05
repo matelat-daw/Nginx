@@ -57,42 +57,40 @@ class HeaderComponent {
             </header>
         `;
     }
-    // Renderizar sección de autenticación usando templates del HTML
     renderAuthSection() {
         if (this.isAuthenticated && this.currentUser) {
-            // Usar template del HTML para usuario autenticado
             const templateData = this.getTemplateContent('userMenuTemplate');
             if (templateData) {
-                // Actualizar el nombre del usuario
-                const userName = this.currentUser.first_name || this.currentUser.firstName || 'Usuario';
+                const userName = this.currentUser.firstName || this.currentUser.first_name || 'Usuario';
                 const userNameSpan = templateData.element.querySelector('.user-name');
                 if (userNameSpan) {
                     userNameSpan.textContent = userName;
                 }
-                // Reconstruir el HTML con el nombre actualizado
                 const tempDiv = document.createElement('div');
                 tempDiv.appendChild(templateData.element);
                 return tempDiv.innerHTML;
             }
         } else {
-            // Usar template del HTML para botones de auth
             const templateData = this.getTemplateContent('authButtonsTemplate');
             if (templateData) {
                 return templateData.html;
             }
         }
-        
-        // Fallback si no hay templates disponibles
         return this.getFallbackAuthSection();
     }
 
     // Fallback para auth section si no hay templates
     getFallbackAuthSection() {
         if (this.isAuthenticated && this.currentUser) {
-            const userName = this.currentUser.first_name || this.currentUser.firstName || 'Usuario';
+            const userName = this.currentUser.firstName || this.currentUser.first_name || 'Usuario';
+            const profileImage = this.currentUser.profileImage || this.currentUser.profile_image;
+            const userAvatar = profileImage 
+                ? `<img src="${profileImage}" alt="${userName}" class="user-avatar">` 
+                : '👤';
+            
             return `<div class="user-menu">
-                <button class="user-button" id="userMenuToggle">👤 ${userName}</button>
-                <div class="user-dropdown" id="userDropdown" style="display: none;">
+                <button class="user-button" id="userMenuToggle">${userAvatar} ${userName}</button>
+                <div class="user-dropdown" id="userDropdown">
                     <button class="dropdown-item logout-btn" id="logoutBtn">🚪 Cerrar Sesión</button>
                 </div>
             </div>`;
@@ -111,22 +109,115 @@ class HeaderComponent {
     // Método para actualizar el estado de autenticación después de que los servicios estén listos
     refreshAuthState() {
         if (window.authService) {
+            const wasAuthenticated = this.isAuthenticated;
+            const hadUser = this.currentUser !== null;
+            
             this.isAuthenticated = window.authService.isAuthenticated();
             this.currentUser = window.authService.getCurrentUser();
-            this.updateAuthSection();
+            
+            const shouldUpdate = wasAuthenticated !== this.isAuthenticated || 
+                                 (!hadUser && this.currentUser !== null) ||
+                                 (hadUser && this.currentUser === null);
+            
+            if (shouldUpdate) {
+                this.forceInsertAuthSection();
+            }
         } else {
             this.isAuthenticated = false;
             this.currentUser = null;
-            this.updateAuthSection();
+            this.forceInsertAuthSection();
         }
     }
     
-    // Método para forzar actualización del estado de autenticación
     forceAuthUpdate() {
-        this.refreshAuthState();
+        this.forceInsertAuthSection();
+    }
+    
+    forceInsertAuthSection() {
+        const authSection = document.getElementById('authSection');
+        if (!authSection) {
+            return;
+        }
+        
+        if (window.authService) {
+            this.isAuthenticated = window.authService.isAuthenticated();
+            this.currentUser = window.authService.getCurrentUser();
+        }
+        
+        let html = '';
+        
+        if (this.isAuthenticated && this.currentUser) {
+            const userName = this.currentUser.firstName || this.currentUser.first_name || 'Usuario';
+            const profileImage = this.currentUser.profileImage || this.currentUser.profile_image;
+            const userAvatar = profileImage 
+                ? `<img src="${profileImage}" alt="${userName}" class="user-avatar">` 
+                : '👤';
+            
+            html = `
+                <div class="user-menu">
+                    <button class="user-button" id="userMenuToggle">
+                        ${userAvatar} ${userName}
+                        <span class="dropdown-arrow">▼</span>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="#/profile" class="dropdown-item" data-navigate="/profile">👤 Mi Perfil</a>
+                        <a href="#/orders" class="dropdown-item" data-navigate="/orders">📦 Mis Pedidos</a>
+                        <a href="#/settings" class="dropdown-item" data-navigate="/settings">⚙️ Configuración</a>
+                        <hr class="dropdown-divider">
+                        <button class="dropdown-item logout-btn" id="logoutBtn">🚪 Cerrar Sesión</button>
+                    </div>
+                </div>
+            `;
+        } else {
+            html = `
+                <div class="auth-buttons">
+                    <a href="/login" class="btn btn-outline-primary" data-navigate="/login">🔐 Login</a>
+                    <a href="/register" class="btn btn-primary" data-navigate="/register">👤 Registro</a>
+                </div>
+            `;
+        }
+        
+        authSection.innerHTML = html;
+        
+        if (this.isAuthenticated && this.currentUser) {
+            setTimeout(() => {
+                const button = document.getElementById('userMenuToggle');
+                const dropdown = document.getElementById('userDropdown');
+                
+                if (button && dropdown) {
+                    // FORZAR que el dropdown esté oculto
+                    dropdown.style.display = 'none';
+                    
+                    const newButton = button.cloneNode(true);
+                    button.parentNode.replaceChild(newButton, button);
+                    
+                    newButton.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const isVisible = dropdown.style.display === 'block';
+                        dropdown.style.display = isVisible ? 'none' : 'block';
+                    });
+                    
+                    document.addEventListener('click', (e) => {
+                        if (!e.target.closest('.user-menu')) {
+                            dropdown.style.display = 'none';
+                        }
+                    });
+                }
+                
+                const logoutBtn = document.getElementById('logoutBtn');
+                if (logoutBtn) {
+                    const newLogoutBtn = logoutBtn.cloneNode(true);
+                    logoutBtn.parentNode.replaceChild(newLogoutBtn, logoutBtn);
+                    
+                    newLogoutBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.handleLogout();
+                    });
+                }
+            }, 50);
+        }
     }
     afterRender() {
-        // Cargar CSS solo una vez
         if (!this.cssLoaded) {
             const link = document.createElement('link');
             link.rel = 'stylesheet';
@@ -139,25 +230,25 @@ class HeaderComponent {
         this.initializeNavigation();
         this.initializeAuthEvents();
         this.initializeCart();
-        this.updateAuthSection();
-    }
-    
-    updateAuthSection() {
-        const authSection = document.getElementById('authSection');
         
-        if (authSection) {
-            const newHtml = this.renderAuthSection();
-            authSection.innerHTML = newHtml;
-            
-            // Solo si el usuario está autenticado, inicializar el menú
-            if (this.isAuthenticated) {
-                // Usar requestAnimationFrame para asegurar que el DOM esté listo
-                requestAnimationFrame(() => {
-                    this.initializeUserMenu();
-                });
-            }
-        }
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                const authSection = document.getElementById('authSection');
+                if (authSection) {
+                    this.forceInsertAuthSection();
+                    
+                    setTimeout(() => {
+                        this.forceInsertAuthSection();
+                    }, 500);
+                    
+                    setTimeout(() => {
+                        this.forceInsertAuthSection();
+                    }, 1000);
+                }
+            });
+        });
     }
+
     initializeThemeToggle() {
         const themeToggle = document.getElementById('themeToggle');
         if (themeToggle) {
@@ -196,14 +287,23 @@ class HeaderComponent {
         });
     }
     initializeAuthEvents() {
-        // Escuchar eventos de autenticación globales
-        document.addEventListener('auth:login', () => {
+        document.addEventListener('auth:login', (e) => {
             this.refreshAuthState();
         });
+        
         document.addEventListener('auth:logout', () => {
             this.refreshAuthState();
         });
+        
         document.addEventListener('auth:validated', () => {
+            this.refreshAuthState();
+        });
+        
+        window.addEventListener('userLogin', (e) => {
+            this.refreshAuthState();
+        });
+        
+        window.addEventListener('authStateChanged', (e) => {
             this.refreshAuthState();
         });
     }
@@ -249,47 +349,33 @@ class HeaderComponent {
     }
     async handleLogout() {
         try {
-            // Crear instancia del modal de logout
             const logoutModal = new LogoutModal();
-            // Mostrar modal y esperar confirmación del usuario
             const userConfirmed = await logoutModal.show();
+            
             if (userConfirmed) {
                 if (window.authService) {
                     const result = await window.authService.logout();
+                    
                     if (result.success) {
-                        // Actualizar estado local del header
                         this.isAuthenticated = false;
                         this.currentUser = null;
-                        // Forzar actualización del header ANTES del modal de éxito
-                        this.updateAuthSection();
-                        // Mostrar modal de éxito
+                        this.forceInsertAuthSection();
+                        
                         await logoutModal.showSuccess();
-                        // Redirigir al home después del logout
+                        
                         if (window.appRouter) {
                             window.appRouter.navigate('/');
                         } else {
                             window.location.hash = '/';
                         }
                     }
-                } else {
-                    console.error('❌ AuthService no disponible');
                 }
-            } else {
             }
         } catch (error) {
             console.error('Error durante logout:', error);
         }
     }
-    // Método para forzar actualización del estado de autenticación
-    forceAuthUpdate() {
-        if (window.authService) {
-            this.isAuthenticated = window.authService.isAuthenticated();
-            this.currentUser = window.authService.getCurrentUser();
-            this.updateAuthSection();
-        }
-    }
 
-    // Inicializar carrito
     initializeCart() {
         this.updateCartCount();
         this.initializeCartEvents();
@@ -330,8 +416,6 @@ class HeaderComponent {
         if (window.CartModal) {
             const cartModal = new window.CartModal();
             cartModal.show();
-        } else {
-            console.log('CartModal no disponible aún');
         }
     }
 }

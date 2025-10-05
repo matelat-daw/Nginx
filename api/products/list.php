@@ -2,41 +2,22 @@
 /**
  * API Endpoint: Obtener Productos
  * GET /api/products/list.php
+ * Versión 2.0 - Optimizado
  */
 
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+require_once __DIR__ . '/../config.php';
 
-// Manejar preflight OPTIONS
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
+// Headers CORS y seguridad
+setCorsHeaders();
+handlePreflight();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-    http_response_code(405);
-    echo json_encode(['error' => 'Método no permitido']);
-    exit();
+    jsonResponse(null, 405, 'Método no permitido');
 }
 
-require_once __DIR__ . '/../config.php';
-require_once __DIR__ . '/../models/Product.php';
-require_once __DIR__ . '/../repositories/ProductRepository.php';
-
 try {
-    // Conectar a la base de datos
-    $pdo = new PDO(
-        "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET,
-        DB_USER,
-        DB_PASS,
-        [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false
-        ]
-    );
+    // Conexión DB centralizada
+    $pdo = getDBConnection();
     
     $productRepository = new ProductRepository($pdo);
     
