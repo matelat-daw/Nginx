@@ -46,7 +46,7 @@ try {
     $password = $data['password'];
     $island = isset($data['island']) ? trim($data['island']) : '';
     $city = isset($data['city']) ? trim($data['city']) : '';
-    $userType = isset($data['userType']) ? trim($data['userType']) : 'user';
+    $userType = isset($data['userType']) ? trim($data['userType']) : 'particular';
     
     // Validar email
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -56,6 +56,12 @@ try {
     // Validar contraseña
     if (strlen($password) < PASSWORD_MIN_LENGTH) {
         jsonResponse(null, 400, "La contraseña debe tener al menos " . PASSWORD_MIN_LENGTH . " caracteres");
+    }
+    
+    // Validar tipo de usuario
+    $validUserTypes = ['particular', 'empresa', 'organizacion', 'cooperativa'];
+    if (!empty($userType) && !in_array($userType, $validUserTypes)) {
+        jsonResponse(null, 400, 'Tipo de usuario no válido');
     }
     
     // Usar la función centralizada para obtener conexión DB

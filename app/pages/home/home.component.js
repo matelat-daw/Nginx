@@ -4,7 +4,7 @@ class HomeComponent {
         this.cssLoaded = false;
     }
     render() {
-        // Devuelve un contenedor vacío, el HTML se inyecta en afterRender
+        // Devuelve un contenedor, el HTML se inyecta en afterRender
         return '<div class="home-component"></div>';
     }
     async afterRender() {
@@ -20,33 +20,56 @@ class HomeComponent {
         const container = document.querySelector('.home-component');
         if (container) {
             try {
-                const html = await fetch('app/pages/home/home.component.html').then(r => r.text());
+                const response = await fetch('app/pages/home/home.component.html');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const html = await response.text();
                 container.innerHTML = html;
+                
+                // Esperar a que el HTML esté en el DOM antes de inicializar lógica
+                setTimeout(() => {
+                    this.initializeNavigation();
+                    this.animateStats();
+                    this.initCanariasSlider();
+                }, 350);
             } catch (e) {
-                container.innerHTML = '<div>Error cargando home.component.html</div>';
+                console.error('Error cargando home component:', e);
+                container.innerHTML = `
+                    <div style="padding: 40px; text-align: center;">
+                        <h2>❌ Error cargando la página principal</h2>
+                        <p>${e.message}</p>
+                        <button onclick="window.location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            🔄 Recargar página
+                        </button>
+                    </div>
+                `;
             }
+        } else {
+            console.error('Container .home-component no encontrado');
         }
-        // Esperar a que el HTML esté en el DOM antes de inicializar lógica
-        setTimeout(() => {
-            this.initializeNavigation();
-            this.animateStats();
-            this.initCanariasSlider();
-        }, 0);
     }
     initCanariasSlider() {
-        // Ajustar ancho igual al bloque hero-section
-        const heroCard = document.querySelector('.hero-section .card');
         const slider = document.getElementById('canariasSlider');
-        if (heroCard && slider) {
-            slider.style.maxWidth = getComputedStyle(heroCard).maxWidth || '600px';
-            slider.style.width = getComputedStyle(heroCard).width;
-        }
         if (!slider) return;
+        
         const track = slider.querySelector('.slider-track');
-        const slides = Array.from(track.children);
         const prevBtn = document.getElementById('sliderPrevBtn');
         const nextBtn = document.getElementById('sliderNextBtn');
         const dotsContainer = document.getElementById('sliderDots');
+        
+        if (!track || !prevBtn || !nextBtn || !dotsContainer) return;
+        
+        const slides = Array.from(track.children);
+        if (slides.length === 0) return;
+        
+        // Ajustar ancho igual al bloque hero-section
+        const heroCard = document.querySelector('.hero-section .card');
+        if (heroCard) {
+            slider.style.maxWidth = getComputedStyle(heroCard).maxWidth || '600px';
+            slider.style.width = getComputedStyle(heroCard).width;
+        }
+        
         let current = 0;
         // Autoplay cada 3 segundos
         let autoplay = setInterval(() => {
@@ -106,7 +129,10 @@ class HomeComponent {
         updateSlider();
     }
     initializeNavigation() {
-        const navLinks = this.getElement().querySelectorAll('[data-navigate]');
+        const element = this.getElement();
+        if (!element) return;
+        
+        const navLinks = element.querySelectorAll('[data-navigate]');
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -116,7 +142,10 @@ class HomeComponent {
         });
     }
     animateStats() {
-        const statsNumbers = this.getElement().querySelectorAll('.stats-section h3');
+        const element = this.getElement();
+        if (!element) return;
+        
+        const statsNumbers = element.querySelectorAll('.stats-section h3');
         statsNumbers.forEach((stat, index) => {
             setTimeout(() => {
                 stat.style.transform = 'scale(1.1)';

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Componentes - Economía Circular Canarias</title>
+    <link rel="stylesheet" href="app/assets/css/styles.css">
+    <style>
+        body {
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+        }
+        .test-section h2 {
+            margin-top: 0;
+            color: #007bff;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .component-preview {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test de Componentes del Menú</h1>
+    
+    <div class="test-section">
+        <h2>1. Verificación de Carga de Scripts</h2>
+        <div id="script-status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Verificación de Componentes</h2>
+        <div id="components-status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Test de Renderizado</h2>
+        <button onclick="testEconomiaCircular()" class="btn btn-primary">Test Economía Circular</button>
+        <button onclick="testSobreNosotros()" class="btn btn-success">Test Sobre Nosotros</button>
+        <button onclick="testContacto()" class="btn btn-warning">Test Contacto</button>
+        <div id="render-preview" class="component-preview"></div>
+    </div>
+
+    <!-- Cargar scripts necesarios -->
+    <script src="app/config/app.config.js"></script>
+    <script src="app/router/app-router.js"></script>
+
+    <script>
+        // Test 1: Verificar carga de scripts
+        function checkScripts() {
+            const scriptStatus = document.getElementById('script-status');
+            const statuses = [];
+
+            statuses.push({
+                name: 'AppConfig',
+                loaded: typeof window.AppConfig !== 'undefined'
+            });
+
+            statuses.push({
+                name: 'AppRouter',
+                loaded: typeof window.AppRouter !== 'undefined'
+            });
+
+            let html = '<h3>Estado de Scripts:</h3>';
+            statuses.forEach(status => {
+                html += `
+                    <div class="status ${status.loaded ? 'success' : 'error'}">
+                        ${status.loaded ? '✅' : '❌'} ${status.name}: ${status.loaded ? 'Cargado' : 'No cargado'}
+                    </div>
+                `;
+            });
+
+            scriptStatus.innerHTML = html;
+        }
+
+        // Test 2: Verificar componentes
+        function checkComponents() {
+            const componentsStatus = document.getElementById('components-status');
+            const components = [
+                { name: 'EconomiaCircularComponent', class: window.EconomiaCircularComponent },
+                { name: 'SobreNosotrosComponent', class: window.SobreNosotrosComponent },
+                { name: 'ContactoComponent', class: window.ContactoComponent }
+            ];
+
+            let html = '<h3>Estado de Componentes:</h3>';
+            
+            components.forEach(comp => {
+                const exists = typeof comp.class !== 'undefined';
+                let details = '';
+                
+                if (exists) {
+                    const instance = new comp.class();
+                    const hasRender = typeof instance.render === 'function';
+                    const hasAfterRender = typeof instance.afterRender === 'function';
+                    const hasTemplate = typeof instance.template !== 'undefined';
+                    
+                    details = `
+                        <ul style="margin-left: 20px;">
+                            <li>render(): ${hasRender ? '✅' : '❌'}</li>
+                            <li>afterRender(): ${hasAfterRender ? '✅' : '❌'}</li>
+                            <li>template: ${hasTemplate ? '✅' : '❌'}</li>
+                        </ul>
+                    `;
+                }
+                
+                html += `
+                    <div class="status ${exists ? 'success' : 'error'}">
+                        ${exists ? '✅' : '❌'} <strong>${comp.name}</strong>: ${exists ? 'Disponible' : 'No encontrado'}
+                        ${details}
+                    </div>
+                `;
+            });
+
+            componentsStatus.innerHTML = html;
+        }
+
+        // Test 3: Renderizar componentes
+        async function testEconomiaCircular() {
+            const preview = document.getElementById('render-preview');
+            try {
+                const component = new window.EconomiaCircularComponent();
+                const html = component.render(); // No es async
+                preview.innerHTML = html;
+                if (component.afterRender) {
+                    component.afterRender();
+                }
+                console.log('✅ EconomiaCircularComponent renderizado correctamente');
+            } catch (error) {
+                preview.innerHTML = `<div class="status error">❌ Error: ${error.message}</div>`;
+                console.error('❌ Error renderizando EconomiaCircularComponent:', error);
+            }
+        }
+
+        async function testSobreNosotros() {
+            const preview = document.getElementById('render-preview');
+            try {
+                const component = new window.SobreNosotrosComponent();
+                const html = component.render(); // No es async
+                preview.innerHTML = html;
+                if (component.afterRender) {
+                    component.afterRender();
+                }
+                console.log('✅ SobreNosotrosComponent renderizado correctamente');
+            } catch (error) {
+                preview.innerHTML = `<div class="status error">❌ Error: ${error.message}</div>`;
+                console.error('❌ Error renderizando SobreNosotrosComponent:', error);
+            }
+        }
+
+        async function testContacto() {
+            const preview = document.getElementById('render-preview');
+            try {
+                const component = new window.ContactoComponent();
+                const html = component.render(); // No es async
+                preview.innerHTML = html;
+                if (component.afterRender) {
+                    component.afterRender();
+                }
+                console.log('✅ ContactoComponent renderizado correctamente');
+            } catch (error) {
+                preview.innerHTML = `<div class="status error">❌ Error: ${error.message}</div>`;
+                console.error('❌ Error renderizando ContactoComponent:', error);
+            }
+        }
+
+        // Ejecutar tests automáticamente
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                checkScripts();
+                checkComponents();
+            }, 500);
+        });
+    </script>
+</body>
+</html>

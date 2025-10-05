@@ -60,7 +60,7 @@ $maxSize = 5 * 1024 * 1024; // 5MB
 
 if (!in_array($file['type'], $allowedTypes)) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Tipo de archivo no permitido. Solo se permiten: JPG, PNG, GIF, WebP']);
+    echo json_encode(['success' => false, 'message' => 'Formato no permitido. Solo se permiten imágenes en formato: JPG, PNG, WebP o GIF']);
     exit;
 }
 
@@ -87,16 +87,11 @@ try {
         }
     }
 
-    // Generar nombre único para el archivo
-    $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-    $fileName = 'profile_' . time() . '_' . uniqid() . '.' . $extension;
+    // Usar nombre simple 'profile' con la extensión del archivo
+    $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    $fileName = 'profile.' . $extension;
     $filePath = $userDir . '/' . $fileName;
     $relativePath = 'users/profiles/' . $userId . '/' . $fileName;
-
-    // Mover archivo subido
-    if (!move_uploaded_file($file['tmp_name'], $filePath)) {
-        throw new Exception('Error al mover el archivo subido');
-    }
 
     // Actualizar base de datos
     $pdo = new PDO(
@@ -106,21 +101,30 @@ try {
         [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
     );
 
-    // Eliminar imagen anterior si existe
+    // Obtener imagen anterior si existe (antes de subir la nueva)
     $stmt = $pdo->prepare("SELECT profile_image FROM users WHERE id = ?");
     $stmt->execute([$userId]);
     $currentUser = $stmt->fetch(PDO::FETCH_ASSOC);
+    $oldImagePath = null;
     
-    if ($currentUser && $currentUser['profile_image']) {
+    // Si hay imagen anterior y es diferente a la nueva, guardar ruta para eliminarla después
+    if ($currentUser && $currentUser['profile_image'] && $currentUser['profile_image'] !== $relativePath) {
         $oldImagePath = __DIR__ . "/../../" . $currentUser['profile_image'];
-        if (file_exists($oldImagePath)) {
-            unlink($oldImagePath);
-        }
+    }
+
+    // Mover archivo subido (esto puede sobrescribir si existe)
+    if (!move_uploaded_file($file['tmp_name'], $filePath)) {
+        throw new Exception('Error al mover el archivo subido');
     }
 
     // Guardar nueva ruta en base de datos
     $stmt = $pdo->prepare("UPDATE users SET profile_image = ?, updated_at = NOW() WHERE id = ?");
     $stmt->execute([$relativePath, $userId]);
+
+    // Ahora sí eliminar la imagen anterior si era diferente
+    if ($oldImagePath && file_exists($oldImagePath)) {
+        unlink($oldImagePath);
+    }
 
     echo json_encode([
         'success' => true,

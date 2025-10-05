@@ -3,7 +3,7 @@
     <div class="profile-header">
         <div class="profile-avatar" id="profileAvatar">
             <div class="avatar-icon" id="avatarIcon">👤</div>
-            <img id="avatarImage" class="avatar-image" style="display: none;" alt="Imagen de perfil">
+            <img id="avatarImage" class="avatar-image" style="display: none; width: 80px; height: 80px; object-fit: cover;" alt="Imagen de perfil">
             <div class="avatar-upload" id="avatarUpload" style="display: none;">
                 <input type="file" id="profileImageUpload" accept="image/*" style="display: none;">
                 <button type="button" class="btn-upload-avatar" onclick="document.getElementById('profileImageUpload').click()">
@@ -280,6 +280,27 @@
             <button type="submit" class="btn btn-danger" id="confirmAccountDelete" form="deleteAccountForm">
                 <span class="btn-icon">🗑️</span>
                 Eliminar Cuenta Permanentemente
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Éxito para Upload de Imagen -->
+<div id="imageUploadSuccessModal" class="modal" style="display: none;">
+    <div class="modal-content modal-small">
+        <div class="modal-header success">
+            <h3>
+                <span class="modal-icon">✅</span>
+                ¡Éxito!
+            </h3>
+        </div>
+        <div class="modal-body">
+            <p id="imageUploadSuccessMessage">Imagen de perfil actualizada correctamente</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-success" id="closeImageUploadSuccess">
+                <span class="btn-icon">👍</span>
+                Aceptar
             </button>
         </div>
     </div>

@@ -1,5 +1,4 @@
 // Auth Service Optimizado - Economía Circular Canarias
-console.log('📥 Cargando AuthService...');
 
 class AuthService {
     constructor() {
@@ -16,7 +15,6 @@ class AuthService {
     // Función helper para construir URLs del API
     getApiUrl(endpoint) {
         const url = this.endpoints[endpoint] || '';
-        console.log(`🔗 GetApiUrl: ${endpoint} -> ${url}`);
         return url;
     }
     // Obtener token de la cookie
@@ -90,9 +88,6 @@ class AuthService {
     }
     // Limpiar estado de autenticación
     clearAuthState() {
-        console.warn('⚠️ AuthService.clearAuthState() llamado - LIMPIANDO SESIÓN');
-        console.trace('Stack trace de clearAuthState:');
-        
         this.token = null;
         this.currentUser = null;
         
@@ -288,25 +283,35 @@ class AuthService {
     }
     // Logout
     async logout() {
+        console.log('🔐 AuthService: Iniciando logout...');
         try {
             const response = await fetch(this.getApiUrl('logout'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include'
             });
+            
+            console.log('🔐 AuthService: Respuesta del servidor:', response.status);
             const data = await response.json();
+            console.log('🔐 AuthService: Datos de respuesta:', data);
+            
             // Limpiar datos locales
             this.token = null;
             this.currentUser = null;
+            
             // Limpiar cookie manualmente también (por si acaso)
             document.cookie = 'ecc_auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+            console.log('🔐 AuthService: Datos locales limpiados');
+            
             this.dispatchAuthEvent('logout');
+            console.log('🔐 AuthService: Evento de logout disparado');
+            
             return {
                 success: true,
                 message: data.message || 'Sesión cerrada exitosamente'
             };
         } catch (error) {
-            console.error('Error en logout:', error);
+            console.error('❌ AuthService: Error en logout:', error);
             // Limpiar datos locales aunque falle la petición
             this.token = null;
             this.currentUser = null;
@@ -322,14 +327,11 @@ class AuthService {
     // Validar token actual
     async validateToken() {
         if (!this.token) {
-            console.log('❌ ValidateToken: No hay token');
             return false;
         }
         
         try {
             const validateUrl = this.getApiUrl('validate');
-            console.log('🔄 ValidateToken: Enviando petición a:', validateUrl);
-            console.log('🔑 ValidateToken: Token (primeros 20 chars):', this.token.substring(0, 20) + '...');
             
             const response = await fetch(validateUrl, {
                 method: 'GET',
@@ -337,10 +339,7 @@ class AuthService {
                 credentials: 'include'
             });
             
-            console.log('📩 ValidateToken: Status:', response.status, 'OK:', response.ok);
-            
             const data = await response.json();
-            console.log('📋 ValidateToken: Respuesta completa:', data);
             
             if (response.ok && data.success) {
                 // La estructura real es: data.data.valid y data.data.user (debido a jsonResponse wrapper)
@@ -348,7 +347,6 @@ class AuthService {
                 
                 if (validationData.valid) {
                     this.currentUser = validationData.user;
-                    console.log('✅ ValidateToken: Usuario establecido:', this.currentUser);
                     this.dispatchAuthEvent('validated', this.currentUser);
                     
                     // Forzar actualización del header si está disponible
@@ -359,7 +357,6 @@ class AuthService {
                     }
                     return true;
                 } else {
-                    console.log('❌ ValidateToken: Token no válido según servidor');
                     this.token = null;
                     this.currentUser = null;
                     this.dispatchAuthEvent('logout');
@@ -367,11 +364,6 @@ class AuthService {
                 }
             } else {
                 // Token inválido
-                console.log('❌ ValidateToken: Validación falló');
-                console.log('❌ ValidateToken: response.ok:', response.ok);
-                console.log('❌ ValidateToken: data.success:', data.success);
-                console.log('❌ ValidateToken: data.data?.valid:', data.data?.valid);
-                
                 this.token = null;
                 this.currentUser = null;
                 this.dispatchAuthEvent('logout');
@@ -390,12 +382,10 @@ class AuthService {
         const hasToken = this.token !== null && this.token !== undefined && this.token !== '';
         const hasUser = this.currentUser !== null && this.currentUser !== undefined;
         const result = hasToken && hasUser;
-        console.log('🔍 AuthService.isAuthenticated():', result, '(token:', hasToken, ', user:', hasUser, ')');
         return result;
     }
     
     getCurrentUser() {
-        console.log('🔍 AuthService.getCurrentUser():', this.currentUser);
         return this.currentUser;
     }
     
@@ -404,8 +394,6 @@ class AuthService {
     }
     // Disparar eventos de autenticación
     dispatchAuthEvent(type, data = null) {
-        console.log(`📢 AuthService: Disparando evento 'auth-${type}'`, data ? 'con datos' : 'sin datos');
-        
         // Evento principal con formato auth-* en document
         const authEvent = new CustomEvent(`auth-${type}`, { detail: data });
         document.dispatchEvent(authEvent);
@@ -415,12 +403,10 @@ class AuthService {
         
         // Eventos específicos para mejor compatibilidad
         if (type === 'login') {
-            console.log('📢 AuthService: Disparando evento userLogin');
             const loginEvent = new CustomEvent('userLogin', { detail: data });
             window.dispatchEvent(loginEvent);
             document.dispatchEvent(loginEvent);
         } else if (type === 'logout') {
-            console.log('📢 AuthService: Disparando evento userLogout');
             const logoutEvent = new CustomEvent('userLogout', { detail: data });
             window.dispatchEvent(logoutEvent);
             document.dispatchEvent(logoutEvent);
@@ -437,8 +423,6 @@ class AuthService {
         });
         window.dispatchEvent(stateEvent);
         document.dispatchEvent(stateEvent);
-        
-        console.log('✅ AuthService: Todos los eventos disparados');
     }
 }
 // Crear instancia global optimizada
@@ -452,7 +436,6 @@ try {
 }
 // Exportar la clase
 window.AuthService = AuthService;
-console.log('✅ AuthService class exportada y disponible en window.AuthService');
 // Función de emergencia
 window.ensureAuthService = function() {
     if (!window.authService && typeof window.AuthService === 'function') {

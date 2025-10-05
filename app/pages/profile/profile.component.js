@@ -161,11 +161,28 @@ class ProfileComponent {
     updateProfileImage() {
         const avatarIcon = document.getElementById('avatarIcon');
         const avatarImage = document.getElementById('avatarImage');
+        
         if (this.userData.profile_image) {
-            // Mostrar imagen
+            // Mostrar imagen con cache-busting
             if (avatarImage) {
-                avatarImage.src = `/${this.userData.profile_image}`;
+                const imageUrl = `/${this.userData.profile_image}?t=${Date.now()}`;
+                
+                // Aplicar estilos ANTES de cargar la imagen
+                avatarImage.style.width = '80px';
+                avatarImage.style.height = '80px';
+                avatarImage.style.objectFit = 'cover';
+                avatarImage.style.borderRadius = '50%';
                 avatarImage.style.display = 'block';
+                
+                // Forzar dimensiones cuando la imagen carga
+                avatarImage.onload = () => {
+                    avatarImage.style.width = '80px';
+                    avatarImage.style.height = '80px';
+                    avatarImage.style.objectFit = 'cover';
+                };
+                
+                // Cargar la imagen DESPUÉS de aplicar estilos
+                avatarImage.src = imageUrl;
             }
             if (avatarIcon) {
                 avatarIcon.style.display = 'none';
@@ -227,13 +244,14 @@ class ProfileComponent {
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
         const maxSize = 5 * 1024 * 1024; // 5MB
         if (!allowedTypes.includes(file.type)) {
-            alert('Tipo de archivo no permitido. Solo se permiten: JPG, PNG, GIF, WebP');
+            this.showUploadError('Formato no permitido. Solo se permiten imágenes en formato: JPG, PNG, WebP o GIF');
             return;
         }
         if (file.size > maxSize) {
-            alert('El archivo es demasiado grande. Máximo 5MB');
+            this.showUploadError('El archivo es demasiado grande. Máximo 5MB');
             return;
         }
+        
         try {
             const formData = new FormData();
             formData.append('profile_image', file);
@@ -246,20 +264,62 @@ class ProfileComponent {
                 body: formData
             });
             const result = await response.json();
+            
             if (result.success) {
-                // Actualizar imagen en la interfaz
+                // Actualizar imagen en la interfaz del perfil
                 this.userData.profile_image = result.profile_image;
                 this.updateProfileImage();
-                // Mostrar mensaje de éxito
-                alert('✅ Imagen de perfil actualizada correctamente');
+                
+                // Actualizar el usuario en authService
+                const currentUser = window.authService.currentUser;
+                if (currentUser) {
+                    currentUser.profileImage = result.profile_image;
+                    currentUser.profile_image = result.profile_image;
+                }
+                
+                // Actualizar solo el avatar del header sin regenerar todo
+                if (window.headerComponent && typeof window.headerComponent.updateUserAvatar === 'function') {
+                    setTimeout(() => {
+                        window.headerComponent.updateUserAvatar(result.profile_image);
+                    }, 100);
+                }
+                
+                this.showUploadSuccess();
             } else {
-                alert('❌ Error: ' + result.message);
+                this.showUploadError('Error: ' + result.message);
             }
         } catch (error) {
             console.error('Error subiendo imagen:', error);
-            alert('❌ Error subiendo la imagen. Inténtalo de nuevo.');
+            this.showUploadError('Error subiendo la imagen. Inténtalo de nuevo.');
         }
     }
+    
+    showUploadSuccess() {
+        const modal = document.getElementById('imageUploadSuccessModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            
+            const closeBtn = document.getElementById('closeImageUploadSuccess');
+            if (closeBtn) {
+                closeBtn.onclick = () => {
+                    modal.style.display = 'none';
+                };
+            }
+            
+            // Cerrar también al hacer click fuera del modal
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            };
+        }
+    }
+    
+    showUploadError(message) {
+        // Usar el sistema de notificaciones existente para errores
+        this.showNotification(message, 'error');
+    }
+
     setupPasswordToggles() {
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('password-toggle')) {
@@ -322,19 +382,38 @@ class ProfileComponent {
     }
     async saveProfile() {
         if (!this.isEditing) return;
+        
+        // Habilitar temporalmente todos los campos para que FormData los capture
+        const userTypeField = document.getElementById('profileUserType');
+        const wasDisabled = userTypeField?.disabled;
+        if (userTypeField && wasDisabled) {
+            userTypeField.disabled = false;
+        }
+        
         const formData = new FormData(document.getElementById('profileForm'));
+        
+        // Restaurar el estado disabled si era necesario
+        if (userTypeField && wasDisabled) {
+            userTypeField.disabled = true;
+        }
+        
         const userData = {
             firstName: formData.get('firstName'),
             lastName: formData.get('lastName'),
             phone: formData.get('phone'),
             island: formData.get('island'),
             city: formData.get('city'),
-            userType: formData.get('userType')
+            userType: formData.get('userType') || userTypeField?.value
         };
+        
+        // Debug: Mostrar datos que se enviarán
+        console.log('🔍 Datos del perfil a enviar:', userData);
+        console.log('🔍 userType específicamente:', userData.userType);
+        
         // Validar datos
         const errors = this.validateProfileData(userData);
         if (errors.length > 0) {
-            this.showNotification('error', 'Errores en el formulario:', errors);
+            this.showNotification('Errores en el formulario:', 'error', errors);
             return;
         }
         // Mostrar loading
@@ -352,19 +431,27 @@ class ProfileComponent {
                 credentials: 'include',
                 body: JSON.stringify(userData)
             });
+            
             const result = await response.json();
+            
+            console.log('📥 Respuesta del servidor:', result);
+            console.log('📥 Usuario devuelto:', result.user);
+            if (result.user) {
+                console.log('📥 user_type en respuesta:', result.user.user_type);
+            }
+            
             if (response.ok) {
                 this.userData = result.user;
                 this.originalData = { ...result.user };
                 this.isEditing = false;
                 this.toggleEditMode();
-                this.showNotification('success', '✅ Perfil actualizado correctamente');
+                this.showNotification('✅ Perfil actualizado correctamente', 'success');
             } else {
                 this.showNotification('error', result.message || 'Error al actualizar el perfil');
             }
         } catch (error) {
             console.error('Error actualizando perfil:', error);
-            this.showNotification('error', 'Error de conexión. Inténtalo de nuevo.');
+            this.showNotification('Error de conexión. Inténtalo de nuevo.', 'error');
         } finally {
             if (saveBtn) {
                 saveBtn.disabled = false;
@@ -490,15 +577,15 @@ class ProfileComponent {
         const confirmPassword = modal.querySelector('#confirmPasswordInput').value;
         // Validaciones
         if (!currentPassword || !newPassword || !confirmPassword) {
-            this.showNotification('error', 'Todos los campos son requeridos');
+            this.showNotification('Todos los campos son requeridos', 'error');
             return;
         }
         if (newPassword !== confirmPassword) {
-            this.showNotification('error', 'Las contraseñas nuevas no coinciden');
+            this.showNotification('Las contraseñas nuevas no coinciden', 'error');
             return;
         }
         if (newPassword.length < 8) {
-            this.showNotification('error', 'La nueva contraseña debe tener al menos 8 caracteres');
+            this.showNotification('La nueva contraseña debe tener al menos 8 caracteres', 'error');
             return;
         }
         const submitBtn = modal.querySelector('#submitPasswordChange');
@@ -521,13 +608,13 @@ class ProfileComponent {
             const result = await response.json();
             if (response.ok) {
                 modal.style.display = 'none';
-                this.showNotification('success', '✅ Contraseña cambiada correctamente');
+                this.showNotification('✅ Contraseña cambiada correctamente', 'success');
             } else {
                 this.showNotification('error', result.message || 'Error al cambiar la contraseña');
             }
         } catch (error) {
             console.error('Error cambiando contraseña:', error);
-            this.showNotification('error', 'Error de conexión. Inténtalo de nuevo.');
+            this.showNotification('Error de conexión. Inténtalo de nuevo.', 'error');
         } finally {
             if (submitBtn) {
                 submitBtn.disabled = false;
@@ -570,7 +657,7 @@ class ProfileComponent {
         const passwordInput = document.getElementById('deletePasswordInput');
         const password = passwordInput?.value;
         if (!password) {
-            this.showNotification('error', 'Debes ingresar tu contraseña para confirmar');
+            this.showNotification('Debes ingresar tu contraseña para confirmar', 'error');
             return;
         }
         const deleteBtn = document.querySelector('#confirmAccountDelete');
@@ -596,18 +683,18 @@ class ProfileComponent {
                 }
                 // Cerrar sesión y redirigir
                 await window.authService.logout();
-                this.showNotification('success', '✅ Cuenta eliminada exitosamente');
+                this.showNotification('✅ Cuenta eliminada exitosamente', 'success');
                 setTimeout(() => {
                     if (window.appRouter) {
                         window.appRouter.navigate('/');
                     }
                 }, 2000);
             } else {
-                this.showNotification('error', result.message || 'Error al eliminar la cuenta');
+                this.showNotification(result.message || 'Error al eliminar la cuenta', 'error');
             }
         } catch (error) {
             console.error('Error eliminando cuenta:', error);
-            this.showNotification('error', 'Error de conexión. Inténtalo de nuevo.');
+            this.showNotification('Error de conexión. Inténtalo de nuevo.', 'error');
         } finally {
             if (deleteBtn) {
                 deleteBtn.disabled = false;
@@ -615,7 +702,7 @@ class ProfileComponent {
             }
         }
     }
-    showNotification(type, message, details = null) {
+    showNotification(message, type = 'info', details = null) {
         if (window.notificationModal) {
             if (type === 'error') {
                 window.notificationModal.showError(message, details);

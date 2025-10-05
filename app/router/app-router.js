@@ -55,7 +55,7 @@ class AppRouter {
             this.handleRouteChange();
         }
     }
-    handleRouteChange() {
+    async handleRouteChange() {
         // Ocultar todos los modales antes de cambiar de ruta
         this.hideAllModals();
         // Obtener ruta actual desde el hash o pathname
@@ -64,7 +64,7 @@ class AppRouter {
         const [routePath, queryString] = path.split('?');
         // Parsear parámetros de query
         const params = this.parseQueryParams(queryString);
-        this.loadRoute(routePath, params);
+        await this.loadRoute(routePath, params);
     }
     hideAllModals() {
         // Ocultar modal de notificación si existe
@@ -97,11 +97,22 @@ class AppRouter {
         }
         return params;
     }
-    loadRoute(route, params = {}) {
+    async loadRoute(route, params = {}) {
         const routeHandler = this.routes[route];
         if (routeHandler) {
             // Verificar si la ruta requiere autenticación
             if (this.isProtectedRoute(route)) {
+                // Si authService está inicializándose, esperar un momento
+                if (window.authService) {
+                    // Verificar si hay una sesión válida antes de redirigir
+                    const hasValidSession = window.authService.hasValidSession && window.authService.hasValidSession();
+                    
+                    if (hasValidSession && !window.authService.isAuthenticated()) {
+                        // Hay cookie pero aún no se ha validado, esperar a que se complete la validación
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                    }
+                }
+                
                 if (!this.isUserAuthenticated()) {
                     // Guardar la ruta a la que quería ir para redirigir después del login
                     sessionStorage.setItem('redirectAfterLogin', route);
@@ -151,18 +162,19 @@ class AppRouter {
         }
         this.doRenderComponent(component, routerOutlet);
     }
-    doRenderComponent(component, routerOutlet) {
+    async doRenderComponent(component, routerOutlet) {
         if (routerOutlet && component) {
             // Verificar si el componente tiene un método render que acepta un container
             if (typeof component.render === 'function') {
                 // Intentar llamar render con el container como parámetro
                 try {
                     const result = component.render(routerOutlet);
-                    // Si render devuelve una promesa, no hacemos nada más aquí
+                    // Si render devuelve una promesa, esperamos el resultado
                     if (result && typeof result.then === 'function') {
-                        result.catch(error => {
-                            console.error('Error renderizando componente:', error);
-                        });
+                        const html = await result;
+                        if (typeof html === 'string') {
+                            routerOutlet.innerHTML = html;
+                        }
                     }
                     // Si render devuelve un string, lo asignamos
                     else if (typeof result === 'string') {
@@ -443,7 +455,7 @@ class ContactoComponent {
             });
         }
     }
-    handleFormSubmit(e) {
+    async handleFormSubmit(e) {
         const formData = new FormData(e.target);
         const data = Object.fromEntries(formData);
         // Simular envío del formulario

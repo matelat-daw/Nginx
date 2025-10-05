@@ -5,7 +5,7 @@ class RegisterComponent {
         this.cssLoaded = false;
     }
     render() {
-        // Devuelve un contenedor vacío, el HTML se inyecta en afterRender
+        // Devuelve un contenedor, el HTML se inyecta en afterRender
         return '<div class="auth-component register-component"></div>';
     }
     async afterRender() {

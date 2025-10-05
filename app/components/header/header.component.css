@@ -89,14 +89,19 @@ header {
 
 /* Estilos para la foto de perfil en el botón */
 .user-avatar {
-    width: 28px;
-    height: 28px;
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px;
+    min-height: 48px;
+    max-width: 48px;
+    max-height: 48px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid rgba(255, 255, 255, 0.8);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
     display: inline-block;
-    vertical-align: middle;
     flex-shrink: 0;
+    transition: all 0.3s ease;
 }
 
 .user-dropdown {

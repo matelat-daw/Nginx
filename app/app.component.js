@@ -43,37 +43,29 @@ class AppComponent {
             this.navComponent.afterRender();
             this.footerComponent.afterRender();
             
-            // Verificar sesión después de que los componentes estén listos
-            setTimeout(async () => {
-                if (window.authService) {
-                    // Si ya existe AuthService, verificar si hay sesión activa
-                    const isAuthenticated = window.authService.isAuthenticated();
-                    console.log('🔍 AppComponent: Usuario autenticado?', isAuthenticated);
-                    
-                    if (!isAuthenticated) {
-                        // Intentar inicializar para verificar cookies
-                        console.log('🔄 AppComponent: Intentando restaurar sesión...');
-                        const sessionRestored = await window.authService.init();
-                        console.log('✅ AppComponent: Sesión restaurada?', sessionRestored);
-                    }
-                    
-                    // Refrescar el estado del header SIEMPRE
-                    this.headerComponent.refreshAuthState();
-                    console.log('🔄 AppComponent: Header refrescado');
-                    
-                } else {
-                    // Crear AuthService si no existe
-                    console.log('🔧 AppComponent: Creando AuthService...');
-                    if (window.AuthService) {
-                        window.authService = new window.AuthService();
-                        const sessionRestored = await window.authService.init();
-                        console.log('✅ AppComponent: AuthService creado y sesión:', sessionRestored);
-                        this.headerComponent.refreshAuthState();
-                    }
+            // PRIMERO: Inicializar y verificar sesión
+            if (window.authService) {
+                // Si ya existe AuthService, verificar si hay sesión activa
+                const isAuthenticated = window.authService.isAuthenticated();
+                
+                if (!isAuthenticated) {
+                    // Intentar inicializar para verificar cookies
+                    await window.authService.init();
                 }
-            }, 1000); // Aumentar el delay para asegurar que todo esté listo
+                
+                // Refrescar el estado del header
+                this.headerComponent.refreshAuthState();
+                
+            } else {
+                // Crear AuthService si no existe
+                if (window.AuthService) {
+                    window.authService = new window.AuthService();
+                    await window.authService.init();
+                    this.headerComponent.refreshAuthState();
+                }
+            }
             
-            // Inicializar el router
+            // DESPUÉS: Inicializar el router (ahora que el authService ya está listo)
             window.appRouter = new AppRouter();
         }
     }

@@ -70,11 +70,34 @@ if (!in_array($input['island'], $validIslands)) {
     exit;
 }
 
+// Normalizar userType a minúsculas
+$input['userType'] = strtolower(trim($input['userType']));
+
+// Mapeo de valores por si la BD usa ENUM con valores en inglés
+$userTypeMap = [
+    'particular' => 'particular',
+    'empresa' => 'empresa',
+    'organizacion' => 'organizacion',
+    'cooperativa' => 'cooperativa',
+    // Mapeo inverso por compatibilidad
+    'individual' => 'particular',
+    'business' => 'empresa',
+    'organization' => 'organizacion'
+];
+
+// Si el valor existe en el mapeo, usarlo
+if (isset($userTypeMap[$input['userType']])) {
+    $input['userType'] = $userTypeMap[$input['userType']];
+}
+
 // Validar tipo de usuario
 $validUserTypes = ['particular', 'empresa', 'organizacion', 'cooperativa'];
 if (!in_array($input['userType'], $validUserTypes)) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Tipo de usuario no válido']);
+    echo json_encode([
+        'success' => false, 
+        'message' => 'Tipo de usuario no válido. Recibido: ' . $input['userType']
+    ]);
     exit;
 }
 
@@ -86,6 +109,17 @@ try {
         [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
     );
 
+    // Log de depuración
+    error_log("UPDATE PROFILE - User ID: " . $userId);
+    error_log("UPDATE PROFILE - Data: " . json_encode([
+        'firstName' => $input['firstName'],
+        'lastName' => $input['lastName'],
+        'phone' => $input['phone'],
+        'island' => $input['island'],
+        'city' => $input['city'],
+        'userType' => $input['userType']
+    ]));
+
     // Actualizar perfil del usuario
     $stmt = $pdo->prepare("
         UPDATE users 
@@ -93,7 +127,7 @@ try {
         WHERE id = ?
     ");
     
-    $stmt->execute([
+    $result = $stmt->execute([
         $input['firstName'],
         $input['lastName'],
         $input['phone'],
@@ -102,25 +136,29 @@ try {
         $input['userType'],
         $userId
     ]);
+    
+    $rowCount = $stmt->rowCount();
+    error_log("UPDATE PROFILE - Rows affected: " . $rowCount);
+    error_log("UPDATE PROFILE - Execute result: " . ($result ? 'true' : 'false'));
 
-    if ($stmt->rowCount() > 0) {
-        // Obtener datos actualizados del usuario
-        $stmt = $pdo->prepare("
-            SELECT id, first_name, last_name, email, phone, island, city, user_type, email_verified, created_at, updated_at
-            FROM users 
-            WHERE id = ?
-        ");
-        $stmt->execute([$userId]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Obtener datos actualizados del usuario (siempre, independientemente de si hubo cambios)
+    $stmt = $pdo->prepare("
+        SELECT id, first_name, last_name, email, phone, island, city, user_type, email_verified, profile_image, created_at, updated_at
+        FROM users 
+        WHERE id = ?
+    ");
+    $stmt->execute([$userId]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
+    if ($user) {
         echo json_encode([
             'success' => true,
             'message' => 'Perfil actualizado correctamente',
             'user' => $user
         ]);
     } else {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'No se pudo actualizar el perfil']);
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'Usuario no encontrado']);
     }
 
 } catch (PDOException $e) {

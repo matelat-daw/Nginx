@@ -7,14 +7,14 @@ class OrdersComponent {
         this.loading = false;
         this.template = null; // Para cachear el template
     }
-    render(container) {
+    async render(container) {
         // Cargar estilos CSS del componente
         this.loadStyles();
         // Si se proporciona un container, renderizar directamente
         if (container) {
             // Cargar template si no está cacheado
             if (!this.template) {
-                this.loadTemplate();
+                await this.loadTemplate();
             }
             container.innerHTML = this.template;
             // Ejecutar afterRender después de un pequeño delay
@@ -23,20 +23,18 @@ class OrdersComponent {
         }
         // Si no hay container, cargar y retornar el template
         if (!this.template) {
-            this.loadTemplate();
+            await this.loadTemplate();
         }
         return this.template;
     }
-    loadTemplate() {
-        // Cargar template de manera síncrona usando XMLHttpRequest
+    async loadTemplate() {
+        // Cargar template de manera asíncrona usando fetch
         try {
-            const xhr = new XMLHttpRequest();
-            xhr.open('GET', '/app/pages/orders/orders.component.html', false); // false = síncrono
-            xhr.send();
-            if (xhr.status === 200) {
-                this.template = xhr.responseText;
+            const response = await fetch('/app/pages/orders/orders.component.html');
+            if (response.ok) {
+                this.template = await response.text();
             } else {
-                throw new Error(`Error cargando template: ${xhr.status}`);
+                throw new Error(`Error cargando template: ${response.status}`);
             }
         } catch (error) {
             console.error('Error cargando template HTML:', error);

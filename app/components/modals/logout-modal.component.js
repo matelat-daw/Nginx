@@ -54,17 +54,27 @@ class LogoutModal {
         `;
     }
     show() {
+        console.log('🔍 LogoutModal: Mostrando modal de confirmación');
         return new Promise((resolve) => {
             // Inyectar modal en el DOM si no existe
             if (!document.getElementById('logoutModal')) {
+                console.log('🔍 LogoutModal: Inyectando modal en DOM');
                 document.body.insertAdjacentHTML('beforeend', this.template);
                 this.setupModalEventListeners(resolve);
+            } else {
+                console.log('🔍 LogoutModal: Modal ya existe en DOM, reusando');
+                // Si el modal ya existe, necesitamos recrear los event listeners
+                this.setupModalEventListeners(resolve);
             }
+            
             // Mostrar modal
             const modal = document.getElementById('logoutModal');
             if (modal) {
                 modal.style.display = 'flex';
                 document.body.style.overflow = 'hidden'; // Prevenir scroll
+                console.log('🔍 LogoutModal: Modal mostrado');
+            } else {
+                console.error('❌ LogoutModal: No se pudo encontrar el modal en DOM');
             }
             this.addModalStyles();
         });
@@ -110,34 +120,54 @@ class LogoutModal {
         const cancelBtn = document.getElementById('cancelLogoutBtn');
         const confirmBtn = document.getElementById('confirmLogoutBtn');
         const modal = document.getElementById('logoutModal');
+        
+        console.log('🔍 LogoutModal: Configurando event listeners', { cancelBtn: !!cancelBtn, confirmBtn: !!confirmBtn, modal: !!modal });
+        
         if (cancelBtn) {
-            cancelBtn.addEventListener('click', () => {
+            // Remover listeners previos clonando el botón
+            const newCancelBtn = cancelBtn.cloneNode(true);
+            cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+            
+            newCancelBtn.addEventListener('click', () => {
+                console.log('🔍 LogoutModal: Usuario canceló');
                 this.hide();
                 resolve(false); // Usuario canceló
             });
         }
+        
         if (confirmBtn) {
-            confirmBtn.addEventListener('click', () => {
+            // Remover listeners previos clonando el botón
+            const newConfirmBtn = confirmBtn.cloneNode(true);
+            confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+            
+            newConfirmBtn.addEventListener('click', () => {
+                console.log('🔍 LogoutModal: Usuario confirmó');
                 this.hide();
                 resolve(true); // Usuario confirmó
             });
         }
+        
         // Cerrar al hacer clic fuera del modal
         if (modal) {
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) {
+                    console.log('🔍 LogoutModal: Click fuera del modal, cancelando');
                     this.hide();
                     resolve(false);
                 }
             });
         }
+        
         // Cerrar con Escape
-        document.addEventListener('keydown', (e) => {
+        const escapeHandler = (e) => {
             if (e.key === 'Escape') {
+                console.log('🔍 LogoutModal: Escape presionado, cancelando');
                 this.hide();
                 resolve(false);
+                document.removeEventListener('keydown', escapeHandler);
             }
-        });
+        };
+        document.addEventListener('keydown', escapeHandler);
     }
     setupSuccessModalEventListeners(resolve) {
         const closeBtn = document.getElementById('closeSuccessBtn');
