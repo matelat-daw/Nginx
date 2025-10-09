@@ -471,10 +471,13 @@ class PaymentModal {
     handleConfirmSuccess() {
         console.log('✅ [PAYMENT MODAL] Usuario confirmó el pedido exitoso');
         
-        // Cerrar modal
-        this.hide();
+        // 1. Limpiar el carrito
+        if (window.cartService) {
+            window.cartService.clear();
+            console.log('🛒 [PAYMENT MODAL] Carrito limpiado');
+        }
         
-        // Emitir evento de pago completado
+        // 2. Emitir evento de pago completado
         if (this.lastOrderResult) {
             const event = new CustomEvent('paymentCompleted', {
                 detail: this.lastOrderResult
@@ -482,14 +485,27 @@ class PaymentModal {
             window.dispatchEvent(event);
         }
         
-        // Mostrar notificación adicional si existe el sistema
+        // 3. Cerrar modal
+        this.hide();
+        
+        // 4. Mostrar notificación de éxito
         if (window.notificationModal) {
             window.notificationModal.show({
-                type: 'info',
-                title: '📦 Pedido en Proceso',
-                message: 'Puedes ver el estado de tu pedido en la sección "Mis Pedidos".'
+                type: 'success',
+                title: '✅ Pedido Confirmado',
+                message: 'Tu pedido ha sido procesado exitosamente. Revisa tu email para más detalles.'
             });
         }
+        
+        // 5. Redirigir a la página de inicio después de 2 segundos
+        setTimeout(() => {
+            console.log('🏠 [PAYMENT MODAL] Redirigiendo a inicio...');
+            if (window.router) {
+                window.router.navigate('/');
+            } else {
+                window.location.href = '/';
+            }
+        }, 2000);
     }
 
     getPaymentMethodLabel(method) {

@@ -693,8 +693,8 @@ CREATE TABLE orders (
 CREATE TABLE order_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT NOT NULL,
-    product_id INT NOT NULL,
-    seller_id INT NOT NULL,
+    product_id INT NULL,  -- ⚠️ PUEDE SER NULL
+    seller_id INT NULL,   -- ⚠️ PUEDE SER NULL
     product_name VARCHAR(255) NOT NULL,
     unit_price DECIMAL(10,2) NOT NULL,
     quantity INT NOT NULL DEFAULT 1,
@@ -703,14 +703,21 @@ CREATE TABLE order_items (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT,
-    FOREIGN KEY (seller_id) REFERENCES users(id) ON DELETE RESTRICT
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL,
+    FOREIGN KEY (seller_id) REFERENCES users(id) ON DELETE SET NULL
 );
 ```
 
 **⚠️ CLAVES FORÁNEAS:**
-- `product_id` y `seller_id` deben existir en sus tablas respectivas
-- Sistema implementa validación flexible con fallback a `userId` si no existe el producto
+- `product_id` y `seller_id` **pueden ser NULL**
+- Esto permite crear pedidos aunque los productos no existan en la tabla `products`
+- El nombre y precio del producto siempre se guardan en `order_items` (histórico)
+- Si se elimina el producto o usuario, el FK se establece en NULL automáticamente
+
+**⚠️ ESTADO ACTUAL:**
+- Permite crear pedidos con productos hardcoded
+- Sistema implementa validación flexible con fallback a NULL si no existe el producto
+- Búsqueda inteligente: por ID → por nombre → NULL
 
 ---
 
@@ -876,11 +883,14 @@ git commit -m "docs: Actualizar documentación técnica"
 - [x] Modal de pago (MODO DEMO)
 - [x] Creación de pedidos en BD
 - [x] Envío de emails de confirmación
+- [x] Limpieza de carrito post-compra
+- [x] Redirección automática tras compra exitosa
 - [x] Sistema de logging
 - [x] Middleware de seguridad
 - [x] CORS configurado
 - [x] Routing frontend
 - [x] Componentes modulares
+- [x] Validación flexible de claves foráneas (NULL permitido)
 
 ### 🚧 En Desarrollo
 

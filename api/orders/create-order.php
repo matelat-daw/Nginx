@@ -142,7 +142,7 @@ try {
         
         logMessage('INFO', "Pedido insertado en DB con ID: {$orderDbId}");
         
-        // 2. Insertar items del pedido (usando PDO con validación flexible)
+        // 2. Insertar items del pedido (usando PDO con NULL permitido en FK)
         $stmt = $db->prepare("
             INSERT INTO order_items (
                 order_id,
@@ -162,7 +162,7 @@ try {
             
             // Intentar obtener product_id
             $productId = $item['product_id'] ?? $item['id'] ?? null;
-            $sellerId = $userId; // Por defecto el comprador es el vendedor (para casos sin FK)
+            $sellerId = null; // Por defecto NULL hasta que encontremos uno válido
             
             // Si tenemos product_id, intentar validarlo y obtener el seller real
             if ($productId) {
@@ -174,7 +174,7 @@ try {
                     
                     if ($product) {
                         // Producto existe, usar su seller real
-                        $sellerId = $product['user_id'] ?? $userId;
+                        $sellerId = $product['user_id'];
                         logMessage('INFO', "Producto ID {$productId} encontrado, seller: {$sellerId}");
                     } else {
                         // Producto no existe, buscar por nombre
@@ -185,31 +185,42 @@ try {
                         
                         if ($foundProduct) {
                             $productId = $foundProduct['id'];
-                            $sellerId = $foundProduct['user_id'] ?? $userId;
+                            $sellerId = $foundProduct['user_id'];
                             logMessage('INFO', "Producto encontrado por nombre: ID {$productId}");
                         } else {
-                            // No se encontró el producto, usar el userId del comprador como fallback
-                            $productId = $userId;
-                            logMessage('WARNING', "Producto '{$item['name']}' no encontrado en BD, usando userId como product_id");
+                            // No se encontró el producto, usar NULL
+                            logMessage('WARNING', "Producto '{$item['name']}' no encontrado en BD, usando NULL");
+                            $productId = null;
+                            $sellerId = null;
                         }
                     }
                 } catch (Exception $e) {
                     logMessage('ERROR', "Error buscando producto: " . $e->getMessage());
-                    $productId = $userId;
+                    $productId = null;
+                    $sellerId = null;
                 }
-            } else {
-                // No hay product_id, usar userId como fallback
-                $productId = $userId;
-                logMessage('WARNING', "Sin product_id para '{$item['name']}', usando userId");
             }
             
-            // Validar que el seller_id existe en users (el userId siempre debería existir)
-            $checkSellerStmt = $db->prepare("SELECT id FROM users WHERE id = :id");
-            $checkSellerStmt->execute([':id' => $sellerId]);
-            if (!$checkSellerStmt->fetch()) {
-                // Si el seller no existe, usar el userId del comprador
-                logMessage('WARNING', "Seller ID {$sellerId} no existe, usando userId del comprador");
-                $sellerId = $userId;
+            // Si tenemos sellerId, validar que existe
+            if ($sellerId !== null) {
+                $checkSellerStmt = $db->prepare("SELECT id FROM users WHERE id = :id");
+                $checkSellerStmt->execute([':id' => $sellerId]);
+                if (!$checkSellerStmt->fetch()) {
+                    logMessage('WARNING', "Seller ID {$sellerId} no existe, usando NULL");
+                    $sellerId = null;
+                }
+            }
+            
+            // Si no tenemos seller, intentar usar el userId del comprador (si existe en users)
+            if ($sellerId === null) {
+                $checkUserStmt = $db->prepare("SELECT id FROM users WHERE id = :id");
+                $checkUserStmt->execute([':id' => $userId]);
+                if ($checkUserStmt->fetch()) {
+                    $sellerId = $userId;
+                    logMessage('INFO', "Usando userId del comprador como seller: {$userId}");
+                } else {
+                    logMessage('WARNING', "UserId {$userId} tampoco existe, seller será NULL");
+                }
             }
             
             $stmt->execute([
