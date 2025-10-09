@@ -1,0 +1,133 @@
+<!-- Payment Modal Component -->
+<div class="modal-overlay" id="paymentModal" style="display: none;">
+    <div class="modal-container payment-modal">
+        <div class="modal-header">
+            <h2>💳 Método de Pago</h2>
+            <button class="modal-close" id="closePaymentModal">✕</button>
+        </div>
+        
+        <div class="modal-body">
+            <!-- Resumen del pedido -->
+            <div class="payment-summary">
+                <h3>📦 Resumen del Pedido</h3>
+                <div class="summary-items" id="paymentSummaryItems">
+                    <!-- Se llenará dinámicamente -->
+                </div>
+                <div class="summary-totals">
+                    <div class="summary-row">
+                        <span>Subtotal:</span>
+                        <span id="paymentSubtotal">0.00€</span>
+                    </div>
+                    <div class="summary-row" id="paymentFeeRow" style="display: none;">
+                        <span>Gastos de gestión:</span>
+                        <span id="paymentFee">0.00€</span>
+                    </div>
+                    <div class="summary-row total">
+                        <strong>Total:</strong>
+                        <strong id="paymentTotal">0.00€</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Selector de método de pago -->
+            <div class="payment-methods">
+                <h3>🏦 Seleccione el método de pago</h3>
+                <div class="payment-method-list" id="paymentMethodList">
+                    <!-- Se llenará dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Formulario de tarjeta (Stripe) -->
+            <div class="payment-form card-form" id="cardPaymentForm" style="display: none;">
+                <h3>💳 Datos de la Tarjeta</h3>
+                <div id="card-element" class="card-element">
+                    <!-- Stripe Elements se montará aquí -->
+                </div>
+                <div id="card-errors" class="payment-errors"></div>
+            </div>
+
+            <!-- Instrucciones Bizum -->
+            <div class="payment-form bizum-form" id="bizumPaymentForm" style="display: none;">
+                <h3>📱 Pago con Bizum</h3>
+                <div class="bizum-instructions">
+                    <div class="bizum-step">
+                        <span class="step-number">1</span>
+                        <p>Abra la app de su banco</p>
+                    </div>
+                    <div class="bizum-step">
+                        <span class="step-number">2</span>
+                        <p>Seleccione "Enviar Bizum"</p>
+                    </div>
+                    <div class="bizum-step">
+                        <span class="step-number">3</span>
+                        <p>Envíe <strong id="bizumAmount">0.00€</strong> al número:</p>
+                        <div class="bizum-phone" id="bizumPhone">---</div>
+                    </div>
+                    <div class="bizum-step">
+                        <span class="step-number">4</span>
+                        <p>Use como concepto el código:</p>
+                        <div class="bizum-code" id="bizumCode">---</div>
+                    </div>
+                </div>
+                <p class="payment-note">⏱️ Una vez realizado el pago, puede tardar hasta 24h en confirmarse</p>
+            </div>
+
+            <!-- Instrucciones Transferencia -->
+            <div class="payment-form transfer-form" id="transferPaymentForm" style="display: none;">
+                <h3>🏦 Transferencia Bancaria</h3>
+                <div class="bank-details">
+                    <div class="bank-detail-item">
+                        <label>Beneficiario:</label>
+                        <div class="detail-value" id="transferBeneficiary">Economía Circular Canarias</div>
+                    </div>
+                    <div class="bank-detail-item">
+                        <label>IBAN:</label>
+                        <div class="detail-value" id="transferIBAN">ES00 0000 0000 0000 0000 0000</div>
+                        <button class="btn-copy" onclick="navigator.clipboard.writeText(document.getElementById('transferIBAN').textContent)">📋 Copiar</button>
+                    </div>
+                    <div class="bank-detail-item">
+                        <label>Concepto:</label>
+                        <div class="detail-value" id="transferReference">PEDIDO-XXXXX</div>
+                        <button class="btn-copy" onclick="navigator.clipboard.writeText(document.getElementById('transferReference').textContent)">📋 Copiar</button>
+                    </div>
+                    <div class="bank-detail-item">
+                        <label>Importe:</label>
+                        <div class="detail-value" id="transferAmount">0.00€</div>
+                    </div>
+                </div>
+                <p class="payment-note">⏱️ El pedido se procesará una vez confirmemos la transferencia (24-48h)</p>
+            </div>
+
+            <!-- Instrucciones PayPal -->
+            <div class="payment-form paypal-form" id="paypalPaymentForm" style="display: none;">
+                <h3>🅿️ Pago con PayPal</h3>
+                <p>Será redirigido a PayPal para completar el pago de forma segura.</p>
+                <div id="paypal-button-container"></div>
+            </div>
+
+            <!-- Instrucciones Contrarreembolso -->
+            <div class="payment-form cod-form" id="codPaymentForm" style="display: none;">
+                <h3>💵 Pago Contrarreembolso</h3>
+                <div class="cod-instructions">
+                    <p>📦 Recibirá su pedido en la dirección indicada</p>
+                    <p>💰 Pagará en efectivo al repartidor al momento de la entrega</p>
+                    <p class="cod-warning">⚠️ Gastos de gestión: <strong>3.00€</strong></p>
+                    <p class="cod-note">💡 Prepare el importe exacto para facilitar la entrega</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancelPaymentBtn">❌ Cancelar</button>
+            <button class="btn btn-primary" id="confirmPaymentBtn" disabled>
+                💳 Pagar <span id="confirmPaymentAmount">0.00€</span>
+            </button>
+        </div>
+
+        <!-- Indicador de carga -->
+        <div class="payment-loading" id="paymentLoading" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p>Procesando pago...</p>
+        </div>
+    </div>
+</div>

@@ -58,11 +58,16 @@ class CartModal {
 
     // Ocultar modal del carrito
     hide() {
+        console.log('👋 [CART MODAL] Ocultando modal del carrito...');
         const modal = document.getElementById('cartModal');
         if (modal) {
             modal.remove();
         }
         this.isVisible = false;
+        
+        // Solo restaurar overflow si no hay otros modales activos
+        // El payment modal manejará su propio overflow
+        console.log('👋 [CART MODAL] Modal ocultado');
     }
 
     // Renderizar modal
@@ -378,8 +383,148 @@ class CartModal {
     }
 
     // Proceder al checkout
-    proceedToCheckout() {
-        alert('Funcionalidad de checkout en desarrollo. ¡Pronto estará disponible!');
+    async proceedToCheckout() {
+        console.log('🚀 [CHECKOUT] Iniciando proceso de checkout...');
+        
+        try {
+            // Verificar que hay items en el carrito
+            const cartItems = this.cartService.getItems();
+            console.log('🛒 [CHECKOUT] Items en carrito:', cartItems.length);
+            
+            if (cartItems.length === 0) {
+                console.warn('⚠️ [CHECKOUT] Carrito vacío');
+                if (window.notificationModal) {
+                    window.notificationModal.showWarning(
+                        'El carrito está vacío. Agrega productos antes de proceder al pago.',
+                        'Navega a la sección de Productos para agregar artículos a tu carrito.'
+                    );
+                } else {
+                    alert('El carrito está vacío');
+                }
+                return;
+            }
+
+            // Verificar que el usuario está autenticado
+            console.log('🔐 [CHECKOUT] Verificando autenticación...');
+            console.log('🔐 [CHECKOUT] authService disponible:', !!window.authService);
+            console.log('🔐 [CHECKOUT] Usuario autenticado:', window.authService?.isAuthenticated());
+            
+            if (!window.authService || !window.authService.isAuthenticated()) {
+                console.log('❌ [CHECKOUT] Usuario NO autenticado, mostrando modal de login');
+                // Cerrar el carrito primero
+                this.hide();
+                
+                // Mostrar modal de confirmación para ir al login
+                this.showLoginRequiredModal();
+                return;
+            }
+
+            console.log('✅ [CHECKOUT] Usuario autenticado, continuando...');
+
+            // Obtener información del usuario
+            const currentUser = window.authService.getCurrentUser();
+            console.log('👤 [CHECKOUT] Datos del usuario:', currentUser);
+            
+            if (!currentUser) {
+                console.error('❌ [CHECKOUT] No se pudo obtener información del usuario');
+                if (window.notificationModal) {
+                    window.notificationModal.showError(
+                        'Error al obtener información del usuario. Por favor, recarga la página e inténtalo de nuevo.'
+                    );
+                } else {
+                    alert('Error al obtener información del usuario');
+                }
+                return;
+            }
+
+            // Preparar datos del pedido
+            const orderData = {
+                orderId: 'PEDIDO-' + Date.now(),
+                items: cartItems.map(item => ({
+                    product_id: item.id || item.product_id || null,  // ID del producto (puede ser null)
+                    id: item.id || item.product_id || null,  // Mantener retrocompatibilidad
+                    name: item.name || item.nombre || 'Producto sin nombre',
+                    quantity: item.quantity || 1,
+                    price: parseFloat(item.price || item.precio || 0)
+                })),
+                subtotal: this.cartService.getTotal(),
+                customerInfo: {
+                    name: `${currentUser.first_name || ''} ${currentUser.last_name || ''}`.trim(),
+                    email: currentUser.email,
+                    phone: currentUser.phone || '',
+                    userId: currentUser.id
+                }
+            };
+
+            console.log('📦 [CHECKOUT] Datos del pedido preparados:', orderData);
+            console.log('📦 [CHECKOUT] Items originales del carrito:', cartItems);
+
+            // Cerrar modal del carrito
+            console.log('👋 [CHECKOUT] Cerrando modal del carrito...');
+            this.hide();
+
+            // Abrir modal de pago
+            console.log('💳 [CHECKOUT] Verificando PaymentModal...');
+            console.log('💳 [CHECKOUT] PaymentModal disponible:', !!window.PaymentModal);
+            
+            if (window.PaymentModal) {
+                console.log('💳 [CHECKOUT] Creando instancia de PaymentModal...');
+                const paymentModal = new PaymentModal(orderData);
+                console.log('💳 [CHECKOUT] Instancia creada:', paymentModal);
+                
+                console.log('💳 [CHECKOUT] Mostrando modal de pago...');
+                await paymentModal.show();
+                console.log('✅ [CHECKOUT] Modal de pago mostrado correctamente');
+
+                // Escuchar evento de pago completado
+                window.addEventListener('paymentCompleted', (event) => {
+                    console.log('✅ Pago completado:', event.detail);
+                    
+                    // Vaciar carrito después del pago exitoso
+                    this.cartService.clearCart();
+                    
+                    // Mostrar notificación de éxito
+                    if (window.notificationModal) {
+                        window.notificationModal.show({
+                            type: 'success',
+                            title: '🎉 ¡Pedido Realizado!',
+                            message: '¡Pedido realizado con éxito! Recibirá un email de confirmación en breve.',
+                            details: `Número de pedido: ${orderData.orderId}`
+                        });
+                    } else {
+                        this.showSuccessNotification('¡Pedido realizado con éxito! Recibirá un email de confirmación.');
+                    }
+                    
+                    // Redirigir a página de pedidos
+                    setTimeout(() => {
+                        if (window.appRouter) {
+                            window.appRouter.navigate('/orders');
+                        }
+                    }, 3000);
+                }, { once: true }); // Solo escuchar una vez
+            } else {
+                console.error('❌ [CHECKOUT] PaymentModal NO está disponible');
+                if (window.notificationModal) {
+                    window.notificationModal.showError(
+                        'Sistema de pagos no disponible',
+                        'Por favor, recargue la página e inténtelo de nuevo.'
+                    );
+                } else {
+                    alert('Error: Sistema de pagos no disponible. Por favor, recargue la página.');
+                }
+            }
+        } catch (error) {
+            console.error('💥 [CHECKOUT] Error en proceedToCheckout:', error);
+            console.error('💥 [CHECKOUT] Stack trace:', error.stack);
+            if (window.notificationModal) {
+                window.notificationModal.showError(
+                    'Error al procesar el pedido',
+                    'Ha ocurrido un error inesperado. Por favor, inténtelo de nuevo.'
+                );
+            } else {
+                alert('Error al procesar el pedido. Por favor, inténtelo de nuevo.');
+            }
+        }
     }
 
     // Confirmar eliminación de item con modal personalizado
@@ -515,6 +660,11 @@ class CartModal {
         this.showNotification(message, 'error');
     }
 
+    // Mostrar notificación de éxito
+    showSuccessNotification(message) {
+        this.showNotification(message, 'success');
+    }
+
     // Mostrar notificación genérica (éxito, error, info)
     showNotification(message, type = 'info') {
         const template = this.getTemplateContent('notificationTemplate');
@@ -574,6 +724,232 @@ class CartModal {
         if (closeBtn) {
             closeBtn.addEventListener('click', closeNotification);
         }
+    }
+
+    // Mostrar modal de confirmación para ir al login
+    showLoginRequiredModal() {
+        // Remover modal existente si existe
+        const existingModal = document.querySelector('.login-required-modal');
+        if (existingModal) {
+            document.body.removeChild(existingModal);
+        }
+
+        // Crear modal personalizado
+        const modal = document.createElement('div');
+        modal.className = 'login-required-modal';
+        modal.innerHTML = `
+            <div class="login-required-content">
+                <div class="login-required-header">
+                    <span class="login-required-icon">🔐</span>
+                    <h3>Autenticación Requerida</h3>
+                </div>
+                <div class="login-required-body">
+                    <p class="login-required-message">Para proceder con el pago, necesitas iniciar sesión en tu cuenta.</p>
+                    <p class="login-required-info">💡 Tus productos quedarán guardados en el carrito</p>
+                </div>
+                <div class="login-required-actions">
+                    <button class="btn btn-secondary login-required-cancel">Cancelar</button>
+                    <button class="btn btn-success login-required-register">✨ Registrarte</button>
+                    <button class="btn btn-primary login-required-ok">🔐 Iniciar Sesión</button>
+                </div>
+            </div>
+        `;
+
+        // Agregar estilos si no existen
+        if (!document.getElementById('loginRequiredModalStyles')) {
+            const styles = document.createElement('style');
+            styles.id = 'loginRequiredModalStyles';
+            styles.textContent = `
+                .login-required-modal {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, 0.65);
+                    backdrop-filter: blur(2px);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10000;
+                    animation: modalFadeIn 0.2s ease-out;
+                }
+                .login-required-content {
+                    background: #ffffff;
+                    border-radius: 12px;
+                    max-width: 500px;
+                    width: 90%;
+                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                    animation: modalSlideIn 0.3s ease-out;
+                }
+                .login-required-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    padding: 24px 24px 16px;
+                    border-bottom: 2px solid #e2e8f0;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    border-radius: 12px 12px 0 0;
+                }
+                .login-required-icon {
+                    font-size: 32px;
+                    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+                }
+                .login-required-header h3 {
+                    margin: 0;
+                    font-size: 22px;
+                    color: #ffffff;
+                    font-weight: 700;
+                    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                }
+                .login-required-body {
+                    padding: 24px;
+                    background: #f8fafc;
+                }
+                .login-required-message {
+                    margin: 0 0 16px 0;
+                    color: #1e293b;
+                    line-height: 1.6;
+                    font-size: 15px;
+                    font-weight: 500;
+                }
+                .login-required-body p {
+                    margin: 0 0 12px 0;
+                    color: #475569;
+                    line-height: 1.5;
+                }
+                .login-required-info {
+                    background: linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%);
+                    padding: 12px 16px;
+                    border-radius: 8px;
+                    border-left: 4px solid #3b82f6;
+                    color: #1e40af;
+                    font-size: 14px;
+                    font-weight: 500;
+                    margin: 0;
+                }
+                .login-required-actions {
+                    display: flex;
+                    gap: 10px;
+                    padding: 20px 24px;
+                    justify-content: flex-end;
+                    background: #ffffff;
+                    border-radius: 0 0 12px 12px;
+                }
+                .login-required-actions .btn {
+                    padding: 12px 24px;
+                    border: none;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+                .login-required-cancel {
+                    background: #e2e8f0;
+                    color: #475569;
+                }
+                .login-required-cancel:hover {
+                    background: #cbd5e1;
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+                }
+                .login-required-register {
+                    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                    color: #ffffff;
+                }
+                .login-required-register:hover {
+                    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+                }
+                .login-required-ok {
+                    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                    color: #ffffff;
+                }
+                .login-required-ok:hover {
+                    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+                }
+                @keyframes modalFadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes modalSlideIn {
+                    from {
+                        opacity: 0;
+                        transform: translateY(-20px) scale(0.95);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0) scale(1);
+                    }
+                }
+                @keyframes modalFadeOut {
+                    from { opacity: 1; }
+                    to { opacity: 0; }
+                }
+            `;
+            document.head.appendChild(styles);
+        }
+
+        document.body.appendChild(modal);
+
+        // Event listeners
+        const cancelBtn = modal.querySelector('.login-required-cancel');
+        const registerBtn = modal.querySelector('.login-required-register');
+        const okBtn = modal.querySelector('.login-required-ok');
+
+        const closeModal = () => {
+            modal.style.animation = 'modalFadeOut 0.2s ease-in forwards';
+            setTimeout(() => {
+                if (document.body.contains(modal)) {
+                    document.body.removeChild(modal);
+                }
+            }, 200);
+        };
+
+        cancelBtn.addEventListener('click', closeModal);
+
+        registerBtn.addEventListener('click', () => {
+            console.log('🎯 Usuario va a registrarse - Carrito se mantendrá');
+            closeModal();
+            setTimeout(() => {
+                if (window.appRouter) {
+                    // El carrito ya está guardado en localStorage por CartService
+                    window.appRouter.navigate('/register');
+                }
+            }, 250);
+        });
+
+        okBtn.addEventListener('click', () => {
+            console.log('🔐 Usuario va a iniciar sesión - Carrito se mantendrá');
+            closeModal();
+            setTimeout(() => {
+                if (window.appRouter) {
+                    // El carrito ya está guardado en localStorage por CartService
+                    window.appRouter.navigate('/login');
+                }
+            }, 250);
+        });
+
+        // Cerrar con click fuera del modal
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Cerrar con tecla Escape
+        const escapeHandler = (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+                document.removeEventListener('keydown', escapeHandler);
+            }
+        };
+        document.addEventListener('keydown', escapeHandler);
     }
 }
 

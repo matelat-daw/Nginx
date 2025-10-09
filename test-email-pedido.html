@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Email de Confirmación de Pedido</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f3f4f6;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #667eea;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .success {
+            background: #d1fae5;
+            border: 1px solid #10b981;
+            color: #065f46;
+        }
+        .error {
+            background: #fee2e2;
+            border: 1px solid #ef4444;
+            color: #991b1b;
+        }
+        pre {
+            background: #f3f4f6;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+        }
+        label {
+            font-weight: bold;
+            color: #374151;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test - Email de Confirmación de Pedido</h1>
+        <p>Este script prueba el envío de emails de confirmación de pedido sin necesidad de completar todo el flujo de compra.</p>
+        
+        <form id="testForm">
+            <label>Email de destino:</label>
+            <input type="email" id="testEmail" required placeholder="tu-email@example.com">
+            
+            <label>Nombre del cliente:</label>
+            <input type="text" id="customerName" required placeholder="Juan Pérez">
+            
+            <label>ID de Usuario (debe existir en DB):</label>
+            <input type="number" id="userId" required placeholder="1">
+            
+            <button type="submit">📧 Enviar Email de Prueba</button>
+        </form>
+        
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('testForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'none';
+            
+            const testEmail = document.getElementById('testEmail').value;
+            const customerName = document.getElementById('customerName').value;
+            const userId = document.getElementById('userId').value;
+            
+            // Datos de prueba del pedido
+            const testOrderData = {
+                orderId: 'TEST-' + Date.now(),
+                items: [
+                    {
+                        id: 1,
+                        name: 'Queso Majorero (Producto de Prueba)',
+                        quantity: 2,
+                        price: 15.99
+                    },
+                    {
+                        id: 2,
+                        name: 'Miel de Palma (Producto de Prueba)',
+                        quantity: 1,
+                        price: 25.00
+                    }
+                ],
+                subtotal: 56.98,
+                customerInfo: {
+                    name: customerName,
+                    email: testEmail,
+                    phone: '600123456',
+                    userId: parseInt(userId)
+                },
+                paymentMethod: 'card',
+                paymentResult: {
+                    success: true,
+                    transactionId: 'TEST-CARD-' + Date.now(),
+                    message: 'Pago de prueba procesado correctamente'
+                }
+            };
+            
+            console.log('📤 Enviando datos de prueba:', testOrderData);
+            
+            try {
+                const response = await fetch('/api/orders/create-order.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(testOrderData)
+                });
+                
+                const result = await response.json();
+                console.log('📥 Respuesta recibida:', result);
+                
+                resultDiv.style.display = 'block';
+                
+                if (result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <h3>✅ ¡Pedido Creado Exitosamente!</h3>
+                        <p><strong>Número de Pedido:</strong> ${result.orderId}</p>
+                        <p><strong>ID en Base de Datos:</strong> ${result.orderDbId}</p>
+                        <p><strong>Email Enviado:</strong> ${result.emailSent ? '✅ Sí' : '❌ No'}</p>
+                        ${result.emailInfo ? `<p><strong>Info del Email:</strong> ${JSON.stringify(result.emailInfo)}</p>` : ''}
+                        <p><strong>Mensaje:</strong> ${result.message}</p>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `
+                        <h3>❌ Error al Crear Pedido</h3>
+                        <p><strong>Mensaje:</strong> ${result.message}</p>
+                        ${result.error ? `<p><strong>Error:</strong> ${result.error}</p>` : ''}
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                console.error('❌ Error:', error);
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <h3>❌ Error de Red</h3>
+                    <p>${error.message}</p>
+                    <p>Verifica que estés logueado y que el endpoint esté accesible.</p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

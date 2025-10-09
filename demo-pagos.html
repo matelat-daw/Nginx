@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo - Sistema de Pagos</title>
+    <link rel="stylesheet" href="app/assets/css/styles.css">
+    <link rel="stylesheet" href="app/components/modals/payment-modal.component.css">
+</head>
+<body>
+    <div style="max-width: 800px; margin: 50px auto; padding: 20px;">
+        <h1>🧪 Demo - Sistema de Pagos</h1>
+        
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
+            <h2>Información del Pedido</h2>
+            <ul>
+                <li>3x Queso Majorero - 15.90€</li>
+                <li>2x Plátano de Canarias - 3.50€</li>
+                <li>1x Miel de Palma - 25.00€</li>
+            </ul>
+            <p><strong>Subtotal: 72.20€</strong></p>
+        </div>
+
+        <button onclick="showPaymentModal()" class="btn btn-primary" style="font-size: 1.2em; padding: 15px 30px;">
+            💳 Proceder al Pago
+        </button>
+
+        <div style="margin-top: 40px; background: #e3f2fd; padding: 20px; border-radius: 10px;">
+            <h3>📋 Métodos de Pago Disponibles:</h3>
+            <ul>
+                <li><strong>💳 Tarjeta de Crédito/Débito</strong> - Visa, Mastercard, American Express (Comisión: 1.4% + 0.25€)</li>
+                <li><strong>📱 Bizum</strong> - Pago instantáneo español (Sin comisión)</li>
+                <li><strong>🏦 Transferencia Bancaria</strong> - SEPA (Sin comisión, proceso en 24-48h)</li>
+                <li><strong>🅿️ PayPal</strong> - Pago con cuenta PayPal (Comisión: 3.4% + 0.35€)</li>
+                <li><strong>💵 Contrarreembolso</strong> - Pago en efectivo al recibir (Gastos: 3.00€)</li>
+            </ul>
+        </div>
+
+        <div style="margin-top: 20px; background: #fff3cd; padding: 20px; border-radius: 10px;">
+            <h3>⚠️ Nota de Desarrollo:</h3>
+            <p>Esta es una demo del sistema de pagos. Para usar en producción necesitas:</p>
+            <ol>
+                <li>Cuenta de Stripe y clave API (para tarjetas)</li>
+                <li>Integración con tu banco para Bizum y transferencias</li>
+                <li>Cuenta de PayPal Business y credenciales API</li>
+                <li>Backend PHP para procesar los pagos de forma segura</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Scripts necesarios -->
+    <script src="app/services/payment.service.js"></script>
+    <script src="app/components/modals/payment-modal.component.js"></script>
+
+    <script>
+        function showPaymentModal() {
+            const orderData = {
+                orderId: 'PEDIDO-' + Date.now(),
+                items: [
+                    { name: 'Queso Majorero', quantity: 3, price: 15.90 },
+                    { name: 'Plátano de Canarias', quantity: 2, price: 3.50 },
+                    { name: 'Miel de Palma', quantity: 1, price: 25.00 }
+                ],
+                subtotal: 72.20,
+                customerInfo: {
+                    name: 'Usuario Demo',
+                    email: 'demo@example.com',
+                    phone: '+34 123 456 789'
+                }
+            };
+
+            const modal = new PaymentModal(orderData);
+            modal.show();
+        }
+
+        // Escuchar evento de pago completado
+        window.addEventListener('paymentCompleted', (event) => {
+            console.log('✅ Pago completado:', event.detail);
+            alert('✅ ¡Pago procesado correctamente!\n\nMétodo: ' + event.detail.method);
+        });
+    </script>
+</body>
+</html>

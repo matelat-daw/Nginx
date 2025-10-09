@@ -5,6 +5,13 @@
  */
 
 // ====================================
+// INICIAR SESIÓN
+// ====================================
+if (session_status() === PHP_SESSION_NONE) {
+    @session_start(); // @ para suprimir warnings si hay output previo
+}
+
+// ====================================
 // AUTOLOADER PSR-4
 // ====================================
 spl_autoload_register(function ($class) {
@@ -27,8 +34,17 @@ spl_autoload_register(function ($class) {
 // ====================================
 // COMPRESIÓN GZIP PARA RESPUESTAS
 // ====================================
-if (!ob_start('ob_gzhandler')) {
-    ob_start();
+// Solo activar output buffering si NO estamos en un endpoint de API JSON
+$isJsonEndpoint = (
+    strpos($_SERVER['REQUEST_URI'] ?? '', '/api/orders/') !== false ||
+    strpos($_SERVER['REQUEST_URI'] ?? '', '/api/products/') !== false ||
+    (isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false)
+);
+
+if (!$isJsonEndpoint) {
+    if (!ob_start('ob_gzhandler')) {
+        ob_start();
+    }
 }
 
 // ====================================
@@ -449,6 +465,148 @@ function sendWelcomeEmail($userEmail, $userName, $userId, $confirmationToken) {
             'confirmationUrl' => $confirmationUrl,
             'message' => 'Email no enviado - Desarrollo local'
         ];
+    }
+    
+    return $emailSent;
+}
+
+// Enviar email de confirmación de pedido
+function sendOrderConfirmationEmail($orderData) {
+    $userEmail = $orderData['customerInfo']['email'];
+    $userName = $orderData['customerInfo']['name'];
+    $orderId = $orderData['orderId'];
+    $items = $orderData['items'];
+    $subtotal = $orderData['subtotal'];
+    $paymentMethod = $orderData['paymentMethod'] ?? 'No especificado';
+    
+    // Traducir métodos de pago
+    $paymentMethodLabels = [
+        'card' => 'Tarjeta de Crédito/Débito 💳',
+        'bizum' => 'Bizum 📱',
+        'transfer' => 'Transferencia Bancaria 🏦',
+        'paypal' => 'PayPal 🅿️',
+        'cash_on_delivery' => 'Contrarreembolso 💵'
+    ];
+    
+    $paymentMethodLabel = $paymentMethodLabels[$paymentMethod] ?? $paymentMethod;
+    
+    $headers = [
+        'From: ' . EMAIL_FROM_NAME . ' <' . EMAIL_FROM . '>',
+        'MIME-Version: 1.0',
+        'Content-Type: text/html; charset=UTF-8'
+    ];
+    
+    $subject = "🎉 Confirmación de Pedido #$orderId - Canarias Circular";
+    
+    // Generar lista de productos
+    $itemsHtml = '';
+    foreach ($items as $item) {
+        $itemTotal = $item['price'] * $item['quantity'];
+        $itemsHtml .= "<tr>
+            <td style='padding: 12px; border-bottom: 1px solid #e5e7eb;'>{$item['quantity']}x {$item['name']}</td>
+            <td style='padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: right;'>" . number_format($item['price'], 2) . "€</td>
+            <td style='padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: bold;'>" . number_format($itemTotal, 2) . "€</td>
+        </tr>";
+    }
+    
+    $htmlContent = "<!DOCTYPE html><html><head><meta charset='UTF-8'></head>
+    <body style='font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f3f4f6; padding: 20px;'>
+        <div style='max-width: 600px; margin: 0 auto; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);'>
+            <!-- Header -->
+            <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px 20px; text-align: center;'>
+                <h1 style='margin: 0; font-size: 28px;'>🏝️ Canarias Circular</h1>
+                <p style='margin: 5px 0 0 0; opacity: 0.9;'>Economía Circular en las Islas Canarias</p>
+            </div>
+            
+            <!-- Contenido Principal -->
+            <div style='padding: 30px 20px;'>
+                <h2 style='color: #667eea; margin-top: 0;'>¡Gracias por tu pedido, $userName! 🎉</h2>
+                <p style='font-size: 16px; color: #4b5563;'>Tu pedido ha sido recibido y está siendo procesado.</p>
+                
+                <!-- Información del Pedido -->
+                <div style='background: #f9fafb; border-left: 4px solid #667eea; padding: 15px; margin: 20px 0; border-radius: 4px;'>
+                    <p style='margin: 0 0 10px 0;'><strong>📦 Número de Pedido:</strong> $orderId</p>
+                    <p style='margin: 0 0 10px 0;'><strong>💳 Método de Pago:</strong> $paymentMethodLabel</p>
+                    <p style='margin: 0;'><strong>📅 Fecha:</strong> " . date('d/m/Y H:i') . "</p>
+                </div>
+                
+                <!-- Detalles del Pedido -->
+                <h3 style='color: #374151; margin-top: 30px;'>📋 Detalles del Pedido</h3>
+                <table style='width: 100%; border-collapse: collapse; margin: 15px 0;'>
+                    <thead>
+                        <tr style='background: #f3f4f6;'>
+                            <th style='padding: 12px; text-align: left; border-bottom: 2px solid #d1d5db;'>Producto</th>
+                            <th style='padding: 12px; text-align: right; border-bottom: 2px solid #d1d5db;'>Precio</th>
+                            <th style='padding: 12px; text-align: right; border-bottom: 2px solid #d1d5db;'>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        $itemsHtml
+                        <tr style='background: #f9fafb;'>
+                            <td colspan='2' style='padding: 15px; font-weight: bold; font-size: 18px; border-top: 2px solid #667eea;'>Total:</td>
+                            <td style='padding: 15px; text-align: right; font-weight: bold; font-size: 18px; color: #667eea; border-top: 2px solid #667eea;'>" . number_format($subtotal, 2) . "€</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <!-- Próximos Pasos -->
+                <div style='background: linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%); border-left: 4px solid #3b82f6; padding: 15px; margin: 20px 0; border-radius: 4px;'>
+                    <h4 style='margin: 0 0 10px 0; color: #1e40af;'>📬 Próximos Pasos</h4>
+                    <ul style='margin: 0; padding-left: 20px; color: #1e40af;'>
+                        <li>Recibirás un email cuando tu pedido sea enviado</li>
+                        <li>Puedes seguir el estado de tu pedido en tu cuenta</li>
+                        <li>Si tienes dudas, contáctanos</li>
+                    </ul>
+                </div>
+                
+                <!-- Botón Ver Pedido -->
+                <div style='text-align: center; margin: 30px 0;'>
+                    <a href='" . SITE_URL . "/orders' style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block;'>
+                        📦 Ver Mi Pedido
+                    </a>
+                </div>
+                
+                <!-- Footer Info -->
+                <div style='margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;'>
+                    <p style='font-size: 14px; color: #6b7280; text-align: center; margin: 5px 0;'>
+                        💚 Gracias por apoyar la economía circular en Canarias
+                    </p>
+                    <p style='font-size: 12px; color: #9ca3af; text-align: center; margin: 5px 0;'>
+                        Este es un email automático, por favor no respondas a este mensaje.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body></html>";
+    
+    // Intentar enviar email
+    $emailSent = false;
+    
+    try {
+        if (function_exists('mail')) {
+            $emailSent = @mail($userEmail, $subject, $htmlContent, implode("\r\n", $headers));
+            
+            if ($emailSent) {
+                logMessage('INFO', "Email de confirmación de pedido enviado exitosamente a {$userEmail} - Pedido: {$orderId}");
+            } else {
+                logMessage('WARNING', "La función mail() retornó false para {$userEmail} - Pedido: {$orderId}");
+            }
+        } else {
+            logMessage('ERROR', "La función mail() no está disponible");
+        }
+    } catch (Exception $e) {
+        logMessage('ERROR', "Excepción al enviar email de confirmación de pedido: " . $e->getMessage());
+    }
+    
+    // Si es desarrollo local y el email no se pudo enviar, guardar en logs
+    if (!$emailSent && (strpos(SITE_URL, 'localhost') !== false || strpos(SITE_URL, '127.0.0.1') !== false)) {
+        $logMessage = "DESARROLLO - Email de pedido no enviado para {$userEmail}. Pedido: {$orderId}";
+        logMessage('INFO', $logMessage);
+        
+        // Guardar en archivo temporal
+        $tempFile = __DIR__ . '/../temp_order_emails.txt';
+        $timestamp = date('Y-m-d H:i:s');
+        file_put_contents($tempFile, "[$timestamp] Usuario: $userEmail | Pedido: $orderId | Total: {$subtotal}€\n", FILE_APPEND | LOCK_EX);
     }
     
     return $emailSent;
